@@ -1,0 +1,71 @@
+body {
+  padding-top: 100px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+/* Spacing */
+
+.spacer{
+	margin-top: 60px;
+	margin-bottom: 60px;
+}
+
+.spacer-top{
+	margin-top: 20px;
+	margin-bottom: 60px;
+}
+
+.spacer-bottom{
+	margin-top: 60px;
+	margin-bottom: 20px;
+}
+
+.med-spacer{
+	margin-top: 40px;
+	margin-bottom: 40px;
+}
+
+.med-spacer-top{
+	margin-top: 15px;
+	margin-bottom: 40px;
+}
+
+.med-spacer-bottom{
+	margin-top: 40px;
+	margin-bottom: 15px;
+}
+
+.small-spacer{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.small-spacer-top{
+	margin-top: 5px;
+	margin-bottom: 20px;
+}
+
+.small-spacer-bottom{
+	margin-top: 20px;
+	margin-bottom: 5px;
+}
+
+.tiny-spacer{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* Images */
+img.centered {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+img.scale-to-fit{
+	width: 100%;
+}
