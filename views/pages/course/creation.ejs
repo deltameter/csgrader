@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <% include ../../partials/head %>
+	</head>
+	<body>
+		<% include ../../partials/header %>
+			<div class="container">
+				<% if (typeof message != 'undefined'){ %>
+					<%= message %>
+				<% } %>
+				<form class="form-horizontal" action="/course/new" method="POST">
+					<fieldset>
+						<div class="form-group">
+							<label for="courseName" class="col-md-3 control-label">Course name</label>
+							<div class="col-md-6">
+								<input type="text" name="courseName" placeholder="i.e. AP Computer Science (Luo)" class="form-control" autocomplete="off">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="coursePassword" class="col-md-3 control-label">Registration Key</label>
+							<div class="col-md-6">
+								<input type="text" name="coursePassword" placeholder="i.e. 123456" class="form-control" autocomplete="off">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+								<button type="submit" class="btn btn-block btn-primary">Submit</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		<% include ../../partials/footer %>
+	</body>
+</html>

@@ -28,6 +28,9 @@ module.exports = function(autoIncrement){
 		//Courses the user is taking or teaching
 		courses: [Schema.Types.ObjectId],
 
+		//courses the user has taken or has taught
+		archivedCourses: [Schema.Types.ObjectId]
+		
 		//Teacher specific
 
 		//Student specific

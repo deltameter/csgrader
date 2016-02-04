@@ -11,6 +11,7 @@ autoIncrement.initialize(connection);
 
 require(models_path + 'question')();
 require(models_path + 'exercise')();
+require(models_path + 'submission')();
 require(models_path + 'assignment')();
 require(models_path + 'classroom')();
 require(models_path + 'course')(autoIncrement);
