@@ -3,7 +3,8 @@
 var CSGrader = require(__base + 'routes/controllers/csgrader'),
 	users = require(__base + 'routes/controllers/users'),
 	courses = require(__base + 'routes/controllers/courses'),
-	assignments = require(__base + 'routes/controllers/assignments');
+	assignments = require(__base + 'routes/controllers/assignments'),
+	classrooms = require(__base + 'routes/controllers/classrooms');
 
 var auth = require (__base + 'routes/middlewares/authorization'),
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
@@ -15,6 +16,7 @@ module.exports = function(app, passport){
 	//******************************
 	//****** CS GRADER ROUTES ******
 	//******************************
+	
 	app.get('/', CSGrader.showIndex);
 
 	//******************************
@@ -25,6 +27,10 @@ module.exports = function(app, passport){
 		passport.authenticate('local', { 
 			failureRedirect: '/', 
 		}), users.signedIn);
+
+	app.get('/user/isAuthenticated', function(req, res){
+		return res.send(res.locals.bIsAuthenticated);
+	});
 
 	app.get('/join', users.showJoinPage);
 	app.post('/join', users.create);
@@ -47,7 +53,13 @@ module.exports = function(app, passport){
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
 
-	app.get('/course/:courseID/:assignmentID', courseAuth, assignments.showAssignment);
+	app.get('/course/:courseID/assignment/:assignmentID', courseAuth, assignments.showAssignment);
+
+	//******************************
+	//***** CLASSROOM ROUTES *******
+	//******************************
+
+	app.get('/course/:courseID/classroom/new', teacherCourseAuth, classrooms.showClassroomCreation);
 
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {

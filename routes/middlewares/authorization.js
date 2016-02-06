@@ -25,3 +25,14 @@ module.exports.requiresEnrollment = function(req, res, next){
 		return next();
 	});
 }
+
+module.exports.requiresAssignmentExistance = function(req, res, next){
+	var aIndex = parseInt(req.params.assignmentID, 10);
+
+	if (typeof res.locals.course.assignments[aIndex] == 'undefined'
+		|| (!res.locals.course.assignments[aIndex].bIsOpen && !req.user.bIsTeacher)){
+		return res.render('pages/general/unauthorized.ejs');
+	}
+	res.locals.aIndex = aIndex;
+	return next();
+};

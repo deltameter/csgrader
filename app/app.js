@@ -23,7 +23,7 @@ module.exports = function(app, passport){
 	app.set('views', path.join(__base, '/views'));
 	app.set('view engine', 'ejs');
 	app.use(bodyParser.json());
-	app.use(bodyParser.urlencoded({ extended: false }));
+	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(express.static(path.join(__base, '/public')));
 	app.use(sessionMiddleware);
 	app.use(passport.initialize());

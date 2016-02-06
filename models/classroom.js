@@ -5,7 +5,7 @@ module.exports = function(autoIncrement){
 		Schema = mongoose.Schema;
 
 	var classroomSchema = new Schema({
-		classroomName: { type: String, required: true },
+		name: { type: String, required: true },
 
 		//use this to make API calls to teachers' online gradebooks
 		gradebookProvider: String,
@@ -16,9 +16,9 @@ module.exports = function(autoIncrement){
 		students: [Schema.Types.ObjectId],
 	});
 
-	classroomSchema.path('classroomName').validate(function(classroomName){
-		return validator.isAlpha(classroomName) && classroomName.length > 3 && classroomName.length <= 50;
-	}, 'The course name must be between 3 and 50 characters long and contain only alphanumeric characters.');
+	classroomSchema.path('name').validate(function(name){
+		return validator.isAlpha(name) && name.length > 3 && name.length <= 50;
+	}, 'The classroom name must be between 3 and 50 characters long and contain only alphanumeric characters.');
 
 	mongoose.model('Classroom', classroomSchema);
 }

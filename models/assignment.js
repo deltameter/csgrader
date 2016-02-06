@@ -7,8 +7,8 @@ module.exports = function(){
 	var assignmentSchema = new Schema({
 		//whether the assignment is up and viewable
 		bIsOpen: { type: Boolean, default: false },
-		assignmentName: String,
-		assignmentContent: String,
+		name: { type: String, required: true},
+		description: String,
 		
 		pointsWorth: Number,
 		questions: [mongoose.model('Question').schema],

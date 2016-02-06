@@ -13,7 +13,11 @@ module.exports = function(autoIncrement){
 		pointsWorth: { type: Number, required: true },
 
 		//If these words are included in the answers, points are awarded.
-		answers: [String]
+		answers: [String],
+
+		//if the teacher wants to give points to user as long as they use at LEAST one of the answer words
+		//vs. reward 1 point for each word used
+		bCheckForOneAnswer: Boolean
 	});
 
 	mongoose.model('Question', questionSchema);
