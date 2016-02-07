@@ -1,10 +1,28 @@
 (function(){
-	angular.module('grader.user').controller('LoginController', ['$http', function($http){
-		var user = this;
-		user.bLoggedIn = null;
+	angular.module('user').factory('userFactory', function(){
+		var service = {};
 
-		$http.get('/user/isAuthenticated').then(function(res){
-			user.bLoggedIn = res.data;
-		});
+		service.createUser = function(){
+			var user = { username: '', password: '' };
+			return user;
+		}
+
+		return service;
+	});
+
+	angular.module('user').controller('LoginController', ['$http', function($http, userFactory){
+		this.user = userFactory.createUser();
+		var user = this.user;
+		
+		this.login = function(){
+			console.log(user);
+			$http.post('/auth/local', user).then(
+			function(res){
+				console.log(res);
+			}
+			, function(res){
+				console.log(res);
+			});
+		}
 	}]);
 })();

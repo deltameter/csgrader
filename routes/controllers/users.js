@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.signedIn = function(req, res){
-	res.redirect(req.session.returnTo || '/');
+	return res.json(User.safeSend(req.user));
+	//return res.redirect(req.session.returnTo || '/');
 }
 
 module.exports.showProfile = function(req, res){

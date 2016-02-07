@@ -1,3 +1,3 @@
 (function(){
-	var app = angular.module('grader.general', []);
+	var app = angular.module('general', []);
 })();

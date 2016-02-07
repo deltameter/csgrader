@@ -1,5 +1,5 @@
 (function(){
-	angular.module('grader.general').controller('NavController', ['$http', function($http){
+	angular.module('general').controller('NavController', ['$http', function($http){
 		var nav = this;
 		nav.bLoggedIn = null;
 

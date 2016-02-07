@@ -6,8 +6,7 @@
 
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/journal/bootstrap.min.css" />
 		<link rel="stylesheet" href="/stylesheets/style.css" />
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
-		
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
 	</head>
 	<body>
 		<!-- Fixed navbar -->
@@ -38,17 +37,18 @@
 
 		<div class="container">
 			<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-				<form name="loginForm" class="form-horizontal">
+				<form name="loginForm" class="form-horizontal" ng-controller="LoginController as loginCtrl"
+				 	ng-submit="loginForm.$valid && loginCtrl.login()" novalidate>
 					<fieldset>
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-1">
-								<input type="email" name="username" placeholder="Email" class="form-control" autocomplete="off">
+								<input type="email" ng-model="loginCtrl.user.username" placeholder="Email" class="form-control" autocomplete="off">
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-1">
-								<input type="password" name="password" placeholder="Password" class="form-control" autocomplete="off">
+								<input type="password" ng-model="loginCtrl.user.password" placeholder="Password" class="form-control" autocomplete="off">
 							</div>
 						</div>
 
@@ -67,6 +67,6 @@
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 		<!-- Concatted Angular -->
-		<script src="/javascripts/main.js"></script>
+		<script src="/main.js"></script>
 	</body>
 </html>

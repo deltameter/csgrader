@@ -98,6 +98,14 @@ module.exports = function(autoIncrement){
 	}
 
 	userSchema.statics = {
+		safeSend: function(user){
+			var safeUser = {
+				firstName: user.firstName,
+				lastName: user.lastName,
+				courses: user.courses
+			}
+			return safeUser;
+		},
 		validPassword: function(password){
 			return password.length >= 8 && password.length <= 50;
 		}
