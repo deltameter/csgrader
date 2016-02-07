@@ -5,7 +5,11 @@ module.exports = function(autoIncrement){
 		validator = require('validator'),
 		Schema = mongoose.Schema;
 
+	var courseLevel = 'highschool college'.split(' ');
+
 	var courseSchema = new Schema({
+		//high school vs higher
+		courseLevel: { type: String, enum: courseLevel, required: true},
 		//Absolute owner of course. Holds Imperium. 
 		owner: Schema.Types.ObjectId,
 		courseName: { type: String, required: true },

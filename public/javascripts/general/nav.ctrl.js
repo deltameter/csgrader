@@ -1,9 +1,10 @@
 (function(){
-	angular.module('grader.general').controller('NavController', ['$scope', '$http', function($scope, $http){
-		$scope.bLoggedIn = null;
+	angular.module('grader.general').controller('NavController', ['$http', function($http){
+		var nav = this;
+		nav.bLoggedIn = null;
 
 		$http.get('/user/isAuthenticated').then(function(res){
-			$scope.bLoggedIn = res.data;
+			nav.bLoggedIn = res.data;
 		});
 	}]);
 })();

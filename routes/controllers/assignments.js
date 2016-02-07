@@ -43,8 +43,9 @@ module.exports.addQuestion = function(req, res){
 	//Parse the answers
 	if (req.body.questionType == 'open'){
 		answers = req.body.answers.split(',');
-		if (answers.length >= 10) return helper.sendError(res, 401, 'Must have less than 10 possible answers');
-
+		if (answers.length >= Question.properties.maxAnswers){
+			return helper.sendError(res, 401, 'Must have less than 10 possible answers');
+		}
 		//Remove spaces to check for string comparisons easier
 		for (var i = 0; i < answers.length; i++){
 			answers[i] = answers[i].trim();

@@ -7,6 +7,7 @@ module.exports = function(autoIncrement){
 	var questionTypes = 'open mc'.split(' ');
 
 	var questionSchema = new Schema({
+		maxTries: { type: Number, required: true },
 		question: { type: String, required: true },
 		questionType: { type: String, enum: questionTypes, required: true },
 		bIsHomework: { type: Boolean, required: true }, //automatically grade as correct
@@ -19,6 +20,16 @@ module.exports = function(autoIncrement){
 		//vs. reward 1 point for each word used
 		bCheckForOneAnswer: Boolean
 	});
+
+	questionSchema.path('maxTries').validate(function(maxTries){
+		return maxTries >= 1 && maxTries <= 10;
+	}, 'The maximum amount of tries must be between 1 and 10. ');
+
+	questionSchema.statics = {
+		properties: {
+			maxAnswers: 10
+		}
+	}
 
 	mongoose.model('Question', questionSchema);
 }
