@@ -1,7 +1,15 @@
 var util = require('util'),
 	config = require(__base + 'app/config'),
 	sendgrid = require('sendgrid')(config.sendgrid.apiKey);
-	
+
+var errorList = {
+	1000: 'Database Error',
+	1001: 'Model Error',
+	2000: 'Authenticate User',
+	2001: 'Authenticate Teacher',
+	2002: 'Authenticate Enrollment'
+}
+
 module.exports.errorHelper = function(err) {
 
 	//If it isn't a mongoose-validation error, just throw it.
@@ -53,11 +61,12 @@ module.exports.sendEmail = function(emailData, callback){
 	});
 }
 
-module.exports.sendError = function(res, errorCode, errorMessage){
+module.exports.sendError = function(res, httpStatus, errorCode, userMessage){
 	var error = {
-		error: errorCode,
-		message: errorMessage
+		errorCode: errorCode,
+		errorMessage: errorList[errorCode.toString()],
+		userMessage: userMessage
 	}
 
-	return res.send(error);
+	return res.status(httpStatus).json(error);
 }

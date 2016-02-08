@@ -6,20 +6,20 @@ var gulp = require('gulp'),
 	ngAnnotate = require('gulp-ng-annotate');
 
 gulp.task('js', function () {
-
 	streamqueue({ objectMode: true },
-		gulp.src('./public/javascripts/**/*.module.js'),
+		gulp.src('./public/angular/**/*.module.js'),
 		//include everything but the module js
-		gulp.src(['!./public/javascripts/**/*.module.js', './public/javascripts/**/core.js', './public/javascripts/**/*.js'])
+		gulp.src(['!./public/angular/**/main.js', '!./public/angular/**/*.module.js', 
+			'./public/angular/**/core.js', './public/angular/**/*.js'])
 		)
 	//.pipe(sourcemaps.init())
 		.pipe(concat('main.js'))
 		.pipe(ngAnnotate())
 		.pipe(uglify())
 	//.pipe(sourcemaps.write())
-	.pipe(gulp.dest('public/'))
+	.pipe(gulp.dest('public/angular/'))
 });
 
 gulp.task('watch', ['js'], function () {
-	gulp.watch('public/javascripts/**/*.js', ['js'])
+	gulp.watch('public/angular/**/*.js', ['js'])
 });

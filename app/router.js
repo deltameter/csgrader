@@ -4,7 +4,8 @@ var CSGrader = require(__base + 'routes/controllers/csgrader'),
 	users = require(__base + 'routes/controllers/users'),
 	courses = require(__base + 'routes/controllers/courses'),
 	assignments = require(__base + 'routes/controllers/assignments'),
-	classrooms = require(__base + 'routes/controllers/classrooms');
+	classrooms = require(__base + 'routes/controllers/classrooms'),
+	helper = require(__base + 'routes/libraries/helper');
 
 var auth = require (__base + 'routes/middlewares/authorization'),
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
@@ -23,10 +24,25 @@ module.exports = function(app, passport){
 	//******** USER ROUTES *********
 	//******************************
 
-	app.post('/auth/local', 
-		passport.authenticate('local', { 
-			failureRedirect: '/', 
-		}), users.signedIn);
+	//seperate this out into own function?
+	app.post('/auth/local', function(req, res, next) {
+		passport.authenticate('local', function(err, user, info) {
+			if (err){ 
+				return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+			}
+
+			if (!user){
+				return helper.sendError(res, 401, 1001, 'That user does not exist or you did not enter the correct password.');
+			}
+
+			req.logIn(user, function(err) {
+				if (err){ 
+					return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+				}
+				return users.signedIn(req, res);
+			});
+		})(req, res, next);
+	});
 
 	app.get('/user/isAuthenticated', function(req, res){
 		return res.send(res.locals.bIsAuthenticated);
@@ -60,6 +76,12 @@ module.exports = function(app, passport){
 	//******************************
 
 	app.get('/course/:courseID/classroom/new', teacherCourseAuth, classrooms.showClassroomCreation);
+
+
+	//Basically redirects to Angular and lets it catch all
+	app.get('*', function(req, res){
+	    return res.sendFile(__base + 'views/index.html');
+	});
 
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {
