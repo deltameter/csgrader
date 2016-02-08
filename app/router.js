@@ -44,16 +44,17 @@ module.exports = function(app, passport){
 		})(req, res, next);
 	});
 
-	app.get('/user/isAuthenticated', function(req, res){
-		return res.send(res.locals.bIsAuthenticated);
-	});
-
-	app.get('/join', users.showJoinPage);
 	app.post('/join', users.create);
 
-	app.get('/profile', auth.requiresLogin, users.showProfile);
-	app.get('/profile/activate', auth.requiresLogin, users.showActivationInstructions);
-	app.get('/profile/activate/:activationString', auth.requiresLogin, users.emailActivation);
+	app.get('/profile', auth.requiresLogin, users.getProfile);
+	
+/*	app.get('/profile/auth', auth.requiresLogin, function(req, res){
+		res.status(200);
+	});*/
+
+	app.get('/profile/isAuthenticated', function(req, res){
+		return res.send(res.locals.bIsAuthenticated);
+	});
 
 	//******************************
 	//******* COURSE ROUTES ********

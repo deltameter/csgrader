@@ -11,9 +11,8 @@ module.exports.signedIn = function(req, res){
 	//return res.redirect(req.session.returnTo || '/');
 }
 
-module.exports.showProfile = function(req, res){
-	res.locals.user = req.user;
-	return res.render('pages/user/profile.ejs');
+module.exports.getProfile = function(req, res){
+	return res.json(User.safeSend(req.user));
 }
 
 module.exports.showJoinPage = function(req, res){

@@ -12,11 +12,11 @@ gulp.task('js', function () {
 		gulp.src(['!./public/angular/**/main.js', '!./public/angular/**/*.module.js', 
 			'./public/angular/**/core.js', './public/angular/**/*.js'])
 		)
-	//.pipe(sourcemaps.init())
+	.pipe(sourcemaps.init())
 		.pipe(concat('main.js'))
 		.pipe(ngAnnotate())
-		.pipe(uglify())
-	//.pipe(sourcemaps.write())
+		.pipe(uglify({ mangle: false }))
+	.pipe(sourcemaps.write())
 	.pipe(gulp.dest('public/angular/'))
 });
 
