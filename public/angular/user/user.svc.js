@@ -41,8 +41,11 @@
 	});
 
 	angular.module('user').factory('AuthResolver', function($q, $rootScope, $state) {
+		var bIsResolved = false;
+
 		return {
 			resolve: function () {
+				console.log('resolve asked');
 				var deferred = $q.defer();
 				var unwatch = $rootScope.$watch('currentUser', function (currentUser) {
 					if (angular.isDefined(currentUser)) {
@@ -50,12 +53,16 @@
 							deferred.resolve(currentUser);
 						} else {
 							deferred.reject();
-							$state.go('login');
 						}
+						bIsResolved = true;
 						unwatch();
 					}
 				});
 				return deferred.promise;
+			},
+
+			bIsResolved: function(){
+				return bIsResolved;
 			}
 		};
 	});

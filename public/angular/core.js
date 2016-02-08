@@ -11,9 +11,17 @@
 		$locationProvider.html5Mode(true);
 	}]);
 	
-	app.run(function ($rootScope, AuthService) {
+	app.run(function ($rootScope, AuthService, AuthResolver) {
   		$rootScope.$on('$stateChangeStart', function (event, next) {
-  			console.log('auth: ' + AuthService.isAuthenticated());
+  			if (AuthResolver.bIsResolved()){
+  				console.log('stateChangeStart resolved');
+  				console.log('auth: ' + AuthService.isAuthenticated());
+  			}else{
+  				AuthResolver.resolve().then(function(data){
+  					console.log('stateChangeStart not resolved');
+  					console.log('auth: ' + AuthService.isAuthenticated());
+  				})
+  			}
   		});
 	})
 

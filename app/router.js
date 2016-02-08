@@ -46,7 +46,7 @@ module.exports = function(app, passport){
 
 	app.post('/join', users.create);
 
-	app.get('/profile', auth.requiresLogin, users.getProfile);
+	app.get('/api/profile', auth.requiresLogin, users.getProfile);
 	
 /*	app.get('/profile/auth', auth.requiresLogin, function(req, res){
 		res.status(200);
