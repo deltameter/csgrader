@@ -20,7 +20,6 @@
 	});
 	
 	angular.module('user').controller('DashboardController', function($state, Session){
-		console.log(Session.user);
 		this.user = Session.user;
 	});
 

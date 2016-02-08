@@ -11,4 +11,10 @@
 		$locationProvider.html5Mode(true);
 	}]);
 	
+	app.run(function ($rootScope, AuthService) {
+  		$rootScope.$on('$stateChangeStart', function (event, next) {
+  			console.log('auth: ' + AuthService.isAuthenticated());
+  		});
+	})
+
 })();

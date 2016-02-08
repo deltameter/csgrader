@@ -6,7 +6,6 @@
 			Session.create(res);
 		})
 		.error(function(res){
-			console.log('hello');
 			Session.setCurrentUser({user:'hello'});
 		});
 	});

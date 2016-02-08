@@ -43,12 +43,9 @@
 	angular.module('user').factory('AuthResolver', function($q, $rootScope, $state) {
 		return {
 			resolve: function () {
-				console.log('asdf')
 				var deferred = $q.defer();
 				var unwatch = $rootScope.$watch('currentUser', function (currentUser) {
-					console.log('whwat');
 					if (angular.isDefined(currentUser)) {
-						console.log('hmm');
 						if (currentUser) {
 							deferred.resolve(currentUser);
 						} else {
