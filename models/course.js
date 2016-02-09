@@ -30,6 +30,14 @@ module.exports = function(autoIncrement){
 		return validator.isAlphanumeric(coursePassword) && coursePassword.length >= 6 && coursePassword.length <= 20;
 	}, 'The course password must be between 6 and 20 characters long and contain only alphanumeric characters.');
 
+	courseSchema.statics = {
+		safeSend: function(course){
+			var safeCourse = {
+				courseName: course.courseName,
+				assignments: course.assignments
+			}
+		}
+	}
 	courseSchema.plugin(autoIncrement.plugin, { model: 'Course', field: 'courseID', startAt: 1 });
 	mongoose.model('Course', courseSchema);
 }

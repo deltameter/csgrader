@@ -57,3 +57,7 @@ module.exports.showCourse = function(req, res){
 module.exports.showCourseCreation = function(req, res){
 	res.render('pages/course/creation.ejs');
 }
+
+module.exports.getUserCourses = function(req, res){
+	
+}

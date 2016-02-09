@@ -1,26 +1,32 @@
 (function(){
-	angular.module('general').config(['$stateProvider', function($stateProvider){
-		$stateProvider.state('index', {
-			url: '/',
+	angular.module('general').config(function($stateProvider){
+
+		$stateProvider
+		.state('root', {
+			abstract: true,
+			template: '<ui-view/>',
 			resolve: {
 				auth: function resolveAuthentication(AuthResolver) { 
 					return (AuthResolver.bIsResolved() === true || AuthResolver.resolve());
 				}
-			},
+			}
+		})
+
+		.state('root.main', {
+			url: '/',
+			template: '<ui-view/>',
 			controller: function($state, AuthService){
-				console.log('controller called');
-				console.log('Controller auth: ' + AuthService.isAuthenticated())
 				if (AuthService.isAuthenticated()){
-					$state.go('dashboard');
+					$state.go('root.dashboard');
 				}else{
-					$state.go('public');
+					$state.go('root.main.public');
 				}
 			}
-		});
+		})
 
-		$stateProvider.state('public', {
-			url: '/',
+		.state('root.main.public', {
 			templateUrl: '/angular/general/partials/index.general.html'
 		});
-	}]);
+
+	});
 })();

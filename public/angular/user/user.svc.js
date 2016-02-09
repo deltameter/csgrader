@@ -45,7 +45,6 @@
 
 		return {
 			resolve: function () {
-				console.log('resolve asked');
 				var deferred = $q.defer();
 				var unwatch = $rootScope.$watch('currentUser', function (currentUser) {
 					if (angular.isDefined(currentUser)) {

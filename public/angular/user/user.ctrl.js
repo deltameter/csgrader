@@ -11,7 +11,7 @@
 		this.login = function() {
 			AuthService.login(root.user).then(
 				function(res){
-					$state.go('profile');
+					$state.go('root.profile');
 				},
 				function(res){
 					root.authMessage = res.data.userMessage;

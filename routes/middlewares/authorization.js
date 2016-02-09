@@ -22,7 +22,7 @@ module.exports.requiresEnrollment = function(req, res, next){
 				'An error occured while you were trying to access the database. Please try again.');
 		}
 		if (!course){ 
-			return helper.sendError(res, 401, 1001, 'That course does not exist.');
+			return helper.sendError(res, 404, 1001, 'That course does not exist.');
 		}
 		//If the student is not enrolled in this course, don't let them view it
 		if (req.user.courses.indexOf(course._id) === -1){
@@ -39,7 +39,7 @@ module.exports.requiresAssignmentExistance = function(req, res, next){
 
 	if (typeof res.locals.course.assignments[aIndex] == 'undefined'
 		|| (!res.locals.course.assignments[aIndex].bIsOpen && !req.user.bIsTeacher)){
-		return helper.sendError(res, 401, 1001, 'That assignment does not exist or is not available.');
+		return helper.sendError(res, 404, 1001, 'That assignment does not exist or is not available.');
 	}
 	
 	res.locals.aIndex = aIndex;
