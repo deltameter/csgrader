@@ -2,9 +2,23 @@
 
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
+	Course = mongoose.model('Course'),
 	async = require('async'),
 	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
+
+
+module.exports.showDashboard = function(req, res){
+	Course.find({_id: { $in : req.user.courses }}, function(err, courses){
+		res.locals.courses = courses;
+		return res.render('pages/user/dashboard.ejs');
+	});
+}
+
+module.exports.logout = function(req, res){
+	req.logout();
+	return res.sendStatus(200);
+}
 
 module.exports.signedIn = function(req, res){
 	res.redirect(req.session.returnTo || '/');

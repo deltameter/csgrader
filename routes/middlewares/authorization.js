@@ -3,8 +3,20 @@ var mongoose = require('mongoose'),
 	helper = require(__base + '/routes/libraries/helper');
 
 module.exports.requiresLogin = function(req, res, next){
-	if (req.isAuthenticated()) return next();
+	console.log('nig');
+	if (req.isAuthenticated()) {
+		res.locals.user = req.user;
+		return next()
+	};
+	console.log('hello');
 	if (req.method == 'GET') req.session.returnTo = req.originalUrl;
+	return res.render('pages/general/unauthorized.ejs');
+}
+
+module.exports.requiresStudent = function(req, res, next){
+	console.log('hello');
+	if (!req.user.bIsTeacher) return next();
+	console.log('asdf')
 	return res.render('pages/general/unauthorized.ejs');
 }
 
@@ -20,7 +32,6 @@ module.exports.requiresEnrollment = function(req, res, next){
 
 		//If the student is not enrolled in this course, don't let them view it
 		if (req.user.courses.indexOf(course._id) === -1) return res.render('pages/general/unauthorized.ejs');
-
 		res.locals.course = course;
 		return next();
 	});

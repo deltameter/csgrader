@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <% include ../../partials/head %>
+	</head>
+	<body>
+		<% include ../../partials/header %>
+		<div class="container">
+			<% for (var i = courses.length; i >= 0; i--){ %>
+				<p><%= courses[i] %></p>
+			<% } %>
+		</div>
+
+		<% if (user.bIsTeacher){ %>
+			<a href="/course/new" class="btn btn-primary">Create a new course</a>
+		<% } %>
+		<% include ../../partials/footer %>
+	</body>
+</html>

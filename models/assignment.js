@@ -8,6 +8,7 @@ module.exports = function(){
 		//whether the assignment is up and viewable
 		bIsOpen: { type: Boolean, default: false },
 		name: { type: String, required: true},
+		dueDate: { type: Date, required: true },
 		description: String,
 		
 		pointsWorth: Number,
