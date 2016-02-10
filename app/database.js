@@ -3,19 +3,15 @@
 var mongoose = require('mongoose'),
 	fs = require('fs'),
 	config = require('./config'),
-	models_path = __base + 'models/',
-	connection = mongoose.createConnection(require(__base + 'app/config').mongoURL),
-	autoIncrement = require('mongoose-auto-increment');
+	models_path = __base + 'models/';
 
-autoIncrement.initialize(connection);
-
-require(models_path + 'question')();
-require(models_path + 'exercise')();
-require(models_path + 'submission')();
-require(models_path + 'assignment')();
-require(models_path + 'classroom')();
-require(models_path + 'course')(autoIncrement);
-require(models_path + 'user')(autoIncrement);
+require(models_path + 'question');
+require(models_path + 'exercise');
+require(models_path + 'submission');
+require(models_path + 'assignment');
+require(models_path + 'classroom');
+require(models_path + 'course');
+require(models_path + 'user');
 
 mongoose.connect(config.mongoURL, function(err){
 	if (err){

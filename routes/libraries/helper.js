@@ -1,7 +1,17 @@
 var util = require('util'),
 	config = require(__base + 'app/config'),
+	async = require('async'),
 	sendgrid = require('sendgrid')(config.sendgrid.apiKey);
 	
+var errorList = {
+	1000: 'Database Error',
+	1001: 'Model Error',
+	2000: 'Authenticate User',
+	2001: 'Authenticate Teacher',
+	2002: 'Authenticate Enrollment',
+	3000: 'User Input Error'
+}
+
 module.exports.errorHelper = function(err) {
 
 	//If it isn't a mongoose-validation error, just throw it.
@@ -36,28 +46,55 @@ module.exports.errorHelper = function(err) {
 	return errors;
 }
 
-module.exports.sendEmail = function(emailData, callback){
-	var email = new sendgrid.Email({
-		to: emailData.recipient,
-		from: emailData.sender,
-		subject: emailData.subject,
-		html: emailData.html
-	});
+module.exports.sendEmail = function(user, emailData, callback){
+	//create random characters to send as email code
+	require('crypto').randomBytes(12, function(ex, buf) {
+		var emailAccessCode = buf.toString('hex');
 
-	//Use our filter
-	email.addFilter('templates', 'enable', 1);
-	email.addFilter('templates', 'template_id', emailData.templateID);
+		//Send the email and save the email activation string.
+		async.parallel([
+			function(callback){
+				if (config.env === 'production'){
+					var email = new sendgrid.Email({
+						to: emailData.recipient,
+						from: emailData.sender,
+						subject: emailData.subject,
+						html: '<p>' + emailAccessCode + '</p>'
+					});
 
-	sendgrid.send(email, function(err){
-		callback(err, null);
+					//Use our filter
+					email.addFilter('templates', 'enable', 1);
+					email.addFilter('templates', 'template_id', emailData.templateID);
+
+					sendgrid.send(email, function(err){
+						callback(err, null);
+					});
+				}else{
+					callback(null);
+				}
+			},
+			function(callback){
+				user.emailAccessCode = emailAccessCode;
+				user.save(function(err){
+					callback(err, null);
+				});
+			}
+		], function(err, results){
+			callback(err, emailAccessCode);
+		});
 	});
 }
 
-module.exports.sendError = function(res, errorCode, errorMessage){
+module.exports.sendSuccess = function(res){
+	return res.sendStatus(200);
+}
+
+module.exports.sendError = function(res, httpStatus, errorCode, userMessage){
 	var error = {
-		error: errorCode,
-		message: errorMessage
+		errorCode: errorCode,
+		errorMessage: errorList[errorCode.toString()],
+		userMessage: userMessage
 	}
 
-	return res.send(error);
+	return res.status(httpStatus).json(error);
 }

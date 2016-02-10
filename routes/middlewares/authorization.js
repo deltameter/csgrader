@@ -3,35 +3,40 @@ var mongoose = require('mongoose'),
 	helper = require(__base + '/routes/libraries/helper');
 
 module.exports.requiresLogin = function(req, res, next){
-	console.log('nig');
-	if (req.isAuthenticated()) {
-		res.locals.user = req.user;
-		return next()
-	};
-	console.log('hello');
-	if (req.method == 'GET') req.session.returnTo = req.originalUrl;
-	return res.render('pages/general/unauthorized.ejs');
+	if (req.isAuthenticated() && req.user.bHasActivatedAccount){
+		return next();
+	}
+	//if (req.method == 'GET') req.session.returnTo = req.originalUrl;
+
+	return helper.sendError(res, 401, 2000,  'Please log in.');
 }
 
 module.exports.requiresStudent = function(req, res, next){
-	console.log('hello');
 	if (!req.user.bIsTeacher) return next();
-	console.log('asdf')
-	return res.render('pages/general/unauthorized.ejs');
+
+	return helper.sendError(res, 401, 2001, 'You must be a student to access this.');
 }
 
 module.exports.requiresTeacher = function(req, res, next){
 	if (req.user.bIsTeacher) return next();
-	return res.render('pages/general/unauthorized.ejs');
+
+	return helper.sendError(res, 401, 2001, 'You must be a teacher to access this.');
 }
 
 module.exports.requiresEnrollment = function(req, res, next){
 	Course.findOne({courseID: req.params.courseID}, function(err, course){
-		if (err) return res.render('pages/general/unauthorized.ejs');
-		if (!course) return res.render('pages/general/unauthorized.ejs');
-
+		if (err){
+			return helper.sendError(res, 401, 1000, 
+				'An error occured while you were trying to access the database. Please try again.');
+		}
+		if (!course){ 
+			return helper.sendError(res, 404, 1001, 'That course does not exist.');
+		}
 		//If the student is not enrolled in this course, don't let them view it
-		if (req.user.courses.indexOf(course._id) === -1) return res.render('pages/general/unauthorized.ejs');
+		if (req.user.courses.indexOf(course._id) === -1){
+			return helper.sendError(res, 401, 2002, 'You must be enrolled in this course to access it.');
+		}
+
 		res.locals.course = course;
 		return next();
 	});
@@ -42,8 +47,9 @@ module.exports.requiresAssignmentExistance = function(req, res, next){
 
 	if (typeof res.locals.course.assignments[aIndex] == 'undefined'
 		|| (!res.locals.course.assignments[aIndex].bIsOpen && !req.user.bIsTeacher)){
-		return res.render('pages/general/unauthorized.ejs');
+		return helper.sendError(res, 404, 1001, 'That assignment does not exist or is not available.');
 	}
+	
 	res.locals.aIndex = aIndex;
 	return next();
 };

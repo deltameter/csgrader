@@ -15,6 +15,7 @@ module.exports.create = function(req, res){
 	var newCourse = new Course({
 		owner: req.user._id,
 		name: req.body.name,
+		courseCode: req.body.courseCode,
 		password: req.body.password
 	});
 

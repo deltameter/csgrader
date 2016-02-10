@@ -1,39 +1,43 @@
 'use strict';
 
-module.exports = function(autoIncrement){
-	var mongoose = require('mongoose'),
-		validator = require('validator'),
-		Schema = mongoose.Schema;
+var mongoose = require('mongoose'),
+	validator = require('validator'),
+	Schema = mongoose.Schema;
 
-	var courseSchema = new Schema({
-		//Absolute owner of course. Holds Imperium. 
-		owner: Schema.Types.ObjectId,
-		name: { type: String, required: true },
-		password: { type: String, required: true},
+var courseSchema = new Schema({
+	//Absolute owner of course. Holds Imperium. 
+	bIsOpen: { type: Boolean, default: false },
+	owner: Schema.Types.ObjectId,
+	name: { type: String, required: true },
 
-		//can possibly have multiple teacher teaching same course and want to share materials
-		//can also have different classrooms for different periods
-		classrooms: [mongoose.model('Classroom').schema],
+	courseCode: { type: String, required: true, index: true },
+	password: { type: String, required: true},
 
-		assignments: [mongoose.model('Assignment').schema]
-	});
+	//can possibly have multiple teacher teaching same course and want to share materials
+	//can also have different classrooms for different periods
+	classrooms: [mongoose.model('Classroom').schema],
 
-	courseSchema.path('name').validate(function(name){
-		return name.length >= 5 && name.length <= 100;
-	}, 'The course name must be between 5 and 100 characters long.');
+	assignments: [mongoose.model('Assignment').schema]
+});
 
-	courseSchema.path('password').validate(function(password){
-		return validator.isAlphanumeric(password) && password.length >= 6 && password.length <= 20;
-	}, 'The course password must be between 6 and 20 characters long and contain only alphanumeric characters.');
+courseSchema.path('name').validate(function(name){
+	return name.length >= 5 && name.length <= 100;
+}, 'The course name must be between 5 and 100 characters long.');
 
-	courseSchema.path('classrooms').validate(function(classrooms){
-		return classrooms.length <= 10;
-	}, 'You can only have up to 10 classrooms');
+courseSchema.path('courseCode').validate(function(courseCode){
+	return courseCode.length >= 1 && courseCode.length <= 10;
+}, 'The course code must be between 1 and 10 characters and be unique.');
 
-	courseSchema.statics = {
-		maxClassrooms: 10
-	}
+courseSchema.path('password').validate(function(password){
+	return password.length >= 6 && password.length <= 20;
+}, 'The course password must be between 6 and 20 characters long and contain only alphanumeric characters.');
 
-	courseSchema.plugin(autoIncrement.plugin, { model: 'Course', field: 'courseID', startAt: 1 });
-	mongoose.model('Course', courseSchema);
+courseSchema.path('classrooms').validate(function(classrooms){
+	return classrooms.length <= 10;
+}, 'You can only have up to 10 classrooms');
+
+courseSchema.statics = {
+	maxClassrooms: 10
 }
+
+mongoose.model('Course', courseSchema);

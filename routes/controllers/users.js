@@ -2,17 +2,12 @@
 
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
-	Course = mongoose.model('Course'),
 	async = require('async'),
 	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
 
-
-module.exports.showDashboard = function(req, res){
-	Course.find({_id: { $in : req.user.courses }}, function(err, courses){
-		res.locals.courses = courses;
-		return res.render('pages/user/dashboard.ejs');
-	});
+module.exports.getSelf = function(req, res){
+	return res.json(User.safeSend(req.user));
 }
 
 module.exports.logout = function(req, res){
@@ -21,40 +16,30 @@ module.exports.logout = function(req, res){
 }
 
 module.exports.signedIn = function(req, res){
-	res.redirect(req.session.returnTo || '/');
-}
-
-module.exports.showProfile = function(req, res){
-	res.locals.user = req.user;
-	return res.render('pages/user/profile.ejs');
-}
-
-module.exports.showJoinPage = function(req, res){
-	return res.render('pages/user/join.ejs', { user: new User() });
+	return res.sendStatus(200);
 }
 
 module.exports.create = function(req, res){
 	var newUser = new User({
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
-		username: req.body.username,
 		password: req.body.password,
 		email: req.body.email
 	});
 
 	if (typeof req.body.accountType == 'undefined'){
-		return res.render('pages/user/join.ejs', { message: 'Please select an account type', user: newUser });
+		return helper.sendError(res, 400, 3000, 'Please select an account type.');
 	}else{
 		newUser.bIsTeacher = (req.body.accountType == 'teacher' ? true : false);
 	}
 
 	if (req.body.password !== req.body.retypePassword || !User.validPassword(req.body.password)){
-		return res.render('pages/user/join.ejs', { message: 'Invalid or non-matching passwords', user: newUser });
+		return helper.sendError(res, 400, 3000, 'Passwords must match.');
 	}
 
 	newUser.save(function(err, user){
 		if (err){
-			return res.render('pages/user/join.ejs', { message: helper.errorHelper(err), user: newUser });
+			helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}else{
 			req.logIn(user, function(err){
 				return module.exports.sendActivationEmail(req, res);
@@ -64,53 +49,37 @@ module.exports.create = function(req, res){
 }
 
 module.exports.sendActivationEmail = function(req, res){
-	if (config.env != 'production'){
+	//makes it easier so we don't have to check email every time
+	if (config.env === 'dev'){
 		req.user.bHasActivatedAccount = true;
 		req.user.save();
-		return res.redirect('/profile');
+		return helper.sendSuccess(res);
 	}
-	
-	require('crypto').randomBytes(12, function(ex, buf) {
-		var activationString = buf.toString('hex');
 
-		//Send the email and save the email activation string.
-		async.parallel([
-			function(callback){
-				var emailData = {
-					recipient: req.user.email,
-					sender: 'activation@csgoschool.com',
-					subject: 'Welcome!',
-					html: '<a href="' + config.appLocation + 
-						'/profile/activate/' + activationString + '">Click here to activate your account!</a>',
-					templateID: config.sendgrid.activationEmailTemplateID
-				};
+	var emailData = {
+		recipient: req.user.email,
+		sender: 'activation@csgoschool.com',
+		subject: 'Welcome!',
+		templateID: config.sendgrid.activationEmailTemplateID
+	};
 
-				helper.sendEmail(emailData, callback);
-			},
-			function(callback){
-				req.user.emailAccessCode = activationString;
-				req.user.save(function(err){
-					callback(err, null);
-				});
-			}
-		], function(err, results){
-			if (err) console.log(err);
-			return res.redirect('/profile/activate');
-		});
+	helper.sendEmail(req.user, emailData, function(err, activationCode){
+		if (err) console.log(err);
+		//do this so we can easily test if the email activation works.
+		if (config.env === 'test'){
+			return res.status(200).json({ activationCode: activationCode });
+		}
+		return helper.sendSuccess(res);
 	});
 }
 
-module.exports.showActivationInstructions = function(req, res){
-	return res.render('pages/user/activationInstructions.ejs');
-}
-
 module.exports.emailActivation = function (req, res){
-	if (req.user.emailAccessCode == req.params.activationString){
+	if (req.user.emailAccessCode == req.body.activationCode){
 		req.user.bHasActivatedAccount = true;
 		req.user.save(function(err){
-			res.redirect('/profile');
+			helper.sendSuccess(res);
 		});
 	}else{
-		return res.render('pages/user/activationInstructions.ejs', { message: "Invalid activation link." });
+		return helper.sendError(res, 400, 3000, 'Invalid activation link. Please try again.');
 	}
 }

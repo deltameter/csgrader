@@ -20,10 +20,14 @@ module.exports = function(app, passport){
 		store: sessionStore
 	});
 
+	if (config.env === 'dev'){
+		app.use(morgan('dev'));
+	}
+
 	// view engine setup
 	app.set('views', path.join(__base, '/views'));
 	app.set('view engine', 'ejs');
-	app.use(morgan('combined'));
+	
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(express.static(path.join(__base, '/public')));

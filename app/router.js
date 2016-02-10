@@ -23,27 +23,41 @@ module.exports = function(app, passport){
 	//******************************
 	//******** USER ROUTES *********
 	//******************************
-	app.get('/dashboard', auth.requiresLogin, users.showDashboard);
+	
+	//seperate this out into own function?
+	app.post('/auth/local', function(req, res, next) {
+		passport.authenticate('local', function(err, user, info) {
+			if (err){ 
+				return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+			}
 
-	app.post('/auth/local', 
-		passport.authenticate('local', { 
-			failureRedirect: '/', 
-		}), users.signedIn);
+			if (!user){
+				return helper.sendError(res, 401, 1001, 'That user does not exist or you did not enter the correct password.');
+			}
 
-	app.get('/join', users.showJoinPage);
-	app.post('/join', users.create);
+			req.logIn(user, function(err) {
+				if (err){ 
+					return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+				}
+				return users.signedIn(req, res);
+			});
+		})(req, res, next);
+	});
 
-	app.get('/logout', auth.requiresLogin, users.logout);
-	app.get('/profile', auth.requiresLogin, users.showProfile);
-	app.get('/profile/activate', auth.requiresLogin, users.showActivationInstructions);
-	app.get('/profile/activate/:activationString', auth.requiresLogin, users.emailActivation);
+
+	app.get('/api/profile', auth.requiresLogin, users.getSelf);
+	app.post('/api/users/join', users.create);
+	app.put('/api/users/emailActivation', users.emailActivation)
+	app.get('/api/logout', auth.requiresLogin, users.logout);
 
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
 
+	app.get('/api/course/new', teacherAuth, courses.showCourseCreation);
+
 	app.post('/course/join', studentAuth, courses.joinCourse);
-	app.get('/course/new', teacherAuth, courses.showCourseCreation);
+	
 	app.post('/course/new', teacherAuth, courses.create);
 
 
