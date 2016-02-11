@@ -43,6 +43,10 @@ userSchema.path('lastName').validate(function(lastName){
 	return lastName.length > 0 && lastName.length <= 25;
 }, 'Last name must be between 1 and 25 characters long');
 
+userSchema.path('courses').validate(function(courses){
+	return courses.length <= 10;
+}, 'The maximum amount of courses you can be affiliated with is 10.');
+
 userSchema.path('email').validate(function(email){
 	return validator.isEmail(email);
 }, 'Email must be valid');
@@ -108,6 +112,9 @@ userSchema.statics = {
 
 	validPassword: function(password){
 		return password.length >= 8 && password.length <= 50;
+	},
+	properties: function(user){
+		maxCourses: 10
 	}
 }
 

@@ -85,7 +85,11 @@ module.exports.sendEmail = function(user, emailData, callback){
 	});
 }
 
-module.exports.sendSuccess = function(res){
+module.exports.sendSuccess = function(res, obj){
+	if (obj){
+		return res.status(200).json(obj);
+	}
+
 	return res.sendStatus(200);
 }
 

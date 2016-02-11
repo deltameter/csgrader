@@ -3,13 +3,14 @@
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
 	Course = mongoose.model('Course'),
+	Classroom = mongoose.model('Classroom'),
+	Student = mongoose.model('Student'),
 	async = require('async'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.create = function(req, res){
 	if (req.user.courses.length >= 10){
-		return res.render('pages/course/creation.ejs', 
-			{ message: 'You have already created the maximum amount of courses allowed.' });
+		return helper.sendError(res, 400, 1001, 'You have already created the maximum amount of courses allowed.');
 	}
 
 	var newCourse = new Course({
@@ -20,12 +21,13 @@ module.exports.create = function(req, res){
 	});
 
 	newCourse.save(function(err, course){
-		if (err) return res.render('pages/general/creation.ejs', { message: helper.errorHelper(err) });
+		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		
 		//Enroll the user in the course
 		req.user.courses.push(course._id);
 		req.user.save(function(err, user){
-			return res.redirect('/course/' + course.courseID);
+			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+			return helper.sendSuccess(res);
 		});
 	});
 }
@@ -60,19 +62,54 @@ module.exports.showCourseCreation = function(req, res){
 	res.render('pages/course/creation.ejs');
 }
 
-module.exports.joinCourse = function(req, res){
-	console.log('join course reached');
+module.exports.register = function(req, res){
+	//REQUIRES course.identifier, course.password;
 	var identifier = req.body.identifier;
-	var courseID = identifier.substring(0, identifier.indexOf('-'));
-	var classroom = parseInt(identifier.substring(identifier.indexOf('-') + 1, identifier.length), 10);
+	var courseCode = identifier.substring(0, identifier.indexOf('-'));
+	var classroomCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
 
-	Course.findOne({courseID: courseID}, function(err, course){
-		if (!course) return res.render('pages/user/profile.ejs', { message: 'course not found' });
-		if (course.password !== req.body.password){
-			return res.render('pages/user/profile.ejs', { message: 'incorredct password' });
+	if (classroomCode.length !== Classroom.properties.classIdentifierLength){
+		return helper.sendError(res, 400, 3000, 'Invalid code');
+	}
+
+	Course.findOne({courseCode: courseCode}, function(err, course){
+		if (!course) { 
+			return helper.sendError(res, 400, 3000, 'Course not found. Code was most likely incorrect.'); 
 		}
-		if (typeof course.classrooms[classroom] === 'undefined'){
-			return res.render('pages/user/profile.ejs', { message: 'classroom not there' });
+
+		if (course.password !== req.body.password){
+			return helper.sendError(res, 400, 3000, 'Incorrect password.');
+		}
+
+		if (req.user.courses.indexOf(course._id) !== -1){
+			return helper.sendError(res, 400, 3000, 'It seems you are already enrolled in this course.');
+		}
+		//Find user classroom.
+		var classroomIndex = -1;
+
+		for (var i = 0; i < course.classrooms.length; i++){
+			if (course.classrooms[i]._id.toString().indexOf(classroomCode) === 0){
+				classroomIndex = i;
+				break;
+			}
+		}
+
+		if (classroomIndex === -1){
+			return helper.sendError(res, 400, 3000, 'Classroom not found. Code was most likely incorrect.');
+		}
+
+		//Find the user in the students portion of the classroom and update with _id.
+		var newStudent = course.classrooms[classroomIndex].students.find(function(student){
+			return student.firstName.toLowerCase() === req.user.firstName.toLowerCase() 
+				&& student.lastName.toLowerCase() === req.user.lastName.toLowerCase();
+		});
+
+		if (newStudent){
+			newStudent.userID = req.user._id;
+		}else{
+			return helper.sendError(res, 400, 1001, 
+				'Your teacher has not included you in the list of students.' +
+				'Please ask them to enter in a new student using the first and last name you signed up with');
 		}
 
 		async.parallel({
@@ -83,14 +120,14 @@ module.exports.joinCourse = function(req, res){
 				});
 			},
 			course: function(callback){
-				course.classrooms[classroom].students.push(req.user._id);
 				course.save(function(err){
 					callback(err);
 				});
 			}
 		}, function(err, results){
-			console.log(err);
-			return res.redirect('/course/' + course.courseID);
+			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+
+			return helper.sendSuccess(res);
 		});
 	});
 }

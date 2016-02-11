@@ -24,7 +24,7 @@ module.exports.requiresTeacher = function(req, res, next){
 }
 
 module.exports.requiresEnrollment = function(req, res, next){
-	Course.findOne({courseID: req.params.courseID}, function(err, course){
+	Course.findOne({courseCode: req.params.courseCode}, function(err, course){
 		if (err){
 			return helper.sendError(res, 401, 1000, 
 				'An error occured while you were trying to access the database. Please try again.');

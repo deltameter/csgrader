@@ -12,12 +12,22 @@ var classroomSchema = new Schema({
 	gradebookID: String,
 
 	//one teacher per classroom
-	teacher: Schema.Types.ObjectId,
-	students: [Schema.Types.ObjectId],
+	teacher: { type: Schema.Types.ObjectId, required: true },
+	students: [mongoose.model('Student').schema]
 });
 
 classroomSchema.path('name').validate(function(name){
 	return name.length > 3 && name.length <= 50;
 }, 'The classroom name must be between 3 and 50 characters long and contain only alphanumeric characters.');
+
+classroomSchema.path('students').validate(function(students){
+	return students.length <= 500;
+}, 'You can have a maximum of 500 students in one class.');
+
+classroomSchema.statics = {
+	properties: {
+		classIdentifierLength: 6
+	}
+}
 
 mongoose.model('Classroom', classroomSchema);

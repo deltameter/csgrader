@@ -77,9 +77,9 @@ describe('User', function(){
 			testStudent
 			.post('/api/users/join')
 			.send(testIdiotInfo)
-			.expect(400)
 			.end(function(err, res){
 				if (err) throw err;
+				expect(res.status).to.equal(400);
 				done();
 			});
 		});
@@ -90,8 +90,8 @@ describe('User', function(){
 			supertest.agent(app)
 			.put('/api/users/emailActivation')
 			.send({ activationCode: 'topkek' })
-			.expect(400)
 			.end(function(err, res){
+				expect(res.status).to.equal(500);
 				done();
 			});
 		});
@@ -100,9 +100,8 @@ describe('User', function(){
 			testStudent
 			.put('/api/users/emailActivation')
 			.send({ activationCode: 'topkek' })
-			.expect(400)
 			.end(function(err, res){
-				expect(res.body.errorCode).to.exist;
+				expect(res.status).to.equal(400);
 				done();
 			});
 		});
@@ -138,9 +137,9 @@ describe('User', function(){
 		it('should deny unauthenticated users', function(done){
 			supertest.agent(app)
 			.get('/api/profile')
-			.expect(401)
 			.end(function(err, res){
 				if (err) throw err;
+				expect(res.status).to.equal(401);
 				done();
 			});
 		});

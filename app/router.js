@@ -48,32 +48,26 @@ module.exports = function(app, passport){
 	app.get('/api/profile', auth.requiresLogin, users.getSelf);
 	app.post('/api/users/join', users.create);
 	app.put('/api/users/emailActivation', users.emailActivation)
-	app.get('/api/logout', auth.requiresLogin, users.logout);
+	app.get('/api/users/logout', auth.requiresLogin, users.logout);
 
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
 
-	app.get('/api/course/new', teacherAuth, courses.showCourseCreation);
-
-	app.post('/course/join', studentAuth, courses.joinCourse);
-	
-	app.post('/course/new', teacherAuth, courses.create);
-
-
-	app.get('/course/:courseID', courseAuth, courses.showCourse);
-
-	//******************************
-	//***** ASSIGNMENT ROUTES ******
-	//******************************
-
-	app.get('/course/:courseID/assignment/:assignmentID', courseAuth, assignments.showAssignment);
+	app.post('/api/courses/create', teacherAuth, courses.create);
+	app.put('/api/courses/register', studentAuth, courses.register);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************
 
-	app.post('/course/:courseID/classroom/new', teacherCourseAuth, classrooms.create);
+	app.post('/api/courses/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
+	app.post('/api/courses/:courseCode/classroom/createstudent', teacherCourseAuth, classrooms.addStudent);
+
+	//******************************
+	//***** ASSIGNMENT ROUTES ******
+	//******************************
+
 
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {
