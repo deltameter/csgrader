@@ -17,7 +17,7 @@ var courseSchema = new Schema({
 	//can also have different classrooms for different periods
 	classrooms: [mongoose.model('Classroom').schema],
 
-	assignments: [mongoose.model('Assignment').schema],
+	assignments: [Schema.Types.ObjectId],
 });
 
 courseSchema.path('name').validate(function(name){

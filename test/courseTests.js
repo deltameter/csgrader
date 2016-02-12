@@ -19,7 +19,7 @@ describe('Course', function(){
 
 		it('should reject requests from students', function(done){
 			testStudent
-			.post('/api/courses/create')
+			.post('/api/course/create')
 			.send(apcsCourse)
 			.end(function(err, res){
 				expect(res.status).to.equal(401);
@@ -29,7 +29,7 @@ describe('Course', function(){
 
 		it('should create a course given the right data', function(done){
 			testTeacher
-			.post('/api/courses/create')
+			.post('/api/course/create')
 			.send(apcsCourse)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -39,7 +39,7 @@ describe('Course', function(){
 
 		it('should reject courses with incomplete data', function(done){
 			testTeacher
-			.post('/api/courses/create')
+			.post('/api/course/create')
 			.send(rejectCourse)
 			.end(function(err, res){
 				expect(res.status).to.equal(400);
@@ -61,7 +61,7 @@ describe('Course', function(){
 
 		it('should create given the right info', function(done){
 			testTeacher
-			.post('/api/courses/smushdapcs/classroom/create')
+			.post('/api/course/smushdapcs/classroom/create')
 			.send(newClass)
 			.end(function(err, res){
 				if (err) throw err;
@@ -79,7 +79,7 @@ describe('Course', function(){
 			}
 
 			testStudent
-			.put('/api/courses/register')
+			.put('/api/course/register')
 			.send(regInfo)
 			.end(function(err, res){
 				if (err) throw err;
@@ -90,7 +90,7 @@ describe('Course', function(){
 
 		it('should accept the creation of a user', function(done){
 			testTeacher
-			.post('/api/courses/smushdapcs/classroom/createstudent')
+			.post('/api/course/smushdapcs/classroom/createstudent')
 			.send(newUser)
 			.end(function(err, res){
 				if (err) throw err;
@@ -108,7 +108,7 @@ describe('Course', function(){
 			}
 
 			testStudent
-			.put('/api/courses/register')
+			.put('/api/course/register')
 			.send(regInfo)
 			.end(function(err, res){
 				if (err) throw err;
@@ -124,7 +124,7 @@ describe('Course', function(){
 			}
 
 			testStudent
-			.put('/api/courses/register')
+			.put('/api/course/register')
 			.send(regInfo)
 			.end(function(err, res){
 				if (err) throw err;
@@ -135,3 +135,7 @@ describe('Course', function(){
 	});
 });
 
+
+//Ensure tests run in order we want
+module.exports.testTeacher = testTeacher;
+module.exports.testStudent = testStudent;

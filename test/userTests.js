@@ -39,7 +39,7 @@ describe('User', function(){
 		it('should create a teacher given the correct information', function(done){
 
 			testTeacher
-			.post('/api/users/join')
+			.post('/api/user/join')
 			.send(testTeacherInfo)
 			.expect(200)
 			.end(function(err, res){
@@ -58,7 +58,7 @@ describe('User', function(){
 		it('should create a student given the correct information', function(done){
 
 			testStudent
-			.post('/api/users/join')
+			.post('/api/user/join')
 			.send(testStudentInfo)
 			.expect(200)
 			.end(function(err, res){
@@ -75,7 +75,7 @@ describe('User', function(){
 
 		it('should not create a student with the wrong information', function(done){
 			testStudent
-			.post('/api/users/join')
+			.post('/api/user/join')
 			.send(testIdiotInfo)
 			.end(function(err, res){
 				if (err) throw err;
@@ -88,7 +88,7 @@ describe('User', function(){
 	describe('email activation', function(){
 		it('should deny unauthenticated users', function(done){
 			supertest.agent(app)
-			.put('/api/users/emailActivation')
+			.put('/api/user/emailActivation')
 			.send({ activationCode: 'topkek' })
 			.end(function(err, res){
 				expect(res.status).to.equal(500);
@@ -98,7 +98,7 @@ describe('User', function(){
 
 		it('should deny someone with the wrong activation code', function(done){
 			testStudent
-			.put('/api/users/emailActivation')
+			.put('/api/user/emailActivation')
 			.send({ activationCode: 'topkek' })
 			.end(function(err, res){
 				expect(res.status).to.equal(400);
@@ -110,7 +110,7 @@ describe('User', function(){
 			async.parallel({
 				teacher: function(callback){
 					testTeacher
-					.put('/api/users/emailActivation')
+					.put('/api/user/emailActivation')
 					.send({ activationCode: emailActivations.teacher })
 					.expect(200)
 					.end(function(err, res){
@@ -119,7 +119,7 @@ describe('User', function(){
 				},
 				student: function(callback){
 					testStudent
-					.put('/api/users/emailActivation')
+					.put('/api/user/emailActivation')
 					.send({ activationCode: emailActivations.student })
 					.expect(200)
 					.end(function(err, res){
@@ -158,5 +158,6 @@ describe('User', function(){
 	})
 });
 
+//Ensure tests run in order we want
 module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;

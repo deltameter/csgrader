@@ -6,54 +6,64 @@ var mongoose = require('mongoose'),
 	Question = mongoose.model('Question'),
 	helper = require(__base + 'routes/libraries/helper');
 
-module.exports.showAssignment = function(req, res){
-	res.locals.assignment = res.locals.course.assignments[aIndex];
-
-	if (req.user.bIsTeacher){
-		return res.render('pages/assignment/assignmentTeacher.ejs');
-	}else{
-		return res.render('pages/assignment/assignmentStudent.ejs');
-	}
-}
-
 module.exports.create = function(req, res){
 	var course = res.locals.course;
 	var newAssignment = new Assignment({
-		name: req.body.name
+		courseID: course._id,
+		name: req.body.name,
+		dueDate: req.body.dueDate,
+		description: req.body.description,
+		deadlineType: req.body.deadlineType,
+		pointsWorth: req.body.pointsWorth
 	});
 
-	course.assignments.push(newAssignment);
-	course.save(function(err){
-		return res.redirect('/course/' + course.ID + '/assignment/' + (course.assignments.length - 1));
+	newAssignment.save(function(err, assignment){
+		if (err){
+			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		}
+		course.assignments.push(newAssignment._id);
+		course.save(function(err, course){
+			if (err){
+			//Wow, we're fucked
+				return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+			}
+			return helper.sendSuccess(res, assignment);
+		});
 	});
 }
 
-module.exports.editContext = function(req, res){
-	var course = res.locals.course;
-	var aIndex = res.locals.aIndex;
+module.exports.edit = function(req, res){
+	var assignment = res.locals.assignment;
 
-	course.assignments[aIndex].description = req.body.description;
-	course.save();
-	return res.sendStatus(200);
+	assignment.description = req.body.description;
+	assignment.dueDate = req.body.dueDate;
+	assignment.pointsWorth = req.body.pointsWorth;
+	assignment.pointLoss = req.body.pointLoss;
+
+	assignment.save(function(err, assignment){
+		return helper.sendSuccess(res);
+	});
 }
 
 module.exports.addQuestion = function(req, res){
-	var answers;
+	var assignment = res.locals.assignment;
+	var answerOptions;
 
 	//Parse the answers
-	if (req.body.questionType == 'open'){
-		answers = req.body.answers.split(',');
-		if (answers.length >= 10) return helper.sendError(res, 401, 'Must have less than 10 possible answers');
+	if (req.body.questionType == 'fillblank'){
+		answerOptions = req.body.answerOptions.split(',');
+		if (answerOptions.length >= 10) return helper.sendError(res, 401, 'Must have less than 10 possible answers');
 
 		//Remove spaces to check for string comparisons easier
-		for (var i = 0; i < answers.length; i++){
-			answers[i] = answers[i].trim();
+		for (var i = 0; i < answerOptions.length; i++){
+			answerOptions[i] = answerOptions[i].trim();
 		}
-	}else{
+	}else if (req.body.questionType == 'mc'){
 		//ensure data integrity. answers must be an array
-		if (!Array.isArray(req.body.answers)){
+		if (!Array.isArray(req.body.answerOptions)){
 			return helper.sendError(res, 401, 'Something went wrong with the multiple choice selection');
 		}
+		answerOptions = req.body.answerOptions;
 	}
 
 	var newQuestion = new Question({
@@ -61,8 +71,17 @@ module.exports.addQuestion = function(req, res){
 		questionType: req.body.questionType,
 		bIsHomework: req.body.bIsHomework,
 		pointsWorth: req.body.pointsWorth,
-		bCheckForOneAnswer: req.body.bCheckForOneAnswer,
-		answers: answers
+		answerOptions: answerOptions,
+		mcAnswer: req.body.mcAnswer
+	});
+
+	assignment.questions.push(newQuestion);
+	assignment.save(function(err, assignment){
+		if (err){
+			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		}
+
+		return helper.sendSuccess(res);
 	});
 }
 

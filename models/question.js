@@ -3,20 +3,19 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
-var questionTypes = 'open mc'.split(' ');
+var questionTypes = 'frq fillblank mc'.split(' ');
 
 var questionSchema = new Schema({
 	question: { type: String, required: true },
 	questionType: { type: String, enum: questionTypes, required: true },
-	bIsHomework: { type: Boolean, required: true }, //automatically grade as correct
 	pointsWorth: { type: Number, required: true },
 
-	//If these words are included in the answers, points are awarded.
-	answers: [String],
+	bIsHomework: { type: Boolean, default: false }, //automatically grade as correct
 
-	//if the teacher wants to give points to user as long as they use at LEAST one of the answer words
-	//vs. reward 1 point for each word used
-	bCheckForOneAnswer: Boolean
+	//For MC, this is a list of possible answers.
+	//For fill in the blank, this is a list of acceptable answers
+	answerOptions: [String],
+	mcAnswer: Number
 });
 
 mongoose.model('Question', questionSchema);

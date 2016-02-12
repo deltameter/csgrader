@@ -46,29 +46,35 @@ module.exports = function(app, passport){
 
 
 	app.get('/api/profile', auth.requiresLogin, users.getSelf);
-	app.post('/api/users/join', users.create);
-	app.put('/api/users/emailActivation', users.emailActivation)
-	app.get('/api/users/logout', auth.requiresLogin, users.logout);
+	app.post('/api/user/join', users.create);
+	app.put('/api/user/emailActivation', users.emailActivation)
+	app.get('/api/user/logout', auth.requiresLogin, users.logout);
 
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
 
-	app.post('/api/courses/create', teacherAuth, courses.create);
-	app.put('/api/courses/register', studentAuth, courses.register);
+	app.post('/api/course/create', teacherAuth, courses.create);
+	app.put('/api/course/register', studentAuth, courses.register);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************
 
-	app.post('/api/courses/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
-	app.post('/api/courses/:courseCode/classroom/createstudent', teacherCourseAuth, classrooms.addStudent);
+	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
+	app.post('/api/course/:courseCode/classroom/createstudent', teacherCourseAuth, classrooms.addStudent);
 
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
 
+	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
+	app.post('/api/course/:courseCode/assignment/:assignmentID/question/create', 
+		teacherAuth, auth.requiresAssignment, assignments.addQuestion);
 
+	app.put('/api/course/:courseCode/assignment/:assignmentID/edit', 
+		teacherAuth, auth.requiresAssignment, assignments.edit);
+	
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {
 		var err = new Error('Not Found');

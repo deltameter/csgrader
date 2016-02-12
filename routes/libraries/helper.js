@@ -30,6 +30,12 @@ module.exports.errorHelper = function(err) {
 
 	//Loop over the errors object of the Validation Error
 	Object.keys(err.errors).forEach(function (field) {
+
+		// Michael: crash fix. Redo this entire function tbh FAMILIAS;
+		if (err.errors[field].name === 'CastError'){
+			return errors.push('Wrong type of input on ' + err.errors[field].path);
+		}
+
 		// Getting from .proprerties now.
 		var eObj = err.errors[field].properties;
 
