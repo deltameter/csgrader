@@ -67,6 +67,8 @@ module.exports = function(app, passport){
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
+	app.get('/api/course/:courseCode/assignment/:assignmentID'
+		, courseAuth, auth.requiresAssignment, assignments.getAssignment);
 
 	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
 	app.post('/api/course/:courseCode/assignment/:assignmentID/question/create', 
@@ -75,6 +77,9 @@ module.exports = function(app, passport){
 	app.put('/api/course/:courseCode/assignment/:assignmentID/edit', 
 		teacherAuth, auth.requiresAssignment, assignments.edit);
 	
+	app.put('/api/course/:courseCode/assignment/:assignmentID/open', 
+		teacherAuth, auth.requiresAssignment, assignments.open);
+
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {
 		var err = new Error('Not Found');

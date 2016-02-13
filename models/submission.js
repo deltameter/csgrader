@@ -4,8 +4,8 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
 var submissionSchema = new Schema({
-	studentID: Schema.Types.ObjectId,
-	assignmentID: Schema.Types.ObjectId,
+	studentID: { type: Schema.Types.ObjectId, required: true },
+	assignmentID: { type: Schema.Types.ObjectId, required: true },
 
 	questionAnswers: [String],
 	exerciseAnswers: [String],

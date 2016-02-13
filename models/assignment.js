@@ -12,10 +12,10 @@ var assignmentSchema = new Schema({
 	name: { type: String, required: true},
 	description: String,
 
-	deadlineType: { type: String, enum: deadlineTypes, required: true },
-	dueDate: { type: Date, required: true },
+	deadlineType: { type: String, enum: deadlineTypes },
+	dueDate: Date,
 
-	pointsWorth: { type: Number, required: true },
+	pointsWorth: Number,
 
 	//# of points lost due to lateness
 	pointLoss: Number,
@@ -26,6 +26,17 @@ var assignmentSchema = new Schema({
 	studentSubmissions: [Schema.Types.ObjectId]
 });
 
+assignmentSchema.statics = {
+	safeSendStudent: function(assignment){
+		return {
+			name: assignment.name,
+			description: assignment.description,
+			pointsWorth: assignment.pointsWorth,
+			questions: assignment.questions,
+			exercises: assignment.exercises
+		}
+	}
+}
 assignmentSchema.pre('validate', function(next) {
 	//If the assignment is being opened, it must contain a due date
     if (this.bIsOpen && (typeof this.dueDate === 'undefined' || this.dueDate < Date.now())){

@@ -2,19 +2,47 @@
 
 var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
+	Submission = mongoose.model('Submission'),
 	Course = mongoose.model('Course'),
 	Question = mongoose.model('Question'),
 	helper = require(__base + 'routes/libraries/helper');
+
+module.exports.getAssignment = function(req, res){
+	var assignment = res.locals.assignment;
+
+	if (!req.user.bIsTeacher){
+		Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id}, function(err, sub){
+			if (err){
+				return helper.sendError(res, 500, 1000, helper.errorHelper(err));
+			}
+
+			//Create a new submission if they don't have one
+			if (!sub){
+				var newSub = new Submission({
+					studentID: req.user._id,
+					assignmentID: assignment._id
+				});
+
+				newSub.save(function(err, sub){
+					if (err){
+						return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+					}
+
+					return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
+				});
+			}else{
+				return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
+			}
+		});
+	}
+}
 
 module.exports.create = function(req, res){
 	var course = res.locals.course;
 	var newAssignment = new Assignment({
 		courseID: course._id,
 		name: req.body.name,
-		dueDate: req.body.dueDate,
 		description: req.body.description,
-		deadlineType: req.body.deadlineType,
-		pointsWorth: req.body.pointsWorth
 	});
 
 	newAssignment.save(function(err, assignment){
@@ -35,12 +63,26 @@ module.exports.create = function(req, res){
 module.exports.edit = function(req, res){
 	var assignment = res.locals.assignment;
 
+	assignment.name = req.body.name;
 	assignment.description = req.body.description;
+
+	assignment.save(function(err, assignment){
+		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		return helper.sendSuccess(res);
+	});
+}
+
+module.exports.open = function(req, res){
+	var assignment = res.locals.assignment;
+
+	assignment.bIsOpen = true;
 	assignment.dueDate = req.body.dueDate;
+	assignment.deadlineType = req.body.deadlineType;
 	assignment.pointsWorth = req.body.pointsWorth;
 	assignment.pointLoss = req.body.pointLoss;
 
 	assignment.save(function(err, assignment){
+		if (err) return helper.sendErr(res, 400, 1001, helper.errorHelper(err));
 		return helper.sendSuccess(res);
 	});
 }

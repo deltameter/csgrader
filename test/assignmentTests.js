@@ -3,6 +3,9 @@ var testTeacher = require('./courseTests').testTeacher,
 	expect = require('chai').expect,
     async = require('async');
 
+var mongoose = require('mongoose'),
+	Submission = mongoose.model('Submission');
+
 describe('Assignment', function(){
 	var assignment = {};
 
@@ -29,13 +32,28 @@ describe('Assignment', function(){
 	describe('edit', function(){
 		it('should save new info about assignment', function(done){
 			var edit = {
-				description: 'dank memes',
-				dueDate: new Date (2024, 1, 17),
-				pointsWorth: 69
+				name: 'Unit 1 Lab 1',
+				description: 'dank memes'
 			}
 
 			testTeacher
 			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/edit')
+			.send(edit)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
+		it('should open the assignment', function(done){
+			var edit = {
+				dueDate: new Date (2025, 1, 17),
+				deadlineType: 'strict',
+				pointsWorth: 69
+			}
+
+			testTeacher
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/open')
 			.send(edit)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -83,6 +101,24 @@ describe('Assignment', function(){
 			.send(newQuestion)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+	});
+
+	describe('retrieval', function(){
+		it ('should respond', function(done){
+			testStudent
+			.get('/api/course/smushdapcs/assignment/' + assignment._id)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
+		it('should create a new submission on first try', function(done){
+			Submission.findOne({ assignmentID: assignment._id }, function(err, sub){
+				expect(sub).to.exist;
 				done();
 			});
 		});
