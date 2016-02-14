@@ -218,7 +218,7 @@ describe('Assignment', function(){
 		});
 
 		//wtf? index isn't fully created
-/*		it('should not create duplicate submissions', function(done){
+		it('should not create duplicate submissions', function(done){
 			testStudent
 			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/submission/create')
 			.end(function(err, res){
@@ -227,7 +227,7 @@ describe('Assignment', function(){
 				done();
 			});
 		});
-*/
+
 		it('should simply return it every time after', function(done){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id)
