@@ -5,8 +5,9 @@ var mongoose = require('mongoose'),
 
 var exerciseSchema = new Schema({
 	exerciseContext: String,
+	code: [String],
 	testCases: [String],
-	correctAnswers: [String]
+	correctAnswer: String
 });
 
 mongoose.model('Exercise', exerciseSchema);

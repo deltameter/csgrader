@@ -18,4 +18,5 @@ before(function(done){
 	});
 });
 
+global.assignment = {};
 module.exports.app = app;

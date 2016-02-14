@@ -4,13 +4,16 @@ var general = require(__base + 'routes/controllers/general'),
 	users = require(__base + 'routes/controllers/users'),
 	courses = require(__base + 'routes/controllers/courses'),
 	assignments = require(__base + 'routes/controllers/assignments'),
+	submissions = require(__base + 'routes/controllers/submissions'),
 	classrooms = require(__base + 'routes/controllers/classrooms');
 
 var auth = require (__base + 'routes/middlewares/authorization'),
 	studentAuth = [auth.requiresLogin, auth.requiresStudent],
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
 	courseAuth = [auth.requiresLogin, auth.requiresEnrollment],
-	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment];
+	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
+	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresAssignment],
+	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresAssignment];
 
 module.exports = function(app, passport){
 
@@ -67,18 +70,29 @@ module.exports = function(app, passport){
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
-	app.get('/api/course/:courseCode/assignment/:assignmentID'
-		, courseAuth, auth.requiresAssignment, assignments.getAssignment);
+	var assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
+
+	app.get(assignmentRoute, courseAuth, auth.requiresAssignment, assignments.getAssignment);
 
 	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
-	app.post('/api/course/:courseCode/assignment/:assignmentID/question/create', 
-		teacherAuth, auth.requiresAssignment, assignments.addQuestion);
 
-	app.put('/api/course/:courseCode/assignment/:assignmentID/edit', 
-		teacherAuth, auth.requiresAssignment, assignments.edit);
+	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, assignments.addQuestion);
+
+	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);
+
+	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
+
+	app.put(assignmentRoute +'/edit', teacherAssignmentAuth, assignments.edit);
 	
-	app.put('/api/course/:courseCode/assignment/:assignmentID/open', 
-		teacherAuth, auth.requiresAssignment, assignments.open);
+	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
+
+	//******************************
+	//***** SUBMISSION ROUTES ******
+	//******************************
+
+	app.post(assignmentRoute + '/submission/create', studentAssignmentAuth, submissions.create);
+
+	app.put(assignmentRoute + '/submit/question', studentAssignmentAuth, submissions.submitQuestionAnswer);
 
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {

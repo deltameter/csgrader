@@ -23,6 +23,11 @@ var assignmentSchema = new Schema({
 	questions: [mongoose.model('Question').schema],
 	exercises: [mongoose.model('Exercise').schema],
 
+	//Basically decides the order the questions and exercises go in.
+	//false = question, true = exercise
+	//allows a way to interweave questions and exercises
+	contentOrder: [Boolean],
+
 	studentSubmissions: [Schema.Types.ObjectId]
 });
 
@@ -37,6 +42,7 @@ assignmentSchema.statics = {
 		}
 	}
 }
+
 assignmentSchema.pre('validate', function(next) {
 	//If the assignment is being opened, it must contain a due date
     if (this.bIsOpen && (typeof this.dueDate === 'undefined' || this.dueDate < Date.now())){

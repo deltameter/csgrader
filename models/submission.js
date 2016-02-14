@@ -11,9 +11,17 @@ var submissionSchema = new Schema({
 	exerciseAnswers: [String],
 
 	pointsEarned: { type: Number, default: 0 },
-	questionsCorrect: [Number],
+
+	questionTries: [Number],
+	questionsCorrect: [Boolean],
+
+	exerciseTries: [Number],
+	exercisesCorrect: [Boolean],
+
+	//Line num, class, and actual comment
+	teacherComments: [Schema.Types.Mixed]
 });
 
-submissionSchema.index({studentID: 1, assignmentID: 1}, {unique: true});
+submissionSchema.index({ studentID: 1, assignmentID: 1 }, { unique: true });
 
 mongoose.model('Submission', submissionSchema);
