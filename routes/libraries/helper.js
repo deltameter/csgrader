@@ -9,7 +9,8 @@ var errorList = {
 	2000: 'Authenticate User',
 	2001: 'Authenticate Teacher',
 	2002: 'Authenticate Enrollment',
-	3000: 'User Input Error'
+	3000: 'User Input Error',
+	3001: 'More Info Required'
 }
 
 module.exports.errorHelper = function(err) {

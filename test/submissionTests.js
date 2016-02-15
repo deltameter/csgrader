@@ -6,6 +6,22 @@ var testTeacher = require('./assignmentTests').testTeacher,
 describe('Submission', function(){
 
 	describe('submit question', function(){
+		it('should accept a fill in the blank answer', function(done){
+			var answer = {
+				questionNum: 0,
+				answer: ' dank '
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.bIsCorrect).to.equal(true);
+				done();
+			});
+		});
+
 		it('should accept a multiple choice answer', function(done){
 			var answer = {
 				questionNum: 1,
@@ -22,10 +38,10 @@ describe('Submission', function(){
 			});
 		});
 
-		it('should accept a fill in the blank answer', function(done){
+		it('should accept an frq answer', function(done){
 			var answer = {
-				questionNum: 0,
-				answer: ' dank '
+				questionNum: 2,
+				answer: 'Implying implications'
 			}
 
 			testStudent
@@ -36,7 +52,7 @@ describe('Submission', function(){
 				expect(res.body.bIsCorrect).to.equal(true);
 				done();
 			});
-		})
+		});
 
 		it('should not accept the submission if the user has already gotten it right', function(done){
 			var answer = {
@@ -73,6 +89,22 @@ describe('Submission', function(){
 				//expect the last one to throw an error
 				expect(results[3].res.status).to.equal(400);
 				expect(results[3].res.body.errorCode).to.equal(3000);
+				done();
+			});
+		});
+
+		it('should get an exported CSV of values', function(done){
+			var info = {
+				classIndex: 0,
+				assignmentID: assignment._id
+			}
+
+			testTeacher
+			.get('/api/course/smushdapcs/classroom/grades/export')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				console.log(res.body);
 				done();
 			});
 		})

@@ -11,12 +11,12 @@ module.exports.getAssignment = function(req, res){
 	var assignment = res.locals.assignment;
 
 	if (!req.user.bIsTeacher){
-		Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id}, function(err, sub){
+		Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id}, function(err, submission){
 			if (err){
 				return helper.sendError(res, 500, 1000, helper.errorHelper(err));
 			}
 
-			if (!sub){
+			if (!submission){
 				//redirect them to create a new assignment if they don't have one
 				return res.redirect('/api/course/'+ req.params.courseCode 
 					+'/assignment/' + req.params.assignmentID + '/submission/create');

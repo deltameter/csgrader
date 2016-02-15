@@ -49,28 +49,13 @@ module.exports.changeCourseInfo = function(req, res){
 	});
 }
 
-module.exports.showCourse = function(req, res){
-	console.log('show');
-	if (req.user.bIsTeacher){
-		return res.render('pages/course/courseTeacher.ejs');
-	}else{
-		return res.render('pages/course/courseStudent.ejs');
-	}
-}
-
-module.exports.showCourseCreation = function(req, res){
-	res.render('pages/course/creation.ejs');
-}
-
 module.exports.register = function(req, res){
 	//REQUIRES course.identifier, course.password;
+	//REQUIRES studentGradebookID
+
 	var identifier = req.body.identifier;
 	var courseCode = identifier.substring(0, identifier.indexOf('-'));
-	var classroomCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
-
-	if (classroomCode.length !== Classroom.properties.classIdentifierLength){
-		return helper.sendError(res, 400, 3000, 'Invalid code');
-	}
+	var classCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
 
 	Course.findOne({courseCode: courseCode}, function(err, course){
 		if (!course) { 
@@ -88,7 +73,7 @@ module.exports.register = function(req, res){
 		var classroomIndex = -1;
 
 		for (var i = 0; i < course.classrooms.length; i++){
-			if (course.classrooms[i]._id.toString().indexOf(classroomCode) === 0){
+			if (course.classrooms[i].classCode === classCode){
 				classroomIndex = i;
 				break;
 			}
@@ -98,18 +83,33 @@ module.exports.register = function(req, res){
 			return helper.sendError(res, 400, 3000, 'Classroom not found. Code was most likely incorrect.');
 		}
 
-		//Find the user in the students portion of the classroom and update with _id.
-		var newStudent = course.classrooms[classroomIndex].students.find(function(student){
+		//Find the user by their name. 
+		//If there are more than two students that match the profile, ask them to provide a student ID as well.
+		var newStudent = course.classrooms[classroomIndex].students.filter(function(student){
 			return student.firstName.toLowerCase() === req.user.firstName.toLowerCase() 
 				&& student.lastName.toLowerCase() === req.user.lastName.toLowerCase();
 		});
 
-		if (newStudent){
-			newStudent.userID = req.user._id;
-		}else{
+		if (newStudent.length > 1){
+			if (typeof req.body.studentGradebookID === 'undefined'){
+				return helper.sendError(res, 400, 3001, 'There are multiple students with that name.'+
+					'Please enter your student ID.');
+			}else{
+				//Find user by the gradebook id they put in 
+				newStudent = course.classrooms[classroomIndex].students.filter(function(student){
+					return student.gradebookID === req.body.studentGradebookID;
+				});
+			}
+		}else if (newStudent.length === 0){
 			return helper.sendError(res, 400, 1001, 
 				'Your teacher has not included you in the list of students.' +
 				'Please ask them to enter in a new student using the first and last name you signed up with');
+		}
+
+		if (typeof newStudent[0].userID === 'undefined' && newStudent.length === 1){
+			newStudent[0].userID = req.user._id;
+		}else{
+			return helper.sendError(res, 400, 3000, 'It seems you\'ve already registered');
 		}
 
 		async.parallel({

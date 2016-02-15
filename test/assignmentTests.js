@@ -211,8 +211,8 @@ describe('Assignment', function(){
 		});
 
 		it('should create a new submission on first try', function(done){
-			Submission.findOne({ assignmentID: assignment._id }, function(err, sub){
-				expect(sub).to.exist;
+			Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
+				expect(submission).to.exist;
 				done();
 			});
 		});

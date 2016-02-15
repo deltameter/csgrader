@@ -65,7 +65,14 @@ module.exports = function(app, passport){
 	//******************************
 
 	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
-	app.post('/api/course/:courseCode/classroom/createstudent', teacherCourseAuth, classrooms.addStudent);
+
+	app.post('/api/course/:courseCode/classroom/student/create', teacherCourseAuth, classrooms.addStudent);
+
+	app.put('/api/course/:courseCode/classroom/student/edit', teacherCourseAuth, classrooms.editStudent);
+
+	app.delete('/api/course/:courseCode/classroom/student/delete', teacherCourseAuth, classrooms.deleteStudent);
+
+	app.get('/api/course/:courseCode/classroom/grades/export', teacherCourseAuth, classrooms.exportGrades)
 
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
@@ -76,16 +83,16 @@ module.exports = function(app, passport){
 
 	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
 
+	app.put(assignmentRoute +'/edit', teacherAssignmentAuth, assignments.edit);
+	
+	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
+
 	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, assignments.addQuestion);
 
 	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);
 
 	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
-
-	app.put(assignmentRoute +'/edit', teacherAssignmentAuth, assignments.edit);
 	
-	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
-
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************

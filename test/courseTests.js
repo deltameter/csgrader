@@ -1,6 +1,10 @@
 var testTeacher = require('./userTests').testTeacher,
-	testStudent = require('./userTests').testStudent
+	testStudent = require('./userTests').testStudent,
+	async = require('async'),
 	expect = require('chai').expect;
+
+var mongoose = require('mongoose'),
+	Course = mongoose.model('Course');
 
 describe('Course', function(){
 	var classroom = {};
@@ -59,6 +63,8 @@ describe('Course', function(){
 			gradebookID: '123'
 		}
 
+		var modifyUser = {};
+
 		it('should create given the right info', function(done){
 			testTeacher
 			.post('/api/course/smushdapcs/classroom/create')
@@ -66,7 +72,7 @@ describe('Course', function(){
 			.end(function(err, res){
 				if (err) throw err;
 				classroom = res.body;
-				newUser.classroomID = res.body.classroomID;
+				newUser.classCode = res.body.classCode;
 				expect(res.status).to.equal(200);
 				done();
 			});
@@ -88,23 +94,122 @@ describe('Course', function(){
 			});
 		});
 
-		it('should accept the creation of a user', function(done){
+		it('should accept the creation of several users', function(done){
+			var newUser2 = JSON.parse(JSON.stringify(newUser));
+			var newUser3 = JSON.parse(JSON.stringify(newUser));
+			newUser2.gradebookID = '234';
+			newUser3.gradebookID = '345';
+
+			async.parallel([
+				function(callback){
+					testTeacher
+					.post('/api/course/smushdapcs/classroom/student/create')
+					.send(newUser)
+					.end(function(err, res){
+						if (err) throw err;
+						expect(res.status).to.equal(200);
+						callback();
+					});
+				},
+				function(callback){
+					testTeacher
+					.post('/api/course/smushdapcs/classroom/student/create')
+					.send(newUser2)
+					.end(function(err, res){
+						if (err) throw err;
+						expect(res.status).to.equal(200);
+						callback();
+					});
+				},
+				function(callback){
+					testTeacher
+					.post('/api/course/smushdapcs/classroom/student/create')
+					.send(newUser3)
+					.end(function(err, res){
+						if (err) throw err;
+						expect(res.status).to.equal(200);
+						modifyUser = res.body;
+						callback();
+					});
+				}
+			], function(err, results){
+				Course.find({}, function(err, courses){
+					expect(courses[0].classrooms[0].students.length).to.equal(3);
+					done();
+				});
+			});
+		});
+
+		it('should edit a user', function(done){
+			var editUser = {
+				classCode: classroom.classCode,
+				studentID: modifyUser._id,
+				firstName: 'Big',
+				lastName: 'Johnny',
+				gradebookID: '777'
+			}
+
 			testTeacher
-			.post('/api/course/smushdapcs/classroom/createstudent')
-			.send(newUser)
+			.put('/api/course/smushdapcs/classroom/student/edit')
+			.send(editUser)
+			.end(function(err, res){
+				if (err) throw err;
+				console.log(res.body);
+				expect(res.status).to.equal(200);
+
+				Course.find({}, function(err, courses){
+					expect(courses[0].classrooms[0].students[2].firstName).to.equal('Big');
+					expect(courses[0].classrooms[0].students[2].lastName).to.equal('Johnny');
+					expect(courses[0].classrooms[0].students[2].gradebookID).to.equal('777');
+					done();
+				});
+			});
+		});
+
+		it('should delete a user', function(done){
+			var deleteUser = {
+				studentID: modifyUser._id,
+				classCode: classroom.classCode
+			}
+
+			testTeacher
+			.delete('/api/course/smushdapcs/classroom/student/delete')
+			.send(deleteUser)
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(200);
-				done();
+
+				Course.find({}, function(err, courses){
+					expect(courses[0].classrooms[0].students.length).to.equal(2);
+					done();
+				});
 			});
 		});
 	});
 
 	describe('registration', function(){
-		it('should register a student whose teacher hasn\'t entered them in yet', function(done){
+		it('shouldn\'t register a student with an ambiguous name', function(done){
 			var regInfo = {
 				identifier: 'smushdapcs-' + classroom.classCode,
 				password: 'topkekerino'
+			}
+
+			testStudent
+			.put('/api/course/register')
+			.send(regInfo)
+			.end(function(err, res){
+				if (err) throw err;
+				expect(res.status).to.equal(400);
+				expect(res.body.errorCode).to.equal(3001);
+				done();
+			});
+		});
+
+		it('should register a student with an ambiguous name after they input their gradebookID', function(done){
+			var regInfo = {
+				identifier: 'smushdapcs-' + classroom.classCode,
+				password: 'topkekerino',
+				studentGradebookID: '123'
 			}
 
 			testStudent

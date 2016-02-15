@@ -23,7 +23,7 @@ before(function(done){
 
 		    models.forEach(function(model){
 		    	rebuildIndexes.push(function(cb){
-		    		mongoose.model(model, mongoose.connections[0].base.modelSchemas[model]).ensureIndexes(function(err){
+		    		mongoose.model(model).ensureIndexes(function(err){
 		    			return cb(err);
 		    		})
 		    	});
@@ -38,5 +38,6 @@ before(function(done){
 	});
 });
 
+//TOP KEK
 global.assignment = {};
 module.exports.app = app;

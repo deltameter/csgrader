@@ -28,7 +28,7 @@ module.exports.create = function(req, res){
 		exercisesCorrect[i] = false;
 	}
 
-	var newSub = new Submission({
+	var newSubmission = new Submission({
 		studentID: req.user._id,
 		assignmentID: assignment._id,
 		questionAnswers: questionAnswers,
@@ -39,7 +39,7 @@ module.exports.create = function(req, res){
 		exercisesCorrect: exercisesCorrect
 	});
 
-	newSub.save(function(err, sub){
+	newSubmission.save(function(err, newSubmission){
 		if (err){
 			return helper.sendError(res, 400, 3000, helper.errorHelper(err));
 		}
@@ -53,20 +53,20 @@ module.exports.submitQuestionAnswer = function(req, res){
 	var assignment = res.locals.assignment;
 	var i = req.body.questionNum;
 
-	Submission.findOne({studentID: req.user._id, assignmentID: req.params.assignmentID }, function(err, sub){
+	Submission.findOne({studentID: req.user._id, assignmentID: req.params.assignmentID }, function(err, submission){
 		if (err){
 			return helper.sendError(res, 500, 1000, helper.errorHelper(err));
 		}
 
-		if (!sub){
+		if (!submission){
 			return helper.sendError(res, 400, 3000, 'You don\'t have a submission for this assignment');
 		}
 
-		if (sub.questionsCorrect[i]){
+		if (submission.questionsCorrect[i]){
 			return helper.sendError(res, 400, 3000, 'You\'ve already gotten this answer correct');
 		}
 
-		if (sub.questionTries[i] >= assignment.questions[i].triesAllowed){
+		if (submission.questionTries[i] >= assignment.questions[i].triesAllowed){
 			return helper.sendError(res, 400, 3000, 'You can\'t try this question any more');
 		}
 
@@ -86,18 +86,18 @@ module.exports.submitQuestionAnswer = function(req, res){
 		}
 
 		if (bIsCorrect){
-			sub.pointsEarned += assignment.questions[i].pointsWorth;
-			sub.questionsCorrect[i] = true;
-			sub.markModified('questionsCorrect');
+			submission.pointsEarned += assignment.questions[i].pointsWorth;
+			submission.questionsCorrect[i] = true;
+			submission.markModified('questionsCorrect');
 		}
 
-		sub.questionAnswers[i] = req.body.answer.toString();
-		sub.questionTries[i]++;
+		submission.questionAnswers[i] = req.body.answer.toString();
+		submission.questionTries[i]++;
 		
-		sub.markModified('questionAnswers');
-		sub.markModified('questionTries');
+		submission.markModified('questionAnswers');
+		submission.markModified('questionTries');
 
-		sub.save(function(err, sub){
+		submission.save(function(err, submission){
 			if (err){
 				return helper.sendError(res, 400, 3000, helper.errorHelper(err));
 			}
