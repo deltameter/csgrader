@@ -56,8 +56,44 @@ module.exports.create = function(req, res){
 	});
 }
 
-module.exports.importUsersFromCSV = function(req, res){
-	console.log(req.files);
+module.exports.importStudents = function(req, res){
+
+	//REQUIRES classroom.classCode, csv file
+	var time = Date.now();
+	var course = res.locals.course;
+
+	var classroom = course.classrooms.find(function(classroom){
+		return classroom.classCode = req.body.classCode;
+	});
+
+	if (!classroom){
+		return helper.sendError(res, 400, 300, 'That class was not found.');
+	}
+
+	const columnSelector = function(columns){
+		for (var i = 0; i < columns.length; i++){
+			columns[i] = columns[i].replace(/ /g,'').toLowerCase();
+		}
+		return columns;
+	}
+
+	csv.parse(req.file.buffer, { trim: true, columns: columnSelector }, function(err, students){
+		for (var i = 0; i < students.length; i++){
+			var newStudent = new Student({
+				gradebookID: students[i].id,
+				firstName: students[i].firstname,
+				lastName: students[i].lastname
+			});
+
+			classroom.students.push(newStudent);
+		}
+
+		course.save(function(err, classroom){
+			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+			console.log(Date.now()-time);
+			return helper.sendSuccess(res);
+		});
+	});
 }
 
 module.exports.addStudent = function(req, res){
@@ -199,14 +235,14 @@ module.exports.exportGrades = function(req, res){
 		}
 
 
-		createCSV(course.classrooms[cI], submissions, assignment, function(completedCSV){
+		createGradesCSV(course.classrooms[cI], submissions, assignment, function(completedCSV){
 			console.log(completedCSV);
 			helper.sendSuccess(res);
 		});
  	});
 }
 
-var createCSV = function(classroom, submissions, assignment, callback){
+var createGradesCSV = function(classroom, submissions, assignment, callback){
 
 	//Actually create the csv.
 	//Hash the results so we can quickly access them through the student ID

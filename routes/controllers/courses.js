@@ -8,6 +8,15 @@ var mongoose = require('mongoose'),
 	async = require('async'),
 	helper = require(__base + 'routes/libraries/helper');
 
+module.exports.load = function(req, res, next, courseCode){
+	console.log('load');
+	Course.findOne({ courseCode: courseCode }, function(err, course){
+		req.article = course;
+		if (!req.article) return next(new Error('Article not found'));
+		next();
+	});
+}
+
 module.exports.create = function(req, res){
 	if (req.user.courses.length >= 10){
 		return helper.sendError(res, 400, 1001, 'You have already created the maximum amount of courses allowed.');

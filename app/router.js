@@ -15,6 +15,8 @@ var auth = require (__base + 'routes/middlewares/authorization'),
 	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresAssignment],
 	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresAssignment];
 
+var multer = require('multer')();
+
 module.exports = function(app, passport){
 
 	//******************************
@@ -56,6 +58,8 @@ module.exports = function(app, passport){
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
+	
+	//app.param('courseCode', courses.load);
 
 	app.post('/api/course/create', teacherAuth, courses.create);
 	app.put('/api/course/register', studentAuth, courses.register);
@@ -67,6 +71,8 @@ module.exports = function(app, passport){
 	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
 
 	app.post('/api/course/:courseCode/classroom/student/create', teacherCourseAuth, classrooms.addStudent);
+
+	app.post('/api/course/:courseCode/classroom/student/import', teacherCourseAuth, multer.single('students'), classrooms.importStudents);
 
 	app.put('/api/course/:courseCode/classroom/student/edit', teacherCourseAuth, classrooms.editStudent);
 

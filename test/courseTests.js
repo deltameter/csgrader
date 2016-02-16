@@ -140,6 +140,19 @@ describe('Course', function(){
 			});
 		});
 
+		it('should accept a CSV file of students and create them all', function(done){
+			console.log(classroom.classCode);
+			testTeacher
+			.post('/api/course/smushdapcs/classroom/student/import')
+			.field('classCode', classroom.classCode)
+			.attach('students', __dirname + '/resources/students.csv')
+			.end(function(err, res){
+				console.log(res.body);
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
 		it('should edit a user', function(done){
 			var editUser = {
 				classCode: classroom.classCode,
@@ -180,7 +193,7 @@ describe('Course', function(){
 				expect(res.status).to.equal(200);
 
 				Course.find({}, function(err, courses){
-					expect(courses[0].classrooms[0].students.length).to.equal(2);
+					expect(courses[0].classrooms[0].students.length).to.equal(5);
 					done();
 				});
 			});
