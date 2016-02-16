@@ -79,6 +79,19 @@ module.exports.open = function(req, res){
 	});
 }
 
+module.exports.delete = function(req, res){
+	var course = res.locals.course;
+	var assignment = res.locals.assignment;
+
+	var aIndex = course.assignments.indexOf(assignment._id);
+	course.assignments.splice(aIndex, 1);
+
+	course.save(function(err){
+		if (err) return helper.errorHelper(res, 400, 3000, errorHelper(err));
+		return helper.sendSuccess(res);
+	});
+}
+
 module.exports.addQuestion = function(req, res){
 	var assignment = res.locals.assignment;
 	

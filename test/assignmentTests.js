@@ -5,8 +5,11 @@ var testTeacher = require('./courseTests').testTeacher,
 
 var mongoose = require('mongoose'),
 	Submission = mongoose.model('Submission');
+	Course = mongoose.model('Course');
 
 describe('Assignment', function(){
+
+	var deleteAssignmentID;
 
 	describe('creation', function(){
 		it('should create an assignment given the right info', function(done){
@@ -26,8 +29,43 @@ describe('Assignment', function(){
 				done();
 			});
 		});
+
+		it('should create an assignment that we\'ll delete later', function(done){
+			var deleteAssignment = {
+				name: 'tfw public sector unions',
+				description: 'tfw ronald reagan is dead',
+				pointsWorth: 1000,
+				pointLoss: 1
+			}
+
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/create')
+			.send(deleteAssignment)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				deleteAssignmentID = res.body._id;
+
+				Course.find({}, function(err, course){
+					expect(course[0].assignments.length).to.equal(2);
+					done();
+				});
+			});
+		});
 	});
 
+	describe('deletion', function(){
+		it('should delete the second assignment', function(done){
+			testTeacher
+			.delete('/api/course/smushdapcs/assignment/'+ deleteAssignmentID +'/delete')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Course.find({}, function(err, course){
+					expect(course[0].assignments.length).to.equal(1);
+					done();
+				})
+			});
+		});
+	});
 
 	describe('question', function(){
 		it('should create a question', function(done){

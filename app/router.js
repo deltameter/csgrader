@@ -93,6 +93,8 @@ module.exports = function(app, passport){
 	
 	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
 
+	app.delete(assignmentRoute + '/delete', teacherCourseAuth, auth.requiresAssignment, assignments.delete);
+
 	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, assignments.addQuestion);
 
 	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);

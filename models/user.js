@@ -27,6 +27,9 @@ var userSchema = new Schema({
 	//Courses the user is taking or teaching
 	courses: [Schema.Types.ObjectId],
 
+	//Used to quickly identify authorization status
+	courseCodes: [String],
+
 	//courses the user has taken or has taught
 	archivedCourses: [Schema.Types.ObjectId]
 	

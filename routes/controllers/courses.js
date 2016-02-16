@@ -8,15 +8,6 @@ var mongoose = require('mongoose'),
 	async = require('async'),
 	helper = require(__base + 'routes/libraries/helper');
 
-module.exports.load = function(req, res, next, courseCode){
-	console.log('load');
-	Course.findOne({ courseCode: courseCode }, function(err, course){
-		req.article = course;
-		if (!req.article) return next(new Error('Article not found'));
-		next();
-	});
-}
-
 module.exports.create = function(req, res){
 	if (req.user.courses.length >= 10){
 		return helper.sendError(res, 400, 1001, 'You have already created the maximum amount of courses allowed.');
@@ -25,7 +16,7 @@ module.exports.create = function(req, res){
 	var newCourse = new Course({
 		owner: req.user._id,
 		name: req.body.name,
-		courseCode: req.body.courseCode,
+		courseCode: req.body.courseCode.replace(/\s/g, ''),
 		password: req.body.password
 	});
 
@@ -43,7 +34,7 @@ module.exports.create = function(req, res){
 
 module.exports.changeCourseInfo = function(req, res){
 	req.user.checkPassword(req.body.password, function(err, bIsPassword){
-		if (!bIsPassword) return res.render('pages/course/creation.ejs', { message: 'Incorrect password.' });
+		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
 
 		var course = res.locals.course;
 
@@ -51,10 +42,25 @@ module.exports.changeCourseInfo = function(req, res){
 			course.name = req.body.name;
 			course.password = req.body.password;
 			course.save(function(err, course){
-				if (err) return res.render('pages/course/creation.ejs', { message: helper.errorHelper(err) });
-				return res.redirect('/course' + course.courseID);
+				if (err) return  helper.sendError(res, 400, 3000, helper.errorHelper(err));
+
+				return helper.sendSuccess(res);
 			})
 		} 
+	});
+}
+
+module.exports.delete = function(req, res){
+	req.user.checkPassword(req.body.password, function(err, bIsPassword){
+		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
+
+		var course = res.locals.course;
+
+		course.remove(function(err){
+			if (err) return helper.sendError(res, 500, 1000, 'Something went wrong with the database');
+			
+			return helper.sendSuccess(res);
+		});
 	});
 }
 
@@ -124,6 +130,7 @@ module.exports.register = function(req, res){
 		async.parallel({
 			user: function(callback){
 				req.user.courses.push(course._id);
+				req.user.courseCodes.push(course.courseCode);
 				req.user.save(function(err){
 					callback(err);
 				});

@@ -1,6 +1,6 @@
 'use strict';
 
-var mongoose = require('mongoose'),
+const mongoose = require('mongoose'),
 	Classroom = mongoose.model('Classroom'),
 	Assignment = mongoose.model('Assignment'),
 	Submission = mongoose.model('Submission'),
@@ -57,9 +57,7 @@ module.exports.create = function(req, res){
 }
 
 module.exports.importStudents = function(req, res){
-
 	//REQUIRES classroom.classCode, csv file
-	var time = Date.now();
 	var course = res.locals.course;
 
 	var classroom = course.classrooms.find(function(classroom){
@@ -70,7 +68,7 @@ module.exports.importStudents = function(req, res){
 		return helper.sendError(res, 400, 300, 'That class was not found.');
 	}
 
-	const columnSelector = function(columns){
+	var columnSelector = function(columns){
 		for (var i = 0; i < columns.length; i++){
 			columns[i] = columns[i].replace(/ /g,'').toLowerCase();
 		}
@@ -90,7 +88,6 @@ module.exports.importStudents = function(req, res){
 
 		course.save(function(err, classroom){
 			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-			console.log(Date.now()-time);
 			return helper.sendSuccess(res);
 		});
 	});
