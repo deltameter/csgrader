@@ -104,7 +104,6 @@ describe('Submission', function(){
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				console.log(res.body);
 				done();
 			});
 		})

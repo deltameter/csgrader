@@ -233,7 +233,6 @@ module.exports.exportGrades = function(req, res){
 
 
 		createGradesCSV(course.classrooms[cI], submissions, assignment, function(completedCSV){
-			console.log(completedCSV);
 			helper.sendSuccess(res);
 		});
  	});

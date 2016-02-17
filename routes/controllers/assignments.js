@@ -5,6 +5,7 @@ var mongoose = require('mongoose'),
 	Submission = mongoose.model('Submission'),
 	Course = mongoose.model('Course'),
 	Question = mongoose.model('Question'),
+	Exercise = mongoose.model('Exercise'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getAssignment = function(req, res){
@@ -151,6 +152,67 @@ module.exports.editQuestion = function(req, res){
 	});
 }
 
+module.exports.deleteQuestion = function(req, res){
+	var assignment = res.locals.assignment;
+	const questionIndex = req.body.questionIndex;
+
+	assignment.questions.splice(questionIndex, 1);
+
+	//Splice it out of the content order
+	var numOfQuestions = 0;
+	for (var i = 0; i < assignment.contentOrder; i++){
+		if (!assignment.contentOrder[i]){
+			if (numOfQuestions === questionIndex){
+				assignment.contentOrder.splice(i, 1);
+				break;
+			}else{
+				numOfQuestions++;
+			}
+		}
+	}
+
+	assignment.save(function(err){
+		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
+		return helper.sendSuccess(res);
+	});
+}
+
 module.exports.addExercise = function(req, res){
+	var assignment = res.locals.assignment;
+
+	assignment.exercises.push(new Exercise());
+	assignment.contentOrder.push(true);
+	assignment.save(function(err){
+		if (err){
+			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		}
+		return helper.sendSuccess(res);
+	});
+
 	return helper.sendSuccess(res);
+}
+
+module.exports.deleteExercise = function(req, res){
+	var assignment = res.locals.assignment;
+	const exerciseIndex = req.body.exerciseIndex;
+
+	assignment.exercises.splice(exerciseIndex, 1);
+
+	//Splice it out of the content order
+	var numOfExercises = 0;
+	for (var i = 0; i < assignment.contentOrder; i++){
+		if (assignment.contentOrder[i]){
+			if (numOfExercises === exerciseIndex){
+				assignment.contentOrder.splice(i, 1);
+				break;
+			}else{
+				numOfExercises++;
+			}
+		}
+	}
+
+	assignment.save(function(err){
+		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
+		return helper.sendSuccess(res);
+	});
 }

@@ -141,13 +141,11 @@ describe('Course', function(){
 		});
 
 		it('should accept a CSV file of students and create them all', function(done){
-			console.log(classroom.classCode);
 			testTeacher
 			.post('/api/course/smushdapcs/classroom/student/import')
 			.field('classCode', classroom.classCode)
 			.attach('students', __dirname + '/resources/students.csv')
 			.end(function(err, res){
-				console.log(res.body);
 				expect(res.status).to.equal(200);
 				done();
 			});
@@ -167,7 +165,6 @@ describe('Course', function(){
 			.send(editUser)
 			.end(function(err, res){
 				if (err) throw err;
-				console.log(res.body);
 				expect(res.status).to.equal(200);
 
 				Course.find({}, function(err, courses){
