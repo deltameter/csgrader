@@ -5,7 +5,8 @@ var general = require(__base + 'routes/controllers/general'),
 	courses = require(__base + 'routes/controllers/courses'),
 	assignments = require(__base + 'routes/controllers/assignments'),
 	submissions = require(__base + 'routes/controllers/submissions'),
-	classrooms = require(__base + 'routes/controllers/classrooms');
+	classrooms = require(__base + 'routes/controllers/classrooms'),
+	helper = require(__base + 'routes/libraries/helper');
 
 var auth = require (__base + 'routes/middlewares/authorization'),
 	studentAuth = [auth.requiresLogin, auth.requiresStudent],
@@ -23,7 +24,10 @@ module.exports = function(app, passport){
 	//****** CS GRADER ROUTES ******
 	//******************************
 	
-	app.get('/', general.showIndex);
+	//app.get('/', general.showIndex);
+	app.get('/', function(req, res){
+		return res.sendFile(__base + '/views/base.html');
+	});
 
 	//******************************
 	//******** USER ROUTES *********
