@@ -20,14 +20,6 @@ var multer = require('multer')();
 
 module.exports = function(app, passport){
 
-	//******************************
-	//****** CS GRADER ROUTES ******
-	//******************************
-	
-	//app.get('/', general.showIndex);
-	app.get('/', function(req, res){
-		return res.sendFile(__base + '/views/base.html');
-	});
 
 	//******************************
 	//******** USER ROUTES *********
@@ -48,7 +40,7 @@ module.exports = function(app, passport){
 				if (err){ 
 					return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
 				}
-				return users.signedIn(req, res);
+				return users.getSelf(req, res);
 			});
 		})(req, res, next);
 	});
@@ -112,6 +104,20 @@ module.exports = function(app, passport){
 	app.post(assignmentRoute + '/submission/create', studentAssignmentAuth, submissions.create);
 
 	app.put(assignmentRoute + '/submit/question', studentAssignmentAuth, submissions.submitQuestionAnswer);
+
+
+	//******************************
+	//****** CS GRADER ROUTES ******
+	//******************************
+	
+	//app.get('/', general.showIndex);
+	app.get('*', function(req, res){
+		return res.sendFile(__base + '/views/base.html');
+	});
+
+	//******************************
+	//*** ERROR HANDLING ROUTES ****
+	//******************************
 
 	// catch 404 and forward to error handler
 	app.use(function(req, res, next) {

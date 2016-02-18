@@ -21,7 +21,7 @@
 						<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" ui-sref="root.main">
-						CSGrader
+						CSGrader {{ navCtrl.$state.current.name }} {{ navCtrl.bLoggedIn }}
 					</a>
 				</div>
 				<div ng-cloak>
@@ -29,7 +29,7 @@
 						<li><a ui-sref="root.profile">Profile</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right" ng-show="navCtrl.bLoggedIn === false">
-						<li><a ui-sref="root.auth">Sign Up!</a></li>
+						<li><a ui-sref="root.login">Sign in!</a></li>
 					</ul>
 		        <div>
 			</div>
@@ -38,7 +38,7 @@
 
 		<div ui-view></div>
 
-		<a ui-sref="root.index">index</a>
+		<a ui-sref="root.main">index</a>
 		<a ui-sref="root.profile">profile</a>
 
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

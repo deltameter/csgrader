@@ -4,7 +4,7 @@
 		var root = this;
 		this.authMessage = '';
 		this.user = {
-			username: '',
+			email: '',
 			password: ''
 		};
 
@@ -19,6 +19,29 @@
 		};
 	});
 	
+	angular.module('user').controller('JoinController', function($state, $rootScope, AuthService){
+		var root = this;
+		this.authMessage = '';
+		this.user = {
+			firstName: '',
+			lastName: '',
+			retypePassword: '', 
+			password: '',
+			email: '',
+			accountType: ''
+		};
+
+		this.signup = function() {
+			AuthService.signup(root.user).then(
+				function(res){
+					$state.go('root.profile');
+				},
+				function(res){
+					root.authMessage = res.data.userMessage;
+				});
+		};
+	});
+
 	angular.module('user').controller('DashboardController', function($state, Session){
 		this.user = Session.user;
 	});

@@ -16,15 +16,16 @@
 			url: '/',
 			template: '<ui-view/>',
 			controller: function($state, AuthService){
+				console.log('hi');
 				if (AuthService.isAuthenticated()){
 					$state.go('root.dashboard');
 				}else{
-					$state.go('root.main.public');
+					$state.go('root.public');
 				}
 			}
 		})
 
-		.state('root.main.public', {
+		.state('root.public', {
 			templateUrl: '/angular/general/partials/index.html'
 		});
 

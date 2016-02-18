@@ -24,10 +24,10 @@ module.exports.create = function(req, res){
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		password: req.body.password,
-		email: req.body.email
+		email: req.body.email.toLowerCase()
 	});
 
-	if (typeof req.body.accountType == 'undefined'){
+	if (typeof req.body.accountType == 'undefined' || req.body.accountType.length <= 0){
 		return helper.sendError(res, 400, 3000, 'Please select an account type.');
 	}else{
 		newUser.bIsTeacher = (req.body.accountType == 'teacher' ? true : false);

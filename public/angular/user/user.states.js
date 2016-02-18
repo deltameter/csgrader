@@ -1,10 +1,17 @@
 (function(){
 	angular.module('user').config(['$stateProvider', function($stateProvider){
-		$stateProvider.state('root.auth', {
-			url: '/auth',
-			templateUrl: '/angular/user/partials/auth.html',
+		$stateProvider.state('root.login', {
+			url: '/login',
+			templateUrl: '/angular/user/partials/login.html',
 			controller: 'LoginController',
 			controllerAs: 'loginCtrl'
+		});
+
+		$stateProvider.state('root.join', {
+			url: '/join',
+			templateUrl: '/angular/user/partials/join.html',
+			controller: 'JoinController',
+			controllerAs: 'joinCtrl'
 		});
 
 		$stateProvider.state('root.dashboard', {

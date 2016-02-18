@@ -1,8 +1,9 @@
 (function(){
 	angular.module('user').factory('AuthService', function ($http, Session) {
 		var authService = {};
+		var user = {};
 
-		authService.login = function (credentials) {
+		authService.login = function(credentials) {
 			return $http
 			.post('/auth/local', credentials)
 			.then(function (res) {
@@ -11,7 +12,20 @@
 			});
 		};
 
-		authService.isAuthenticated = function () {
+		authService.signup = function(newUser){
+			return $http
+			.post('/api/user/join', newUser)
+			.then(
+			function Success(res){
+				console.log(res.data);
+				Session.create(res.data);
+				return res.data;
+			}, function Failure(res){
+				return res.data;
+			});
+		};
+
+		authService.isAuthenticated = function() {
 			return Session.live();
 		};
 
@@ -34,6 +48,7 @@
 			$rootScope.currentUser = user;
 			root.user = user;
 		};
+
 		this.destroy = function () {
 			$rootScope.currentUser = null;
 			root.user = null;
