@@ -107,6 +107,7 @@ userSchema.statics = {
 	safeSend: function(user){
 		return {
 			bIsTeacher: user.bIsTeacher,
+			bHasActivatedAccount: user.bHasActivatedAccount,
 			firstName: user.firstName,
 			lastName: user.lastName,
 			courses: user.courses

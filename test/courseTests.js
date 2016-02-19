@@ -50,6 +50,16 @@ describe('Course', function(){
 				done();
 			});
 		});
+
+		it('asdf', function(done){
+			testTeacher
+			.get('/api/profile/courses')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
 	});
 
 	describe('classroom', function(){

@@ -3,10 +3,49 @@
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
 	Course = mongoose.model('Course'),
+	Assignment = mongoose.model('Assignment'),
 	Classroom = mongoose.model('Classroom'),
 	Student = mongoose.model('Student'),
 	async = require('async'),
 	helper = require(__base + 'routes/libraries/helper');
+
+module.exports.getCourses = function(req, res){
+	Course.find({ _id : { $in : req.user.courses }}, { name: 1, assignments: 1 }, function(err, courses){
+		var safeCourses = new Array(courses.length);
+
+		var getLastAssignment = function(course, callback){
+			if (course.assignments.length <= 0){
+				return callback(null, null);
+			}
+			const a = course.assignments.length - 1; 
+			Assignment.findOne(
+				{ _id: course.assignments[a] }, 
+				{ name: 1, dueDate: 1, pointsWorth: 1 }, 
+				function(err, assignment){
+					return callback(err, assignment);
+			})
+		}
+
+		async.map(courses, getLastAssignment, function(err, results){
+			for(var i = 0; i < safeCourses.length; i++){
+				var course = {};
+
+				course.courseName = courses[i].name;
+
+				if (results[i] !== null){
+					course.assignmentName = results[i].name;
+					course.assignmentDueDate = results[i].dueDate;
+					course.assignmentPoints = results[i].pointsWorth;
+				}
+
+				safeCourses[i] = course;
+			}
+
+			console.log(safeCourses);
+			return helper.sendSuccess(res, safeCourses);
+		});
+	});
+}
 
 module.exports.create = function(req, res){
 	if (req.user.courses.length >= 10){

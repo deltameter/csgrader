@@ -11,7 +11,7 @@
 		this.login = function() {
 			AuthService.login(root.user).then(
 				function(res){
-					$state.go('root.profile');
+					$state.go('root.main');
 				},
 				function(res){
 					root.authMessage = res.data.userMessage;
@@ -34,16 +34,12 @@
 		this.signup = function() {
 			AuthService.signup(root.user).then(
 				function(res){
-					$state.go('root.profile');
+					$state.go('root.main');
 				},
 				function(res){
 					root.authMessage = res.data.userMessage;
 				});
 		};
-	});
-
-	angular.module('user').controller('DashboardController', function($state, Session){
-		this.user = Session.user;
 	});
 
 	angular.module('user').controller('ProfileController', function($state, Session){

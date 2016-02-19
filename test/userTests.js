@@ -46,7 +46,7 @@ describe('User', function(){
 				if (err) throw err;
 				emailActivations.teacher = res.body.activationCode;
 				testTeacher.post('/auth/local')
-				.send({ username: 'johndoe@gmail.com', password: 'password1' })
+				.send({ email: 'johndoe@gmail.com', password: 'password1' })
 				.expect(200)
 				.end(function(err, res) {
 					if (err) throw err;
@@ -65,7 +65,7 @@ describe('User', function(){
 				if (err) throw err;
 				emailActivations.student = res.body.activationCode;
 				testStudent.post('/auth/local')
-				.send({ username: 'litlejohnny@school.com', password: 'apple123' })
+				.send({ email: 'litlejohnny@school.com', password: 'apple123' })
 				.expect(200)
 				.end(function(err, res) {
 					done();

@@ -13,13 +13,7 @@
 			controller: 'JoinController',
 			controllerAs: 'joinCtrl'
 		});
-
-		$stateProvider.state('root.dashboard', {
-			templateUrl: '/angular/user/partials/dashboard.html',
-			controller: 'DashboardController',
-			controllerAs: 'dashboardCtrl'
-		});
-
+		
 		$stateProvider.state('root.profile', {
 			url: '/profile',
 			templateUrl: '/angular/user/partials/profile.html',

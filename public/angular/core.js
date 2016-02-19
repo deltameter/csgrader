@@ -3,6 +3,7 @@
 		[
 			'ui.router',
 			'general',
+			'courses',
 			'user'
 		]);
 

@@ -42,6 +42,7 @@
 
 		this.setCurrentUser = function(user){
 			$rootScope.currentUser = user;
+			root.user = user;
 		}
 
 		this.create = function(user){

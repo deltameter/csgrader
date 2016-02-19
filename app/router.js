@@ -47,17 +47,20 @@ module.exports = function(app, passport){
 
 
 	app.get('/api/profile', auth.requiresLogin, users.getSelf);
+
 	app.post('/api/user/join', users.create);
+
 	app.put('/api/user/emailActivation', users.emailActivation)
+
 	app.get('/api/user/logout', auth.requiresLogin, users.logout);
 
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
-	
-	//app.param('courseCode', courses.load);
+	app.get('/api/profile/courses', auth.requiresLogin, courses.getCourses);
 
 	app.post('/api/course/create', teacherAuth, courses.create);
+
 	app.put('/api/course/register', studentAuth, courses.register);
 
 	//******************************
@@ -132,21 +135,15 @@ module.exports = function(app, passport){
 	// will print stacktrace
 	if (app.get('env') === 'development') {
 		app.use(function(err, req, res, next) {
-			res.status(err.status || 500);
-			res.render('error', {
-				message: err.message,
-				error: err
-			});
+			return helper.sendError(res, 500, 1000, err.message);
 		});
 	}
 
 	// production error handler
 	// no stacktraces leaked to user
 	app.use(function(err, req, res, next) {
-		res.status(err.status || 500);
-		res.render('error', {
-			message: err.message,
-			error: {}
+		app.use(function(err, req, res, next) {
+			return helper.sendError(res, 500, 1000, err.message);
 		});
 	});
 }

@@ -53,7 +53,7 @@ module.exports.sendActivationEmail = function(req, res){
 	if (config.env === 'dev'){
 		req.user.bHasActivatedAccount = true;
 		req.user.save();
-		return helper.sendSuccess(res);
+		return helper.sendSuccess(res, User.safeSend(req.user));
 	}
 
 	var emailData = {
@@ -64,12 +64,12 @@ module.exports.sendActivationEmail = function(req, res){
 	};
 
 	helper.sendEmail(req.user, emailData, function(err, activationCode){
-		if (err) console.log(err);
+		if (err) return helper.sendError(res, 500, 3000, helper.errorHelper(err));
 		//do this so we can easily test if the email activation works.
 		if (config.env === 'test'){
 			return res.status(200).json({ activationCode: activationCode });
 		}
-		return helper.sendSuccess(res);
+		return helper.sendSuccess(res, User.safeSend(req.user));
 	});
 }
 
