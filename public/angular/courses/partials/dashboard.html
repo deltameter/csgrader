@@ -1,14 +1,23 @@
-<div class="container" ng-cloak>
-	<p>dash</p>
-	{{ dashboardCtrl.user }}
+<div class="container" ng-show="dashboardCtrl.courses.length > 0">
+	<h2>Dashboard</h2>
+	<hr>
 
-	<div ng-repeat="course in dashboardCtrl.courses">
-		<p>{{ course }} </p>
+	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="course in dashboardCtrl.courses">
+		<a ui-sref="root.course({ courseCode: '{{ course.courseCode }}' })">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ course.name }}</h3>
+				</div>
+				<div class="panel-body">
+					<p class="pull-right">{{ course.assignmentName }}</p>
+					<p class="pull-left">{{ course.assignmentdueDate }}</p>
+				</div>
+			</div>
+		</a>
 	</div>
-
-	<div ng-show="{{ dashboardCtrl.user.bIsTeacher }}">
+	<div class="med-spacer" ng-show="dashboardCtrl.user.bIsTeacher">
 		<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-			<div class="alert alert-warning" ng-show="dashboardCtrl.authMessage" ng-cloak>
+			<div class="alert alert-warning" ng-show="dashboardCtrl.authMessage">
 				<p>{{ dashboardCtrl.errMessage }}</p>
 			</div>
 			<form name="newCourseForm" class="form-horizontal" ng-submit="newCourseForm.$valid && dashboardCtrl.createCourse()" novalidate>

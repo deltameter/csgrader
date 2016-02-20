@@ -8,9 +8,9 @@
 		var getCourses = function(){
 			$http
 			.get('/api/profile/courses')
-			.then(function(res){
+			.then(function Success(res){
 				root.courses = res.data;
-				console.log(res.data);
+			}, function Failure(res){
 			});
 		};
 
@@ -21,5 +21,9 @@
 		}
 
 		getCourses();
+	});
+
+	angular.module('user').controller('CourseController', function($state, $http, $stateParams){
+		alert($stateParams.courseCode);
 	});
 })();

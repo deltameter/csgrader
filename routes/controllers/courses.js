@@ -10,8 +10,7 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getCourses = function(req, res){
-	Course.find({ _id : { $in : req.user.courses }}, { name: 1, assignments: 1 }, function(err, courses){
-		var safeCourses = new Array(courses.length);
+	Course.find({ _id : { $in : req.user.courses }}, { name: 1, courseCode: 1, assignments: 1 }, function(err, courses){
 
 		var getLastAssignment = function(course, callback){
 			if (course.assignments.length <= 0){
@@ -27,22 +26,19 @@ module.exports.getCourses = function(req, res){
 		}
 
 		async.map(courses, getLastAssignment, function(err, results){
-			for(var i = 0; i < safeCourses.length; i++){
-				var course = {};
-
-				course.courseName = courses[i].name;
+			for(var i = 0; i < courses.length; i++){
+				
+				courses[i].assignments = undefined;
+				courses[i]._id = undefined;
 
 				if (results[i] !== null){
-					course.assignmentName = results[i].name;
-					course.assignmentDueDate = results[i].dueDate;
-					course.assignmentPoints = results[i].pointsWorth;
+					courses[i].assignmentName = results[i].name;
+					courses[i].assignmentDueDate = results[i].dueDate;
+					courses[i].assignmentPoints = results[i].pointsWorth;
 				}
-
-				safeCourses[i] = course;
 			}
 
-			console.log(safeCourses);
-			return helper.sendSuccess(res, safeCourses);
+			return helper.sendSuccess(res, courses);
 		});
 	});
 }

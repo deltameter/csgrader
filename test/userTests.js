@@ -91,7 +91,7 @@ describe('User', function(){
 			.put('/api/user/emailActivation')
 			.send({ activationCode: 'topkek' })
 			.end(function(err, res){
-				expect(res.status).to.equal(500);
+				expect(res.status).to.equal(401);
 				done();
 			});
 		});

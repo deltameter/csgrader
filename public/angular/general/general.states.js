@@ -16,18 +16,21 @@
 			url: '/',
 			template: '<ui-view/>',
 			controller: function($state, AuthService){
-				console.log('hi');
+				console.log($state.current.name);
+				console.log(AuthService.isAuthenticated());
 				if (AuthService.isAuthenticated()){
-					$state.go('root.dashboard');
+					$state.go('root.main.dashboard');
 				}else{
-					$state.go('root.public');
+					$state.go('root.main.public');
 				}
 			}
 		})
 
-		.state('root.public', {
-			templateUrl: '/angular/general/partials/index.html'
+		.state('root.main.public', {
+			templateUrl: '/angular/general/partials/index.html',
+			controller: function(){
+				console.log('Hit public index');
+			}
 		});
-
 	});
 })();

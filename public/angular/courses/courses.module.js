@@ -1,3 +1,3 @@
 (function(){
-	var app = angular.module('courses', [])
+	var app = angular.module('courses', []);
 })();
