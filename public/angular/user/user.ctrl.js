@@ -1,5 +1,4 @@
 (function(){
-
 	angular.module('user').controller('LoginController', function($state, $rootScope, AuthService){
 		var root = this;
 		this.authMessage = '';

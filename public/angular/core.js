@@ -12,7 +12,7 @@
 		$locationProvider.html5Mode(true);
 	}]);
 	
-/*	app.run(function ($rootScope, AuthService, AuthResolver) {
+	app.run(function ($rootScope, AuthService, AuthResolver) {
   		$rootScope.$on('$stateChangeStart', function (event, next) {
   			if (AuthResolver.bIsResolved()){
   				console.log('stateChangeStart resolved');
@@ -24,5 +24,5 @@
   				})
   			}
   		});
-	})*/
+	});
 })();

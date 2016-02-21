@@ -1,17 +1,19 @@
 (function(){
 	angular.module('user').controller('DashboardController', function($state, $http, CourseService, Session){
 		var root = this;
-		root.newCourse = {};
-		root.courses = [];
-		root.user = Session.user;
+		this.newCourse = {};
+		this.courses = null;
+		this.user = Session.user;
 
 		var getCourses = function(){
-			$http
-			.get('/api/profile/courses')
-			.then(function Success(res){
-				root.courses = res.data;
-			}, function Failure(res){
-			});
+			CourseService.getCourses().then(
+				function Success(res){
+					root.courses = res.data;
+				}, 
+				function Failure(res){
+
+				}
+			);
 		};
 
 		this.createCourse = function(){
@@ -23,7 +25,26 @@
 		getCourses();
 	});
 
-	angular.module('user').controller('CourseController', function($state, $http, $stateParams){
-		alert($stateParams.courseCode);
+	angular.module('user').controller('CourseController', 
+		function($state, $http, $stateParams, CourseService, Session){
+
+		var root = this;
+
+		this.course = null;
+		root.user = Session.user;
+
+		var getCourse = function(){
+			CourseService.getCourse($stateParams.courseCode).then(
+				function Success(res){
+					console.log(res);
+					root.course = res.data;
+				}, 
+				function Failure(res){
+
+				}
+			);
+		};
+
+		getCourse();
 	});
 })();

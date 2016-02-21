@@ -16,8 +16,6 @@
 			url: '/',
 			template: '<ui-view/>',
 			controller: function($state, AuthService){
-				console.log($state.current.name);
-				console.log(AuthService.isAuthenticated());
 				if (AuthService.isAuthenticated()){
 					$state.go('root.main.dashboard');
 				}else{

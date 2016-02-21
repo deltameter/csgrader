@@ -1,17 +1,17 @@
 (function(){
-	angular.module('courses').factory('CourseService', function ($http, Session) {
-		var courseService = {};
-
-		courseService.createCourse = function(newCourse) {
-			return $http
-			.post('/api/course/create', newCourse)
-			.then(function Success(res) {
-				return res.data;
-			}, function Failure(res){
-				return res.data;
-			});
+	angular.module('courses').factory('CourseService', function ($http) {
+		this.createCourse = function(newCourse) {
+			return $http.post('/api/course/create', newCourse);
 		};
 
-		return courseService;
+		this.getCourses = function(){
+			return $http.get('/api/profile/courses');
+		}
+
+		this.getCourse = function(courseCode){
+			return $http.get('/api/course/' + courseCode);
+		}
+
+		return this;
 	});
 })();

@@ -57,11 +57,15 @@ module.exports = function(app, passport){
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
+
+	//Get a list of user's courses
 	app.get('/api/profile/courses', auth.requiresLogin, courses.getCourses);
 
 	app.post('/api/course/create', teacherAuth, courses.create);
 
 	app.put('/api/course/register', studentAuth, courses.register);
+
+	app.get('/api/course/:courseCode/', courseAuth, courses.getCourse);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******

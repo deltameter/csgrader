@@ -43,6 +43,28 @@ module.exports.getCourses = function(req, res){
 	});
 }
 
+module.exports.getCourse = function(req, res){
+	var projection;
+	console.log(req.params.courseCode);
+
+	if (req.user.bIsTeacher){
+		projection = { owner: 1, name: 1, assignments: 1 };
+	}else {
+		projection = { owner: 1, name: 1, classrooms: 1, assignments: 1 };
+	}
+
+	Course
+	.findOne({ courseCode: req.params.courseCode })
+	.select(projection)
+	.populate('owner', 'firstName lastName')
+	.exec(function(err, course){
+		console.log(course);
+		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
+
+		return helper.sendSuccess(res, course);
+	});
+}
+
 module.exports.create = function(req, res){
 	if (req.user.courses.length >= 10){
 		return helper.sendError(res, 400, 1001, 'You have already created the maximum amount of courses allowed.');

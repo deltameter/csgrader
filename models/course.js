@@ -7,7 +7,7 @@ var mongoose = require('mongoose'),
 var courseSchema = new Schema({
 	//Absolute owner of course. Holds Imperium. 
 	bIsOpen: { type: Boolean, default: false },
-	owner: Schema.Types.ObjectId,
+	owner: { type: Schema.Types.ObjectId, ref: 'User' },
 	name: { type: String, required: true },
 
 	courseCode: { type: String, required: true, index: true },
