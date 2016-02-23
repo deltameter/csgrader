@@ -188,7 +188,7 @@ describe('Course', function(){
 
 		it('should delete a user', function(done){
 			var deleteUser = {
-				studentID: modifyUser._id,
+				studentIndex: 2,
 				classCode: classroom.classCode
 			}
 

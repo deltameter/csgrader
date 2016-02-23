@@ -1,3 +1,52 @@
 <div class="container" ng-show="courseCtrl.course !== null">
 	<p>{{ courseCtrl.course }}</p>
+
+	<p>{{ courseCtrl.newAssignment }}</p>
+
+	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="assignment in courseCtrl.course.assignments">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">{{ assignment.name }}</h3>
+			</div>
+			<div class="panel-body">
+				<div class="medSpacer col-xs-12">
+					<p>{{ assignment.description }}</p>
+				</div>
+
+				<p class="pull-right">{{ assignment.pointsWorth }}</p>
+				<p class="pull-left">{{ assignment.dueDate }}</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="med-spacer" ng-show="courseCtrl.user.bIsTeacher">
+		<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+			<div class="alert alert-warning" ng-show="courseCtrl.authMessage">
+				<p>{{ courseCtrl.errMessage }}</p>
+			</div>
+			{{ newAssignmentForm.$valid }}
+			<form name="newAssignmentForm" class="form-horizontal" ng-submit="newAssignmentForm.$valid && courseCtrl.createAssignment()" novalidate>
+				<fieldset>
+					<div class="form-group">
+						<div class="col-md-10 col-md-offset-1">
+							<input type="text" ng-model="courseCtrl.newAssignment.name" placeholder="Course Name" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-10 col-md-offset-1">
+							<input type="text" ng-model="courseCtrl.newAssignment.description" placeholder="Course Code" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+							<button type="submit" class="btn btn-block btn-primary">Submit</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+
 </div>

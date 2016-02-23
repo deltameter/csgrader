@@ -1,7 +1,6 @@
 <div class="container" ng-show="dashboardCtrl.courses !== null">
 	<h2>Dashboard</h2>
 	<hr>
-
 	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="course in dashboardCtrl.courses">
 		<a ui-sref="root.course({ courseCode: '{{ course.courseCode }}' })">
 			<div class="panel panel-primary">
@@ -10,7 +9,7 @@
 				</div>
 				<div class="panel-body">
 					<p class="pull-right">{{ course.assignmentName }}</p>
-					<p class="pull-left">{{ course.assignmentdueDate }}</p>
+					<p class="pull-left">{{ course.assignmentDueDate }}</p>
 				</div>
 			</div>
 		</a>

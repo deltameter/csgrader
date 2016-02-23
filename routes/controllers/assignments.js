@@ -30,19 +30,20 @@ module.exports.getAssignment = function(req, res){
 
 module.exports.create = function(req, res){
 	var course = res.locals.course;
+
 	var newAssignment = new Assignment({
 		courseID: course._id,
 		name: req.body.name,
-		description: req.body.description,
-		pointsWorth: req.body.pointsWorth,
-		pointLoss: req.body.pointLoss
+		description: req.body.description
 	});
 
 	newAssignment.save(function(err, assignment){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
+
 		course.assignments.push(newAssignment._id);
+		
 		course.save(function(err, course){
 			if (err){
 			//Wow, we're fucked

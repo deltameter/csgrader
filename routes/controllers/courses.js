@@ -16,13 +16,15 @@ module.exports.getCourses = function(req, res){
 			if (course.assignments.length <= 0){
 				return callback(null, null);
 			}
+
 			const a = course.assignments.length - 1; 
+
 			Assignment.findOne(
 				{ _id: course.assignments[a] }, 
 				{ name: 1, dueDate: 1, pointsWorth: 1 }, 
 				function(err, assignment){
 					return callback(err, assignment);
-			})
+			});
 		}
 
 		async.map(courses, getLastAssignment, function(err, results){
@@ -48,15 +50,16 @@ module.exports.getCourse = function(req, res){
 	console.log(req.params.courseCode);
 
 	if (req.user.bIsTeacher){
-		projection = { owner: 1, name: 1, assignments: 1 };
+		projection = { owner: 1, name: 1, assignments: { $slice: -5 } };
 	}else {
-		projection = { owner: 1, name: 1, classrooms: 1, assignments: 1 };
+		projection = { owner: 1, name: 1, classrooms: 1, assignments: { $slice: -5 } };
 	}
 
 	Course
 	.findOne({ courseCode: req.params.courseCode })
 	.select(projection)
 	.populate('owner', 'firstName lastName')
+	.populate('assignments', 'courseID name description')
 	.exec(function(err, course){
 		console.log(course);
 		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
@@ -92,8 +95,6 @@ module.exports.create = function(req, res){
 module.exports.changeCourseInfo = function(req, res){
 	req.user.checkPassword(req.body.password, function(err, bIsPassword){
 		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
-
-		var course = res.locals.course;
 
 		if (course.owner === req.user._id){
 			course.name = req.body.name;

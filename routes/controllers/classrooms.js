@@ -160,6 +160,8 @@ module.exports.editStudent = function(req, res){
 module.exports.deleteStudent = function(req, res){
 	//REQUIRES student._id
 	var course = res.locals.course;
+	var studentIndex = req.body.studentIndex;
+	var studentID;
 
 	var classroom = course.classrooms.find(function(classroom){
 		return classroom.classCode = req.body.classCode;
@@ -169,24 +171,29 @@ module.exports.deleteStudent = function(req, res){
 		return helper.sendError(res, 400, 300, 'That class was not found.');
 	}
 
-	var studentIndex = -1;
-
-	for (var i = 0; i < classroom.students.length; i++){
-		if (classroom.students[i]._id.toString() === req.body.studentID){
-			studentIndex = i;
-			break;
-		}
-	}
-
-	if (studentIndex === -1){
+	if (typeof studentIndex !== 'number'){
 		return helper.sendError(res, 400, 300, 'That student was not found.');
 	}
 
-	classroom.students.splice(i, 1);
+	//get student's userID so we can remove this course from them
+	studentID = classroom.students[studentIndex].userID;
 
-	course.save(function(err, classroom){
+	classroom.students.splice(studentIndex, 1);
+
+
+	course.save(function(err){
 		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		return helper.sendSuccess(res);
+
+		//remove course from student's courses array
+		if (typeof studentID !== 'undefined'){
+			User.findOne({ _id: studentID }, function(err, user){
+				var courseIndex = user.courses.indexOf(course._id);
+				user.courses.splice(courseIndex, 1);
+				return helper.sendSuccess(res);
+			});
+		}else{
+			return helper.sendSuccess(res);
+		}
 	});
 }
 

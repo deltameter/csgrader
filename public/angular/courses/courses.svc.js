@@ -12,6 +12,11 @@
 			return $http.get('/api/course/' + courseCode);
 		}
 
+		this.createAssignment = function(courseCode, newAssignment){
+			console.log('hello')
+			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment);
+		};
+
 		return this;
 	});
 })();

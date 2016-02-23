@@ -17,7 +17,7 @@ var assignmentSchema = new Schema({
 
 	pointsWorth: Number,
 
-	//# of points lost due to lateness
+	//% of points lost due to lateness
 	pointLoss: Number,
 
 	questions: [mongoose.model('Question').schema],
@@ -53,5 +53,9 @@ assignmentSchema.pre('validate', function(next) {
     	return next();
     }
 });
+
+assignmentSchema.path('pointLoss').validate(function(pointLoss){
+	return pointLoss >= 0 && pointLoss <= 100;
+}, 'Point loss % due to lateness must be between 0-100%.');
 
 mongoose.model('Assignment', assignmentSchema);

@@ -77,13 +77,11 @@ module.exports.emailActivation = function (req, res){
 	if (typeof req.user === 'undefined'){
 		return helper.sendError(res, 401, 3000, 'You are not logged in!');
 	}else if (req.user.emailAccessCode == req.body.activationCode){
-		console.log('hello1');
 		req.user.bHasActivatedAccount = true;
 		req.user.save(function(err){
 			return helper.sendSuccess(res);
 		});
 	}else{
-		console.log('hell2');
 		return helper.sendError(res, 400, 3000, 'Invalid activation link. Please try again.');
 	}
 }

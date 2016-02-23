@@ -27,23 +27,36 @@
 
 	angular.module('user').controller('CourseController', 
 		function($state, $http, $stateParams, CourseService, Session){
-
 		var root = this;
 
 		this.course = null;
 		root.user = Session.user;
+
+		this.newAssignment = {};
 
 		var getCourse = function(){
 			CourseService.getCourse($stateParams.courseCode).then(
 				function Success(res){
 					console.log(res);
 					root.course = res.data;
+					root.newAssignment.courseID = res.data._id;
 				}, 
 				function Failure(res){
 
 				}
 			);
 		};
+
+		this.createAssignment = function(){
+			CourseService.createAssignment($stateParams.courseCode, root.newAssignment).then(
+				function Success(res){
+					console.log(res);
+				}, 
+				function Failure(res){
+
+				}
+			);
+		}
 
 		getCourse();
 	});
