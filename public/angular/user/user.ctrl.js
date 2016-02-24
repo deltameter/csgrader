@@ -1,6 +1,7 @@
 (function(){
 	angular.module('user').controller('LoginController', function($state, $rootScope, AuthService){
-		var root = this;
+		var vm = this;
+		
 		this.authMessage = '';
 		this.user = {
 			email: '',
@@ -13,13 +14,13 @@
 					$state.go('root.main');
 				},
 				function(res){
-					root.authMessage = res.data.userMessage;
+					vm.authMessage = res.data.userMessage;
 				});
 		};
 	});
 	
 	angular.module('user').controller('JoinController', function($state, $rootScope, AuthService){
-		var root = this;
+		var vm = this;
 		this.authMessage = '';
 		this.user = {
 			firstName: '',
@@ -36,12 +37,12 @@
 					$state.go('root.main');
 				},
 				function(res){
-					root.authMessage = res.data.userMessage;
+					vm.authMessage = res.data.userMessage;
 				});
 		};
 	});
 
-	angular.module('user').controller('ProfileController', function($state, Session){
-		this.user = Session.user;
+	angular.module('user').controller('ProfileController', function($state, UserFactory){
+		this.user = UserFactory.getUser();
 	});
 })();

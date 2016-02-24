@@ -9,12 +9,12 @@ gulp.task('js', function () {
 	streamqueue({ objectMode: true },
 		gulp.src('./public/angular/**/*.module.js'),
 		//include everything but the module js
-		gulp.src(['!./public/angular/**/main.js', '!./public/angular/**/*.module.js', 
+		gulp.src(['!./public/angular/**/main.min.js', '!./public/angular/**/*.module.js', 
 			'./public/angular/**/core.js', './public/angular/**/*.js'])
 		)
 	
 	.pipe(sourcemaps.init())
-	.pipe(concat('main.js'))
+	.pipe(concat('main.min.js'))
 	.pipe(ngAnnotate())
 	.pipe(uglify({ mangle: false }))
 	.pipe(sourcemaps.write())

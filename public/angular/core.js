@@ -4,7 +4,8 @@
 			'ui.router',
 			'general',
 			'courses',
-			'user'
+			'user',
+			'assignments'
 		]);
 
 	//remove the hash

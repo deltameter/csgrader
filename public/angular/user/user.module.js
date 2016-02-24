@@ -1,12 +1,12 @@
 (function(){
 	var app = angular.module('user', [])
-	.run(function($http, Session){
+	.run(function($http, UserFactory){
 		$http.get('/api/profile')
 		.success(function(res){
-			Session.create(res);
+			UserFactory.setUser(res);
 		})
 		.error(function(res){
-			Session.setCurrentUser({});
+			UserFactory.setUser({});
 		});
 	});
 })();

@@ -1,14 +1,14 @@
 (function(){
-	angular.module('user').controller('DashboardController', function($state, $http, CourseService, Session){
-		var root = this;
+	angular.module('user').controller('DashboardController', function($state, $http, CourseFactory, UserFactory){
+		var vm = this;
 		this.newCourse = {};
 		this.courses = null;
-		this.user = Session.user;
+		this.user = UserFactory.getUser();
 
 		var getCourses = function(){
-			CourseService.getCourses().then(
+			CourseFactory.getCourses().then(
 				function Success(res){
-					root.courses = res.data;
+					vm.courses = res.data;
 				}, 
 				function Failure(res){
 
@@ -17,7 +17,7 @@
 		};
 
 		this.createCourse = function(){
-			CourseService.createCourse(root.newCourse).then(function(res){
+			CourseFactory.createCourse(vm.newCourse).then(function(res){
 				console.log(res);
 			});
 		}
@@ -26,20 +26,20 @@
 	});
 
 	angular.module('user').controller('CourseController', 
-		function($state, $http, $stateParams, CourseService, Session){
-		var root = this;
+		function($state, $http, $stateParams, UserFactory, CourseFactory, AssignmentFactory){
+
+		var vm = this;
 
 		this.course = null;
-		root.user = Session.user;
-
+		this.user = UserFactory.getUser();
 		this.newAssignment = {};
 
 		var getCourse = function(){
-			CourseService.getCourse($stateParams.courseCode).then(
+			CourseFactory.getCourse($stateParams.courseCode).then(
 				function Success(res){
 					console.log(res);
-					root.course = res.data;
-					root.newAssignment.courseID = res.data._id;
+					vm.course = res.data;
+					vm.newAssignment.courseID = res.data._id;
 				}, 
 				function Failure(res){
 
@@ -48,7 +48,7 @@
 		};
 
 		this.createAssignment = function(){
-			CourseService.createAssignment($stateParams.courseCode, root.newAssignment).then(
+			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
 				function Success(res){
 					console.log(res);
 				}, 

@@ -1,58 +1,60 @@
 (function(){
-	angular.module('user').factory('AuthService', function ($http, Session) {
-		var authService = {};
-		var user = {};
+	angular.module('user').factory('AuthService', function ($http, UserFactory) {
 
-		authService.login = function(credentials) {
+		return {
+			login: login,
+			signup: signup,
+			isAuthenticated: isAuthenticated
+		};
+
+		function login(credentials) {
 			return $http
 			.post('/auth/local', credentials)
 			.then(function (res) {
-				Session.create(res.data);
+				UserFactory.setUser(res.data);
 				return res.data;
 			});
 		};
 
-		authService.signup = function(newUser){
+		function signup(newUser){
 			return $http
 			.post('/api/user/join', newUser)
 			.then(
-			function Success(res){
-				console.log(res.data);
-				Session.create(res.data);
+			function(res){
+				UserFactory.setUser(res.data);
 				return res.data;
-			}, function Failure(res){
+			}, function(res){
 				return res.data;
 			});
 		};
 
-		authService.isAuthenticated = function() {
-			return Session.live();
+		function isAuthenticated(){
+			return UserFactory.live();
 		};
-
-		return authService;
 	});
 
-	angular.module('user').service('Session', function ($rootScope) {
-		var root = this;
-		this.user = {};
-
-		this.live = function(){
-			return (Object.keys(root.user).length > 0);
+	angular.module('user').factory('UserFactory', function ($rootScope) {
+		return {
+			live: live,
+			setUser: setUser,
+			getUser: getUser,
+			destroyUser: destroyUser
 		}
 
-		this.setCurrentUser = function(user){
-			$rootScope.currentUser = user;
-			root.user = user;
+		function live(){
+			return (Object.keys($rootScope.currentUser).length > 0);
 		}
 
-		this.create = function(user){
+		function setUser(user){
 			$rootScope.currentUser = user;
-			root.user = user;
 		};
 
-		this.destroy = function () {
+		function getUser(){
+			return $rootScope.currentUser;
+		}
+
+		function destroyUser(){
 			$rootScope.currentUser = null;
-			root.user = null;
 		};
 	});
 
