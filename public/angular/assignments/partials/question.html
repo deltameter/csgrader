@@ -1,0 +1,18 @@
+<div class="question panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">Question: {{ content.question }}</h3>
+		<h3 class="panel-title">Question Type: {{ content.questionType }}</h3>
+		<h3 class="panel-title">Points: {{ content.pointsWorth }}</h3>
+	</div>
+	<div class="panel-body">
+		<div class="medSpacer col-xs-12">
+			<p>{{ content }}</p>
+			<p>{{ content.answerOptions }}</p>
+			<p>{{ content.mcAnswer }}</p>
+			<p>{{ content.triesAllowed }}</p>
+		</div>
+		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-primary btn-block" ng-click="editing = true">Edit</btn>
+		</div>
+	</div>
+</div>

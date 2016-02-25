@@ -3,20 +3,22 @@
 
 	<p>{{ courseCtrl.newAssignment }}</p>
 
-	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="assignment in courseCtrl.course.assignments">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<h3 class="panel-title">{{ assignment.name }}</h3>
-			</div>
-			<div class="panel-body">
-				<div class="medSpacer col-xs-12">
-					<p>{{ assignment.description }}</p>
+	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="assignment in courseCtrl.course.assignments.slice().reverse()">
+		<a ui-sref="root.assignment({ courseCode: '{{ courseCtrl.course.courseCode }}', assignmentID: '{{ assignment._id }}' })">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ assignment.name }}</h3>
 				</div>
+				<div class="panel-body">
+					<div class="medSpacer col-xs-12">
+						<p>{{ assignment.description }}</p>
+					</div>
 
-				<p class="pull-right">{{ assignment.pointsWorth }}</p>
-				<p class="pull-left">{{ assignment.dueDate }}</p>
+					<p class="pull-right">{{ assignment.pointsWorth }}</p>
+					<p class="pull-left">{{ assignment.dueDate }}</p>
+				</div>
 			</div>
-		</div>
+		</a>
 	</div>
 
 	<div class="med-spacer" ng-show="courseCtrl.user.bIsTeacher">

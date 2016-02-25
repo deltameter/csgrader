@@ -49,10 +49,11 @@ module.exports.getCourse = function(req, res){
 	var projection;
 	console.log(req.params.courseCode);
 
+	var projection = { owner: 1, courseCode: 1, name: 1, assignments: { $slice: -5 } };
+
+	//show classrooms if is teacher
 	if (req.user.bIsTeacher){
-		projection = { owner: 1, name: 1, assignments: { $slice: -5 } };
-	}else {
-		projection = { owner: 1, name: 1, classrooms: 1, assignments: { $slice: -5 } };
+		projection.classrooms = 1;
 	}
 
 	Course

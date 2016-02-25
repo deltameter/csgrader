@@ -25,6 +25,8 @@ module.exports.getAssignment = function(req, res){
 			}
 			return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
 		});
+	}else{
+		return helper.sendSuccess(res, assignment);
 	}
 }
 
@@ -99,6 +101,7 @@ module.exports.addQuestion = function(req, res){
 	
 	assignment.questions.push(new Question());
 	assignment.contentOrder.push(false);
+
 	assignment.save(function(err){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
@@ -111,11 +114,11 @@ module.exports.editQuestion = function(req, res){
 	var assignment = res.locals.assignment;
 
 	//Check if undefined
-	if (typeof assignment.questions[req.body.questionNum] === 'undefined'){
+	if (typeof assignment.questions[req.body.questionIndex] === 'undefined'){
 		return helper.sendError(res, 400, 3000, 'That question does not exist.');
 	}
 
-	var question = assignment.questions[req.body.questionNum];
+	var question = assignment.questions[req.body.questionIndex];
 	var answerOptions;
 
 	//Parse the answers
