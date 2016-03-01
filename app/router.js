@@ -102,6 +102,9 @@ module.exports = function(app, passport){
 
 	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);
 
+	//not idempotent so we use post
+	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, assignments.deleteQuestion);
+
 	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
 	
 	//******************************

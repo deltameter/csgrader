@@ -108,14 +108,13 @@ describe('Assignment', function(){
 			});
 		});
 
-
 		it('should set the first to be a fill in the blank question', function(done){
 			var questionEdit = {
-				questionNum: 0,
+				questionIndex: 0,
 				question: 'Programming is ___',
 				questionType: 'fillblank',
 				pointsWorth: 5,
-				answerOptions: 'DANK, MEMES',
+				fillAnswers: 'DANK, MEMES',
 				triesAllowed: 3
 			}
 
@@ -130,7 +129,7 @@ describe('Assignment', function(){
 
 		it('should set the second to be a multiple choice question', function(done){
 			var questionEdit = {
-				questionNum: 1,
+				questionIndex: 1,
 				question: 'How dank are memes?',
 				questionType: 'mc',
 				pointsWorth: 5,
@@ -155,7 +154,7 @@ describe('Assignment', function(){
 
 		it('should set the third to be an frq', function(done){
 			var questionEdit = {
-				questionNum: 2,
+				questionIndex: 2,
 				question: 'Type some long boring shit here:',
 				questionType: 'frq',
 				pointsWorth: 5,
@@ -174,7 +173,7 @@ describe('Assignment', function(){
 
 		it('should set the fourth to be an mc', function(done){
 			var questionEdit = {
-				questionNum: 3,
+				questionIndex: 3,
 				question: 'What\'s the dankest letter?',
 				questionType: 'mc',
 				pointsWorth: 5,

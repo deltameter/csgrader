@@ -51,7 +51,7 @@ module.exports.create = function(req, res){
 
 module.exports.submitQuestionAnswer = function(req, res){
 	var assignment = res.locals.assignment;
-	var i = req.body.questionNum;
+	var i = req.body.questionIndex;
 
 	Submission.findOne({studentID: req.user._id, assignmentID: req.params.assignmentID }, function(err, submission){
 		if (err){
@@ -80,7 +80,7 @@ module.exports.submitQuestionAnswer = function(req, res){
 			}
 		}else if (assignment.questions[i].questionType === 'fillblank'){
 			//if it's in the list of possible answers, it's correct
-			if (assignment.questions[i].answerOptions.indexOf(req.body.answer.toString().trim().toLowerCase()) !== -1){
+			if (assignment.questions[i].fillAnswers.indexOf(req.body.answer.toString().trim().toLowerCase()) !== -1){
 				bIsCorrect = true;
 			}
 		}

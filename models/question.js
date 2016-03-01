@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 var questionTypes = 'frq fillblank mc'.split(' ');
 
 var questionSchema = new Schema({
+	//automatically set in the presave hook
 	bIsFinished: { type: Boolean, default: false },
 	question: String,
 	questionType: { type: String, enum: questionTypes },
@@ -14,9 +15,12 @@ var questionSchema = new Schema({
 	bIsHomework: { type: Boolean, default: false }, //automatically grade as correct
 
 	//For MC, this is a list of possible answers.
-	//For fill in the blank, this is a list of acceptable answers
 	answerOptions: [String],
 	mcAnswer: Number,
+
+	//For fill in the blank, this is a list of correct answers
+	fillAnswers: [String],
+
 	triesAllowed: Number
 });
 
@@ -31,18 +35,35 @@ questionSchema.pre('save', function(next){
 	//Assignments can only be opened if all questions are completed.
 	if (typeof question.question !== 'undefined' && typeof question.questionType !== 'undefined'
 	 && typeof question.pointsWorth !== 'undefined' && typeof question.triesAllowed !== 'undefined'){
+
+	 	//FRQ doesn't require anything
 	 	if (question.questionType === 'frq'){
 	 		question.bIsFinished = true;
-	 	}else if (typeof question.answerOptions !== undefined){
-	 		if (question.questionType === 'fillblank'){
-	 			question.bIsFinished = true;
-	 		}else if (question.questionType === 'mc' && typeof question.mcAnswer !== 'undefined'){
-	 			question.bIsFinished = true;
-	 		}
-	 	}
+
+	 		//fill in the blank requires a list of correct answers
+	 	}else if (question.questionType === 'fillblank' && typeof question.fillAnswers !== undefined){
+	 		question.bIsFinished = true;
+
+	 		//mc requires a list of options, as well as an answer
+	 	}else if (question.questionType === 'mc' && typeof question.answerOptions !== undefined 
+ 			&& typeof question.mcAnswer !== 'undefined'){
+ 			question.bIsFinished = true;
+ 		}
 	}
 	
 	return next();
 })
+
+questionSchema.statics = {
+	safeSendStudent: function(question){
+		return {
+			question: question.question, //top kek
+			questionType: question.questionType,
+			pointsWorth: question.pointsWorth,
+			answerOptions: question.answerOptions,
+			triesAllowed: question.triesAllowed
+		}
+	}
+}
 
 mongoose.model('Question', questionSchema);

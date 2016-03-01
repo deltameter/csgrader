@@ -2,46 +2,12 @@
 	<div ng-repeat="content in assignmentCtrl.assignment.content">
 		<div ng-if="content.type === 'question'">
 			<question ng-show="editing !== true"></question>
-<!-- 			<div class="question panel panel-primary" ng-show="editing !== true">
-				<div class="panel-heading">
-					<h3 class="panel-title">Question: {{ content.question }}</h3>
-					<h3 class="panel-title">Question Type: {{ content.questionType }}</h3>
-					<h3 class="panel-title">Points: {{ content.pointsWorth }}</h3>
-				</div>
-				<div class="panel-body">
-					<div class="medSpacer col-xs-12">
-						<p>{{ content }}</p>
-						<p>{{ content.answerOptions }}</p>
-						<p>{{ content.mcAnswer }}</p>
-						<p>{{ content.triesAllowed }}</p>
-					</div>
-					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-						<btn class="btn btn-primary btn-block" ng-click="editing = true">Edit</btn>
-					</div>
-				</div>
-			</div> -->
-			<div class="question panel panel-primary" ng-show="editing === true">
-				<div class="panel-heading">
-					<input type="text" class="form-control" ng-model="$scope.content.question"/>
-					<input type="text" class="form-control" ng-model="$scope.content.questionType"/>
-					<input type="text" class="form-control" ng-model="$scope.content.pointsWorth"/>
-				</div>
-				<div class="panel-body">
-					<div class="medSpacer col-xs-12">
-						<input type="text" class="form-control" ng-model="$scope.content.answerOptions"/>
-						<input type="text" class="form-control" ng-model="$scope.content.mcAnswer"/>
-						<input type="text" class="form-control" ng-model="$scope.content.triesAllowed"/>
-					</div>
-					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-						<btn class="btn btn-primary btn-block" ng-click="editing = false; assignmentCtrl.editQuestion($scope.content)">done</btn>
-					</div>
-				</div>
-			</div>
+			<question-edit ng-show="editing === true"></question-edit>
 		</div>
 	</div>
 
 	<div ng-show="assignmentCtrl.user.bIsTeacher">
-		<div class="col-md-4 co-md-offset-8 col-xs-6 col-xs-offset-3">
+		<div class="col-md-4 col-md-offset-4 col-xs-8 col-xs-offset-2">
 			<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addQuestion()">Add Question</btn>
 		</div>
 	</div>

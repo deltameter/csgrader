@@ -1,0 +1,21 @@
+<div class="question panel panel-primary">
+	<div class="panel-heading">
+		{{ questionEditCtrl.question.questionIndex }}
+		<input type="text" class="form-control" ng-model="questionEditCtrl.question.question"/>
+		<input type="text" class="form-control" ng-model="questionEditCtrl.question.questionType"/>
+		<input type="text" class="form-control" ng-model="questionEditCtrl.question.pointsWorth"/>
+	</div>
+	<div class="panel-body">
+		<div class="medSpacer col-xs-12">
+			<input type="text" class="form-control" ng-model="questionEditCtrl.question.answerOptions"/>
+			<input type="text" class="form-control" ng-model="questionEditCtrl.question.mcAnswer"/>
+			<input type="text" class="form-control" ng-model="questionEditCtrl.question.triesAllowed"/>
+		</div>
+		<div class="col-md-3 col-md-offset-3 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-primary btn-block" ng-click="editing = false; questionEditCtrl.editQuestion()">done</btn>
+		</div>
+		<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-danger btn-block" ng-click="editing = false; assignmentCtrl.deleteQuestion(questionEditCtrl.question.questionIndex)">DELETE</btn>
+		</div>
+	</div>
+</div>

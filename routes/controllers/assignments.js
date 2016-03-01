@@ -102,11 +102,12 @@ module.exports.addQuestion = function(req, res){
 	assignment.questions.push(new Question());
 	assignment.contentOrder.push(false);
 
-	assignment.save(function(err){
+	assignment.save(function(err, assignment){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
-		return helper.sendSuccess(res);
+
+		return helper.sendSuccess(res, assignment.questions[assignment.questions.length-1]);
 	});
 }
 
@@ -119,23 +120,22 @@ module.exports.editQuestion = function(req, res){
 	}
 
 	var question = assignment.questions[req.body.questionIndex];
-	var answerOptions;
+	var fillAnswers;
 
 	//Parse the answers
 	if (req.body.questionType === 'fillblank'){
-		answerOptions = req.body.answerOptions.split(',');
-		if (answerOptions.length >= 10) return helper.sendError(res, 401, 3000, 'Must have less than 10 possible answers');
+		fillAnswers = req.body.fillAnswers.split(',');
+		if (fillAnswers.length >= 10) return helper.sendError(res, 401, 3000, 'Must have less than 10 possible answers');
 
 		//Remove spaces to check for string comparisons easier
-		for (var i = 0; i < answerOptions.length; i++){
-			answerOptions[i] = answerOptions[i].toLowerCase().trim();
+		for (var i = 0; i < fillAnswers.length; i++){
+			fillAnswers[i] = fillAnswers[i].toLowerCase().trim();
 		}
 	}else if (req.body.questionType === 'mc'){
 		//ensure data integrity. answers must be an array
 		if (!Array.isArray(req.body.answerOptions)){
-			return helper.sendError(res, 401, 3000, 'Something went wrong with the multiple choice selection');
+			return helper.sendError(res, 401, 3000, 'Something went wrong with the multiple choice selection.');
 		}
-		answerOptions = req.body.answerOptions;
 	}
 
 	//Probably a better way to do this.
@@ -143,8 +143,9 @@ module.exports.editQuestion = function(req, res){
 	question.questionType = req.body.questionType;
 	question.bIsHomework = req.body.bIsHomework;
 	question.pointsWorth = req.body.pointsWorth;
-	question.answerOptions = answerOptions;
+	question.answerOptions = req.body.answerOptions;
 	question.mcAnswer = req.body.mcAnswer;
+	question.fillAnswers = fillAnswers;
 	question.triesAllowed = (req.body.triesAllowed === 'unlimited' ? 10000 : req.body.triesAllowed);
 	
 
@@ -164,7 +165,9 @@ module.exports.deleteQuestion = function(req, res){
 
 	//Splice it out of the content order
 	var numOfQuestions = 0;
-	for (var i = 0; i < assignment.contentOrder; i++){
+	for (var i = 0; i < assignment.contentOrder.length; i++){
+/*		console.log('nq' + numOfQuestions);
+		console.log('qi' + questionIndex);*/
 		if (!assignment.contentOrder[i]){
 			if (numOfQuestions === questionIndex){
 				assignment.contentOrder.splice(i, 1);
@@ -174,6 +177,9 @@ module.exports.deleteQuestion = function(req, res){
 			}
 		}
 	}
+
+	console.log(assignment.contentOrder);
+	assignment.markModified('contentOrder');
 
 	assignment.save(function(err){
 		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));

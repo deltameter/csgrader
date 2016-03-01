@@ -8,7 +8,7 @@ describe('Submission', function(){
 	describe('submit question', function(){
 		it('should accept a fill in the blank answer', function(done){
 			var answer = {
-				questionNum: 0,
+				questionIndex: 0,
 				answer: ' dank '
 			}
 
@@ -24,7 +24,7 @@ describe('Submission', function(){
 
 		it('should accept a multiple choice answer', function(done){
 			var answer = {
-				questionNum: 1,
+				questionIndex: 1,
 				answer: 3
 			}
 
@@ -40,7 +40,7 @@ describe('Submission', function(){
 
 		it('should accept an frq answer', function(done){
 			var answer = {
-				questionNum: 2,
+				questionIndex: 2,
 				answer: 'Implying implications'
 			}
 
@@ -56,7 +56,7 @@ describe('Submission', function(){
 
 		it('should not accept the submission if the user has already gotten it right', function(done){
 			var answer = {
-				questionNum: 1,
+				questionIndex: 1,
 				answer: 3
 			}
 
@@ -71,7 +71,7 @@ describe('Submission', function(){
 
 		it ('should deny users after they\'ve tried too many times', function(done){
 			var answer = {
-				questionNum: 3,
+				questionIndex: 3,
 				answer: 3
 			}
 

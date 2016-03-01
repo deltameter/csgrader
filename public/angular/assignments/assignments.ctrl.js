@@ -1,13 +1,13 @@
 (function(){
-	angular.module('assignments').controller('AssignmentController', function($stateParams, UserFactory, AssignmentFactory){
+	angular.module('assignments')
+
+	.controller('AssignmentController', function($scope, $stateParams, UserFactory, AssignmentFactory){
 		var vm = this;
 		vm.user = UserFactory.getUser();
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
-		vm.assignment = {};
-		vm.question = {};
 
-		vm.memes = 1;
+		vm.assignment = {};
 
 		var getAssignment = function(){
  			AssignmentFactory.getAssignment(vm.courseCode, vm.assignmentID).then(
@@ -20,33 +20,69 @@
 			)
 		}
 
-		this.contentTracker = function(n){
-			console.log(n);
-		}
-
 		this.addQuestion = function(){
 			AssignmentFactory.addQuestion(vm.courseCode, vm.assignmentID).then(
-				function Success(res){
-					console.log(res.data)
+				function Success(newQuestion){
+					newQuestion.questionIndex = vm.assignment.questions.length;
+					vm.assignment.content.push(newQuestion);
+					vm.assignment.questions.push(newQuestion);
 				},
 				function Failure(res){
 
 				}
 			)
 		}
-
-		this.editQuestion = function(question){
-			question.questionIndex = 0;
-			AssignmentFactory.editQuestion(vm.courseCode, vm.assignmentID, question).then(
-				function Success(res){
-					console.log(res);
+		
+		this.deleteQuestion = function(questionIndex){
+			AssignmentFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex).then(
+				function Success(newQuestion){
+					vm.assignment.content.splice(questionIndex, 1);
+					$scope.$broadcast('QUESTION_DELETE', 1);
 				},
 				function Failure(res){
-					console.log(res);
+
 				}
 			)
 		}
 
 		getAssignment();
-	});
+	})
+
+	.controller('QuestionController', function(UserFactory){
+		var vm = this;
+
+		//question is instantiated through the ng-init
+		vm.question = {};
+		
+		this.logQuestion = function(){
+			console.log(vm.question);
+		}
+	})
+
+	.controller('QuestionEditController', function($scope, $stateParams, UserFactory, QuestionFactory){
+		var vm = this;
+		vm.courseCode = $stateParams.courseCode;
+		vm.assignmentID = $stateParams.assignmentID;
+		
+		//get the question contents from the parent scope
+		vm.question = $scope.$parent.content;
+
+		$scope.$on('QUESTION_DELETE', function(event, questionIndex){
+			if (vm.question.questionIndex > questionIndex){
+				vm.question.questionIndex--;
+			}
+		});
+
+		this.editQuestion = function(){
+			QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
+				function Success(res){
+					console.log(res);
+				},
+				function Failure(res){
+					console.log(res);
+				}
+			)
+		}
+	})
+
 })();

@@ -5,7 +5,8 @@
 			'general',
 			'courses',
 			'user',
-			'assignments'
+			'assignments',
+			'misc'
 		]);
 
 	//remove the hash
