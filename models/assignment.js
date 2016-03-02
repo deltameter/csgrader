@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
-var deadlineTypes = 'strict pointloss lenient'.split(' ');
+const deadlineTypes = 'strict pointloss lenient'.split(' ');
+const contentTypes = 'question exercise'.split(' ');
 
 var assignmentSchema = new Schema({
 	courseID: { type: Schema.Types.ObjectId, required: true },
@@ -26,7 +27,7 @@ var assignmentSchema = new Schema({
 	//Basically decides the order the questions and exercises go in.
 	//false = question, true = exercise
 	//allows a way to interweave questions and exercises
-	contentOrder: [Boolean],
+	contentOrder: [{ type: String, enum: contentTypes }],
 
 	studentSubmissions: [Schema.Types.ObjectId]
 });
@@ -47,7 +48,8 @@ assignmentSchema.pre('validate', function(next) {
 	//If the assignment is being opened, it must contain a due date
     if (this.bIsOpen && (typeof this.dueDate === 'undefined' || this.dueDate < Date.now())){
         return next(Error('Due date must be in the future.'));
-    }else if (this.pointsWorth <= this.pointLoss){
+    //Ensure content order and questions + exercises count add up
+    }else if (this.contentOrder.length !== this.questions.length + this.exercises.length){
         return next(Error('Amount of points lost due to tardiness must be less than total points.'));
     }else{
     	return next();

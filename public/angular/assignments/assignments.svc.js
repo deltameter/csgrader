@@ -22,12 +22,12 @@
 					console.log(assignment);
 					for (var i = 0; i < assignment.contentOrder.length; i++){
 						//true = exercise, false = question
-						if (assignment.contentOrder[i]){
+						if (assignment.contentOrder[i] === 'exercise'){
 							assignment.content[i] = assignment.exercises[eI];
 							assignment.content[i].type = 'exercise';
 							assignment.content[i].exerciseIndex = eI
 							eI++;
-						}else{
+						}else if (assignment.contentOrder[i] === 'question'){
 							assignment.content[i] = assignment.questions[qI];
 							assignment.content[i].type = 'question';
 							assignment.content[i].questionIndex = qI

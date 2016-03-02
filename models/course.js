@@ -10,7 +10,7 @@ var courseSchema = new Schema({
 	owner: { type: Schema.Types.ObjectId, ref: 'User' },
 	name: { type: String, required: true },
 
-	courseCode: { type: String, required: true, index: true },
+	courseCode: { type: String, required: true, index: true, unique: true },
 	password: { type: String, required: true},
 
 	//can possibly have multiple teacher teaching same course and want to share materials

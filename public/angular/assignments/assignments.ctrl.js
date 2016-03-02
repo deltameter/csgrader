@@ -37,7 +37,7 @@
 			AssignmentFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex).then(
 				function Success(newQuestion){
 					vm.assignment.content.splice(questionIndex, 1);
-					$scope.$broadcast('QUESTION_DELETE', 1);
+					$scope.$broadcast('QUESTION_DELETE', questionIndex);
 				},
 				function Failure(res){
 
@@ -82,6 +82,11 @@
 					console.log(res);
 				}
 			)
+		}
+
+		this.addMCAnswer = function(){
+			console.log(vm.question);
+			vm.question.answerOptions.push('');
 		}
 	})
 

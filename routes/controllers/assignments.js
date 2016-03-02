@@ -100,7 +100,7 @@ module.exports.addQuestion = function(req, res){
 	var assignment = res.locals.assignment;
 	
 	assignment.questions.push(new Question());
-	assignment.contentOrder.push(false);
+	assignment.contentOrder.push('question');
 
 	assignment.save(function(err, assignment){
 		if (err){
@@ -166,9 +166,7 @@ module.exports.deleteQuestion = function(req, res){
 	//Splice it out of the content order
 	var numOfQuestions = 0;
 	for (var i = 0; i < assignment.contentOrder.length; i++){
-/*		console.log('nq' + numOfQuestions);
-		console.log('qi' + questionIndex);*/
-		if (!assignment.contentOrder[i]){
+		if (assignment.contentOrder[i] === 'question'){
 			if (numOfQuestions === questionIndex){
 				assignment.contentOrder.splice(i, 1);
 				break;
@@ -178,7 +176,6 @@ module.exports.deleteQuestion = function(req, res){
 		}
 	}
 
-	console.log(assignment.contentOrder);
 	assignment.markModified('contentOrder');
 
 	assignment.save(function(err){
@@ -191,7 +188,7 @@ module.exports.addExercise = function(req, res){
 	var assignment = res.locals.assignment;
 
 	assignment.exercises.push(new Exercise());
-	assignment.contentOrder.push(true);
+	assignment.contentOrder.push('exercise');
 	assignment.save(function(err){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
@@ -211,7 +208,7 @@ module.exports.deleteExercise = function(req, res){
 	//Splice it out of the content order
 	var numOfExercises = 0;
 	for (var i = 0; i < assignment.contentOrder; i++){
-		if (assignment.contentOrder[i]){
+		if (assignment.contentOrder[i] === 'exercise'){
 			if (numOfExercises === exerciseIndex){
 				assignment.contentOrder.splice(i, 1);
 				break;
