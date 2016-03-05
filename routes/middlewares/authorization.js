@@ -7,7 +7,6 @@ module.exports.requiresLogin = function(req, res, next){
 	if (req.isAuthenticated() && req.user.bHasActivatedAccount){
 		return next();
 	}
-	//if (req.method == 'GET') req.session.returnTo = req.originalUrl;
 
 	return helper.sendError(res, 401, 2000,  'Please log in.');
 }

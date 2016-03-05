@@ -16,6 +16,7 @@
 			url: '/',
 			template: '<ui-view/>',
 			controller: function($state, AuthService){
+				console.log('blackmale')
 				if (AuthService.isAuthenticated()){
 					$state.go('root.main.dashboard');
 				}else{

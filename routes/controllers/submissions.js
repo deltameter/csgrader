@@ -10,22 +10,26 @@ module.exports.create = function(req, res){
 
 	var questionAnswers = new Array(assignment.questions.length),
 		questionTries = new Array(assignment.questions.length),
-		questionsCorrect = new Array(assignment.questions.length);
+		questionsCorrect = new Array(assignment.questions.length),
+		questionPoints = new Array(assignment.questions.length);
 
 	var	exerciseAnswers = new Array(assignment.exercises.length),
 		exerciseTries = new Array(assignment.exercises.length),
-		exercisesCorrect = new Array(assignment.exercises.length);
+		exercisesCorrect = new Array(assignment.exercises.length),
+		exercisePoints = new Array(assignment.exercises.length);
 
 	for (var i = 0; i < assignment.questions.length; i++){
-		questionAnswers = '';
+		questionAnswers[i] = '';
 		questionTries[i] = 0;
 		questionsCorrect[i] = false;
+		questionPoints[i] = 0;
 	}
 
 	for (var i = 0; i < assignment.exercises.length; i++){
-		exerciseAnswers = '';
+		exerciseAnswers[i] = '';
 		exerciseTries[i] = 0;
 		exercisesCorrect[i] = false;
+		exercisePoints[i] = 0;
 	}
 
 	var newSubmission = new Submission({
@@ -34,9 +38,11 @@ module.exports.create = function(req, res){
 		questionAnswers: questionAnswers,
 		questionTries: questionTries,
 		questionsCorrect: questionsCorrect,
+		questionPoints: questionPoints,
 		exerciseAnswers: exerciseAnswers,
 		exerciseTries: exerciseTries,
-		exercisesCorrect: exercisesCorrect
+		exercisesCorrect: exercisesCorrect,
+		exercisePoints: exercisePoints
 	});
 
 	newSubmission.save(function(err, newSubmission){
@@ -87,8 +93,10 @@ module.exports.submitQuestionAnswer = function(req, res){
 
 		if (bIsCorrect){
 			submission.pointsEarned += assignment.questions[i].pointsWorth;
+			submission.questionPoints[i] += assignment.questions[i].pointsWorth;
 			submission.questionsCorrect[i] = true;
 			submission.markModified('questionsCorrect');
+			submission.markModified('questionPoints');
 		}
 
 		submission.questionAnswers[i] = req.body.answer.toString();

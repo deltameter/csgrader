@@ -38,9 +38,9 @@ describe('Submission', function(){
 			});
 		});
 
-		it('should accept an frq answer', function(done){
+		it('should accept an frq answer that\'s homework', function(done){
 			var answer = {
-				questionIndex: 2,
+				questionIndex: 3,
 				answer: 'Implying implications'
 			}
 
@@ -50,6 +50,22 @@ describe('Submission', function(){
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				expect(res.body.bIsCorrect).to.equal(true);
+				done();
+			});
+		});
+
+		it('should accept an frq answer that\'s not homework', function(done){
+			var answer = {
+				questionIndex: 4,
+				answer: 'Implying implications'
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.bIsCorrect).to.equal(false);
 				done();
 			});
 		});
@@ -71,7 +87,7 @@ describe('Submission', function(){
 
 		it ('should deny users after they\'ve tried too many times', function(done){
 			var answer = {
-				questionIndex: 3,
+				questionIndex: 2,
 				answer: 3
 			}
 

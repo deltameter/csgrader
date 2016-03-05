@@ -20,6 +20,7 @@ module.exports.create = function(req, res){
 	//create a random classCode and make sure it doesn't collide
 	//more or less a while true, but less scary
 	var classCode = '';
+	
 	for (var a = 0; a < 100; a++){
 		var bIsUnique = true;
 		classCode = require('crypto').randomBytes(2).toString('hex');

@@ -8,7 +8,11 @@
 		};
 
 		function createAssignment(courseCode, newAssignment){
-			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment);
+			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
+				function Success(res){
+					return res.data;
+				}
+			);
 		};
 
 		function getAssignment(courseCode, assignmentID){
@@ -16,7 +20,8 @@
 				function Success(res){
 
 					var assignment = res.data;
-					var eI = 0, qI = 0;
+					//exercise index, question index, frq index
+					var eI = 0, qI = 0, fI = 0;
 
 					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
 					console.log(assignment);
@@ -30,8 +35,13 @@
 						}else if (assignment.contentOrder[i] === 'question'){
 							assignment.content[i] = assignment.questions[qI];
 							assignment.content[i].type = 'question';
-							assignment.content[i].questionIndex = qI
-							qI++
+							assignment.content[i].questionIndex = qI;
+							qI++;
+
+							if (assignment.content[i].questionType === 'frq'){
+								assignment.content[i].frqIndex = fI;
+								fI++
+							}
 						}
 					}
 					return assignment;

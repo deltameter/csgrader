@@ -51,7 +51,7 @@ module.exports.create = function(req, res){
 			//Wow, we're fucked
 				return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 			}
-			return helper.sendSuccess(res, assignment);
+			return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
 		});
 	});
 }
@@ -61,8 +61,6 @@ module.exports.edit = function(req, res){
 
 	assignment.name = req.body.name;
 	assignment.description = req.body.description;
-	assignment.pointsWorth = req.body.pointsWorth,
-	assignment.pointLoss = req.body.pointLoss;
 
 	assignment.save(function(err, assignment){
 		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
@@ -76,6 +74,7 @@ module.exports.open = function(req, res){
 	assignment.bIsOpen = true;
 	assignment.dueDate = req.body.dueDate;
 	assignment.deadlineType = req.body.deadlineType;
+	assignment.pointLoss = req.body.pointLoss;
 
 	assignment.save(function(err, assignment){
 		if (err) return helper.sendErr(res, 400, 1001, helper.errorHelper(err));
@@ -120,16 +119,25 @@ module.exports.editQuestion = function(req, res){
 	}
 
 	var question = assignment.questions[req.body.questionIndex];
-	var fillAnswers;
 
 	//Parse the answers
 	if (req.body.questionType === 'fillblank'){
-		fillAnswers = req.body.fillAnswers.split(',');
-		if (fillAnswers.length >= 10) return helper.sendError(res, 401, 3000, 'Must have less than 10 possible answers');
+		//ensure data integrity. answers must be an array
+		if (!Array.isArray(req.body.fillAnswers)){
+			return helper.sendError(res, 401, 3000, 'Something went wrong with the multiple choice selection.');
+		}
 
-		//Remove spaces to check for string comparisons easier
-		for (var i = 0; i < fillAnswers.length; i++){
-			fillAnswers[i] = fillAnswers[i].toLowerCase().trim();
+		if (req.body.fillAnswers.length >= 10){
+			return helper.sendError(res, 401, 3000, 'Must have less than 10 possible answers');
+		}
+
+		//Delete empty entries and make other ones more palatable
+		for (var i = req.body.fillAnswers.length - 1; i >= 0; i--){
+			if (req.body.fillAnswers[i].length === 0){
+				req.body.fillAnswers.splice(i, 1);
+			}else{
+				req.body.fillAnswers[i] = req.body.fillAnswers[i].toLowerCase().trim();
+			}
 		}
 	}else if (req.body.questionType === 'mc'){
 		//ensure data integrity. answers must be an array
@@ -145,7 +153,7 @@ module.exports.editQuestion = function(req, res){
 	question.pointsWorth = req.body.pointsWorth;
 	question.answerOptions = req.body.answerOptions;
 	question.mcAnswer = req.body.mcAnswer;
-	question.fillAnswers = fillAnswers;
+	question.fillAnswers = req.body.fillAnswers;
 	question.triesAllowed = (req.body.triesAllowed === 'unlimited' ? 10000 : req.body.triesAllowed);
 	
 

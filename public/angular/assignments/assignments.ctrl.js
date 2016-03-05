@@ -73,21 +73,32 @@
 			}
 		});
 
-		this.editQuestion = function(){
-			QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
-				function Success(res){
-					console.log(res);
-				},
-				function Failure(res){
-					console.log(res);
-				}
-			)
+		this.editQuestion = function(bHasEdited){
+			if (bHasEdited){
+				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
+					function Success(res){
+						$scope.editing = false;
+					}
+				)
+			}else{
+				$scope.editing = false;
+			}
 		}
 
-		this.addMCAnswer = function(){
-			console.log(vm.question);
+		this.addFillAnswer = function(){
+			vm.question.fillAnswers.push('');
+		}
+
+		this.deleteFillAnswer = function(index){
+			vm.question.fillAnswers.splice(index, 1);
+		}
+
+		this.addMCOption = function(){
 			vm.question.answerOptions.push('');
 		}
-	})
 
+		this.deleteMCOption = function(index){
+			vm.question.answerOptions.splice(index, 1);
+		}
+	})
 })();

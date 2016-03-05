@@ -77,7 +77,7 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should create two other questions', function(done){
+		it('should create four other questions', function(done){
 			async.parallel([
 				function(callback){
 					testTeacher
@@ -99,11 +99,19 @@ describe('Assignment', function(){
 					.end(function(err, res){
 						callback(err, res.status);
 					});
+				},
+				function(callback){
+					testTeacher
+					.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/create')
+					.end(function(err, res){
+						callback(err, res.status);
+					});
 				}
 			], function(err, results){
 				expect(results[0]).to.equal(200);
 				expect(results[1]).to.equal(200);
-				expect(results[1]).to.equal(200);
+				expect(results[2]).to.equal(200);
+				expect(results[3]).to.equal(200);
 				done();
 			});
 		});
@@ -114,7 +122,7 @@ describe('Assignment', function(){
 				question: 'Programming is ___',
 				questionType: 'fillblank',
 				pointsWorth: 5,
-				fillAnswers: 'DANK, MEMES',
+				fillAnswers: ['DANK', ' memes '],
 				triesAllowed: 3
 			}
 
@@ -152,9 +160,35 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should set the third to be an frq', function(done){
+		it('should set the third to be an mc', function(done){
 			var questionEdit = {
 				questionIndex: 2,
+				question: 'What\'s the dankest letter?',
+				questionType: 'mc',
+				pointsWorth: 5,
+				answerOptions: [
+						'A',
+						'B',
+						'C',
+						'D' ,
+						'E'
+					],
+				mcAnswer: 0,
+				triesAllowed: 3
+			}
+
+			testTeacher
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/edit')
+			.send(questionEdit)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
+		it('should set the fourth to be an frq that is homework', function(done){
+			var questionEdit = {
+				questionIndex: 3,
 				question: 'Type some long boring shit here:',
 				questionType: 'frq',
 				pointsWorth: 5,
@@ -171,21 +205,14 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should set the fourth to be an mc', function(done){
+		it('should set the fifth to be an frq that is homework', function(done){
 			var questionEdit = {
-				questionIndex: 3,
-				question: 'What\'s the dankest letter?',
-				questionType: 'mc',
+				questionIndex: 4,
+				question: 'Type some long boring shit here:',
+				questionType: 'frq',
 				pointsWorth: 5,
-				answerOptions: [
-						'A',
-						'B',
-						'C',
-						'D' ,
-						'E'
-					],
-				mcAnswer: 0,
-				triesAllowed: 3
+				bIsHomework: false,
+				triesAllowed: 'unlimited'
 			}
 
 			testTeacher

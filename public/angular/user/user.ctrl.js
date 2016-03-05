@@ -2,14 +2,14 @@
 	angular.module('user').controller('LoginController', function($state, $rootScope, AuthService){
 		var vm = this;
 		
-		this.authMessage = '';
-		this.user = {
+		vm.authMessage = '';
+		vm.user = {
 			email: '',
 			password: ''
 		};
 
 		this.login = function() {
-			AuthService.login(root.user).then(
+			AuthService.login(vm.user).then(
 				function(res){
 					$state.go('root.main');
 				},
@@ -21,8 +21,8 @@
 	
 	angular.module('user').controller('JoinController', function($state, $rootScope, AuthService){
 		var vm = this;
-		this.authMessage = '';
-		this.user = {
+		vm.authMessage = '';
+		vm.user = {
 			firstName: '',
 			lastName: '',
 			retypePassword: '', 
@@ -32,7 +32,7 @@
 		};
 
 		this.signup = function() {
-			AuthService.signup(root.user).then(
+			AuthService.signup(vm.user).then(
 				function(res){
 					$state.go('root.main');
 				},

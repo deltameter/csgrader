@@ -35,6 +35,7 @@ var assignmentSchema = new Schema({
 assignmentSchema.statics = {
 	safeSendStudent: function(assignment){
 		return {
+			_id: assignment._id,
 			name: assignment.name,
 			description: assignment.description,
 			pointsWorth: assignment.pointsWorth,

@@ -30,16 +30,14 @@
 
 		var vm = this;
 
-		this.course = null;
-		this.user = UserFactory.getUser();
-		this.newAssignment = {};
+		vm.course = null;
+		vm.user = UserFactory.getUser();
+		vm.newAssignment = {};
 
 		var getCourse = function(){
 			CourseFactory.getCourse($stateParams.courseCode).then(
 				function Success(res){
-					console.log(res);
 					vm.course = res.data;
-					vm.newAssignment.courseID = res.data._id;
 				}, 
 				function Failure(res){
 
@@ -49,8 +47,8 @@
 
 		this.createAssignment = function(){
 			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
-				function Success(res){
-					console.log(res);
+				function Success(assignment){
+					vm.course.assignments.push(assignment);
 				}, 
 				function Failure(res){
 

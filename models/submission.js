@@ -7,16 +7,19 @@ var submissionSchema = new Schema({
 	studentID: { type: Schema.Types.ObjectId, required: true },
 	assignmentID: { type: Schema.Types.ObjectId, required: true },
 
-	questionAnswers: [String],
-	exerciseAnswers: [String],
-
 	pointsEarned: { type: Number, default: 0 },
 
+	questionAnswers: [String],
 	questionTries: [Number],
 	questionsCorrect: [Boolean],
+	//teacher has to manually score these for frqs (or if bIsHomework, it get auto set to full points)
+	questionPoints: [Number],
 
+	exerciseAnswers: [String],
 	exerciseTries: [Number],
 	exercisesCorrect: [Boolean],
+	//allow teachers to take off or add points to exercises
+	exercisePoints: [Number],
 
 	//Line num, class, and actual comment
 	teacherComments: [Schema.Types.Mixed]
