@@ -1,9 +1,9 @@
 (function(){
 	angular.module('assignments')
 
-	.controller('AssignmentController', function($scope, $stateParams, UserFactory, AssignmentFactory){
+	.controller('AssignmentController', function($scope, $stateParams, UserInfo, AssignmentFactory){
 		var vm = this;
-		vm.user = UserFactory.getUser();
+		vm.user = UserInfo.getUser();
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 
@@ -48,7 +48,7 @@
 		getAssignment();
 	})
 
-	.controller('QuestionController', function(UserFactory){
+	.controller('QuestionController', function(UserInfo){
 		var vm = this;
 
 		//question is instantiated through the ng-init
@@ -59,7 +59,7 @@
 		}
 	})
 
-	.controller('QuestionEditController', function($scope, $stateParams, UserFactory, QuestionFactory){
+	.controller('QuestionEditController', function($scope, $stateParams, UserInfo, QuestionFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;

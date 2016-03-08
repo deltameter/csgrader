@@ -136,7 +136,7 @@ describe('User', function(){
 	describe('authentication', function(){
 		it('should deny unauthenticated users', function(done){
 			supertest.agent(app)
-			.get('/api/profile')
+			.get('/api/user')
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(401);
@@ -146,7 +146,7 @@ describe('User', function(){
 
 		it('should get authenticate users and return their own profile', function(done){
 			testTeacher
-			.get('/api/profile')
+			.get('/api/user')
 			.expect(200)
 			.end(function(err, res){
 				if (err) throw err;

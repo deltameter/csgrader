@@ -15,7 +15,7 @@
 		}
 
 		function getCourses(){
-			return $http.get('/api/profile/courses');
+			return $http.get('/api/course');
 		}
 	});
 })();

@@ -1,6 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose'),
+	Question = mongoose.model('Question'),
 	Schema = mongoose.Schema;
 
 const deadlineTypes = 'strict pointloss lenient'.split(' ');
@@ -34,6 +35,10 @@ var assignmentSchema = new Schema({
 
 assignmentSchema.statics = {
 	safeSendStudent: function(assignment){
+		for (var i = 0; i < assignment.questions.length; i++){
+			assignment.questions[i] = Question.safeSendStudent(assignment.questions[i]);
+		}
+
 		return {
 			_id: assignment._id,
 			name: assignment.name,

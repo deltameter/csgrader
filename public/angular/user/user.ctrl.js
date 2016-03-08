@@ -17,9 +17,19 @@
 					vm.authMessage = res.data.userMessage;
 				});
 		};
-	});
+	})
+
+	.controller('LogoutController', function($http, $state, UserInfo){
+		//Logout and reset user
+		$http.post('/api/user/logout').then(
+			function Success(){
+				UserInfo.destroyUser();
+				$state.go('root.main.public');
+			}
+		)
+	})
 	
-	angular.module('user').controller('JoinController', function($state, $rootScope, AuthService){
+	.controller('JoinController', function($state, $rootScope, AuthService){
 		var vm = this;
 		vm.authMessage = '';
 		vm.user = {
@@ -40,9 +50,9 @@
 					vm.authMessage = res.data.userMessage;
 				});
 		};
-	});
+	})
 
-	angular.module('user').controller('ProfileController', function($state, UserFactory){
-		this.user = UserFactory.getUser();
+	.controller('ProfileController', function($state, UserInfo){
+		this.user = UserInfo.getUser();
 	});
 })();

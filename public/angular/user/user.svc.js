@@ -1,39 +1,51 @@
 (function(){
-	angular.module('user').factory('AuthService', function ($http, UserFactory) {
+	angular.module('user').factory('AuthService', function ($http, UserInfo) {
 
 		return {
 			login: login,
 			signup: signup,
-			isAuthenticated: isAuthenticated
+			isAuthenticated: isAuthenticated,
+			retrieveProfile: retrieveProfile
 		};
 
 		function login(credentials) {
 			return $http
 			.post('/auth/local', credentials)
 			.then(function (res) {
-				UserFactory.setUser(res.data);
+				UserInfo.setUser(res.data);
 				return res.data;
 			});
 		};
 
 		function signup(newUser){
-			return $http
-			.post('/api/user/join', newUser)
-			.then(
-			function(res){
-				UserFactory.setUser(res.data);
-				return res.data;
-			}, function(res){
-				return res.data;
-			});
+			return $http.post('/api/user/join', newUser).then(
+				function(res){
+					UserInfo.setUser(res.data);
+					return res.data;
+				},
+				function(res){
+					return res.data;
+				}
+			);
 		};
 
+		function retrieveProfile(){
+			$http.get('/api/user').then(
+				function Success(res){
+					UserInfo.setUser(res.data);
+				},
+				function Failure(res){
+					UserInfo.setUser({});
+				}
+			);
+		}
+
 		function isAuthenticated(){
-			return UserFactory.live();
+			return UserInfo.live();
 		};
 	});
 
-	angular.module('user').factory('UserFactory', function ($rootScope) {
+	angular.module('user').factory('UserInfo', function ($rootScope) {
 		return {
 			live: live,
 			setUser: setUser,
@@ -54,7 +66,7 @@
 		}
 
 		function destroyUser(){
-			$rootScope.currentUser = null;
+			$rootScope.currentUser = {};
 		};
 	});
 

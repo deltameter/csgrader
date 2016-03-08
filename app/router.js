@@ -46,20 +46,20 @@ module.exports = function(app, passport){
 	});
 
 
-	app.get('/api/profile', auth.requiresLogin, users.getSelf);
+	app.get('/api/user', auth.requiresLogin, users.getSelf);
 
 	app.post('/api/user/join', users.create);
 
 	app.put('/api/user/emailActivation', users.emailActivation)
 
-	app.get('/api/user/logout', auth.requiresLogin, users.logout);
+	app.post('/api/user/logout', auth.requiresLogin, users.logout);
 
 	//******************************
 	//******* COURSE ROUTES ********
 	//******************************
 
 	//Get a list of user's courses
-	app.get('/api/profile/courses', auth.requiresLogin, courses.getCourses);
+	app.get('/api/course', auth.requiresLogin, courses.getCourses);
 
 	app.post('/api/course/create', teacherAuth, courses.create);
 

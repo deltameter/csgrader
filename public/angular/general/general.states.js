@@ -15,8 +15,10 @@
 		.state('root.main', {
 			url: '/',
 			template: '<ui-view/>',
+			data: {
+				bIsPublic: true
+			},
 			controller: function($state, AuthService){
-				console.log('blackmale')
 				if (AuthService.isAuthenticated()){
 					$state.go('root.main.dashboard');
 				}else{
@@ -27,6 +29,9 @@
 
 		.state('root.main.public', {
 			templateUrl: '/angular/general/partials/index.html',
+			data: {
+				bIsPublic: true
+			},
 			controller: function(){
 				console.log('Hit public index');
 			}

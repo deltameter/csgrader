@@ -53,7 +53,7 @@ describe('Course', function(){
 
 		it('asdf', function(done){
 			testTeacher
-			.get('/api/profile/courses')
+			.get('/api/course')
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				done();

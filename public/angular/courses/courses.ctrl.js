@@ -1,9 +1,9 @@
 (function(){
-	angular.module('user').controller('DashboardController', function($state, $http, CourseFactory, UserFactory){
+	angular.module('user').controller('DashboardController', function($state, $http, CourseFactory, UserInfo){
 		var vm = this;
 		this.newCourse = {};
 		this.courses = null;
-		this.user = UserFactory.getUser();
+		this.user = UserInfo.getUser();
 
 		var getCourses = function(){
 			CourseFactory.getCourses().then(
@@ -26,12 +26,12 @@
 	});
 
 	angular.module('user').controller('CourseController', 
-		function($state, $http, $stateParams, UserFactory, CourseFactory, AssignmentFactory){
+		function($state, $http, $stateParams, UserInfo, CourseFactory, AssignmentFactory){
 
 		var vm = this;
 
 		vm.course = null;
-		vm.user = UserFactory.getUser();
+		vm.user = UserInfo.getUser();
 		vm.newAssignment = {};
 
 		var getCourse = function(){
