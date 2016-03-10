@@ -98,14 +98,25 @@ module.exports = function(app, passport){
 
 	app.delete(assignmentRoute + '/delete', teacherCourseAuth, auth.requiresAssignment, assignments.delete);
 
+	//******************************
+	//****** QUESTION ROUTES *******
+	//******************************
+
 	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, assignments.addQuestion);
 
 	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);
 
-	//not idempotent so we use post
+	//not idempotent so we use post instead of delete
 	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, assignments.deleteQuestion);
 
+	//******************************
+	//****** EXERCISE ROUTES *******
+	//******************************
+
 	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
+
+	//not idempotent so we use post instead of delete
+	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, assignments.deleteExercise);
 	
 	//******************************
 	//***** SUBMISSION ROUTES ******

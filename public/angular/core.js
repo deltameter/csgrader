@@ -2,6 +2,7 @@
 	var app = angular.module('grader', 
 		[
 			'ui.router',
+			'textAngular',
 			'general',
 			'courses',
 			'user',

@@ -1,9 +1,10 @@
-<div class="question panel panel-primary" ng-init="questionCtrl.question = content" ng-click="questionCtrl.focus = true" ng-mouseleave="questionCtrl.focus = false">
-	<div class="panel-heading">
-		<h3 class="panel-title">Question: {{ questionCtrl.question.question }}</h3>
-		<h3 class="panel-title">Points: {{ questionCtrl.question.pointsWorth }}</h3>
+<div class="question well" ng-click="questionCtrl.focus = true" ng-mouseleave="questionCtrl.focus = false">
+	<div class="row">
+		<div ta-bind ng-model="questionCtrl.question.question"></div>
 	</div>
-	<div class="panel-body">
+
+	<div class="row med-spacer">
+		<h3>Points: {{ questionCtrl.question.pointsWorth }}</h3>
 		<div class="form-horizontal">
 			<div ng-show="questionCtrl.question.questionType ==='fillblank'">
 				<div class="form-group">
@@ -11,7 +12,7 @@
 					<div class="col-md-8">
 						<input type="text" class="form-control" ng-model="questionCtrl.answer"/>
 					</div>
-    			</div>
+				</div>
 			</div>
 			<div ng-show="questionCtrl.question.questionType ==='mc'">
 			</div>
@@ -21,12 +22,13 @@
 					<div class="col-md-8">
 						<textarea class="form-control" rows="4" ng-model="questionCtrl.answer"></textarea>
 					</div>
-    			</div>
+				</div>
 			</div>
-
-			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="questionCtrl.focus">
-				<btn class="btn btn-primary btn-block" ng-show="assignmentCtrl.user.bIsTeacher" ng-click="editing = true">Edit</btn>
-				<btn class="btn btn-success btn-block" ng-show="!assignmentCtrl.user.bIsTeacher" ng-click="questionCtrl.submitQuestion()">Submit</btn>
+			<div class="row">
+				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="questionCtrl.focus">
+					<btn class="btn btn-primary btn-block" ng-show="assignmentCtrl.user.bIsTeacher" ng-click="editing = true">Edit</btn>
+					<btn class="btn btn-success btn-block" ng-show="!assignmentCtrl.user.bIsTeacher" ng-click="questionCtrl.submitQuestion()">Submit</btn>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,0 +1,12 @@
+<div class="exercise well">
+	{{ exerciseEditCtrl.exercise }}
+
+	<div class="row">
+		<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-primary btn-block">Save</btn>
+		</div>
+		<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteExercise($index, exerciseEditCtrl.exercise.exerciseIndex)">Delete</btn>
+		</div>
+	</div>
+</div>

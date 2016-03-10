@@ -2,9 +2,7 @@
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
 			createAssignment: createAssignment,
-			getAssignment: getAssignment,
-			addQuestion: addQuestion,
-			deleteQuestion: deleteQuestion
+			getAssignment: getAssignment
 		};
 
 		function createAssignment(courseCode, newAssignment){
@@ -51,6 +49,15 @@
 				}
 			);
 		};
+	})
+
+	.factory('QuestionFactory', function($http){
+
+		return {
+			addQuestion: addQuestion,
+			editQuestion: editQuestion,
+			deleteQuestion: deleteQuestion
+		};
 
 		function addQuestion(courseCode, assignmentID){
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/create').then(
@@ -62,20 +69,39 @@
 			);
 		}
 
+		function editQuestion(courseCode, assignmentID, question){
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', question);
+		}
+
 		function deleteQuestion(courseCode, assignmentID, questionIndex){
 			var question = { questionIndex: questionIndex };
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/delete', question);
 		}
 	})
 
-	.factory('QuestionFactory', function($http){
-
+	.factory('ExerciseFactory', function($http){
 		return {
-			editQuestion: editQuestion
+			addExercise: addExercise,
+			deleteExercise: deleteExercise
 		};
 
-		function editQuestion(courseCode, assignmentID, question){
+		function addExercise(courseCode, assignmentID){
+			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/create').then(
+				function Success(res){
+					var newExercise = res.data;
+					newExercise.type = 'exercise';
+					return newExercise;
+				}
+			);
+		}
+
+/*		function editExercise(courseCode, assignmentID, question){
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', question);
+		}*/
+
+		function deleteExercise(courseCode, assignmentID, exerciseIndex){
+			var exercise = { exerciseIndex: exerciseIndex };
+			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/delete', exercise);
 		}
 	})
 })();

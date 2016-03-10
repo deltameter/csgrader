@@ -201,10 +201,8 @@ module.exports.addExercise = function(req, res){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
-		return helper.sendSuccess(res);
+		return helper.sendSuccess(res, assignment.exercises[assignment.exercises.length-1]);
 	});
-
-	return helper.sendSuccess(res);
 }
 
 module.exports.deleteExercise = function(req, res){
@@ -215,7 +213,8 @@ module.exports.deleteExercise = function(req, res){
 
 	//Splice it out of the content order
 	var numOfExercises = 0;
-	for (var i = 0; i < assignment.contentOrder; i++){
+	for (var i = 0; i < assignment.contentOrder.length; i++){
+
 		if (assignment.contentOrder[i] === 'exercise'){
 			if (numOfExercises === exerciseIndex){
 				assignment.contentOrder.splice(i, 1);
@@ -225,6 +224,8 @@ module.exports.deleteExercise = function(req, res){
 			}
 		}
 	}
+
+	assignment.markModified('contentOrder');
 
 	assignment.save(function(err){
 		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));

@@ -16,4 +16,20 @@
 			controllerAs: 'questionEditCtrl'
 		}
 	})
+	.directive('exercise', function(){
+		return {
+			restrict: 'E',
+			templateUrl: '/angular/assignments/partials/exercise.html',
+			controller: 'ExerciseController',
+			controllerAs: 'exerciseCtrl'
+		}
+	})
+	.directive('exerciseEdit', function(){
+		return {
+			restrict: 'E',
+			templateUrl: '/angular/assignments/partials/exerciseEdit.html',
+			controller: 'ExerciseEditController',
+			controllerAs: 'exerciseEditCtrl'
+		}
+	})
 })();

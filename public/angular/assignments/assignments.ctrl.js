@@ -1,7 +1,9 @@
 (function(){
 	angular.module('assignments')
 
-	.controller('AssignmentController', function($scope, $stateParams, UserInfo, AssignmentFactory){
+	.controller('AssignmentController', 
+		function($scope, $stateParams, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
+
 		var vm = this;
 		vm.user = UserInfo.getUser();
 		vm.courseCode = $stateParams.courseCode;
@@ -17,42 +19,57 @@
 				function Failure(err){
 
 				}
-			)
+			);
 		}
 
 		this.addQuestion = function(){
-			AssignmentFactory.addQuestion(vm.courseCode, vm.assignmentID).then(
+			QuestionFactory.addQuestion(vm.courseCode, vm.assignmentID).then(
 				function Success(newQuestion){
 					newQuestion.questionIndex = vm.assignment.questions.length;
 					vm.assignment.content.push(newQuestion);
 					vm.assignment.questions.push(newQuestion);
-				},
-				function Failure(res){
-
 				}
-			)
+			);
 		}
 		
-		this.deleteQuestion = function(questionIndex){
-			AssignmentFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex).then(
-				function Success(newQuestion){
-					vm.assignment.content.splice(questionIndex, 1);
+		this.deleteQuestion = function(contentIndex, questionIndex){
+			QuestionFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex).then(
+				function Success(){
+					vm.assignment.content.splice(contentIndex, 1);
+					vm.assignment.questions.splice(questionIndex, 1);
 					$scope.$broadcast('QUESTION_DELETE', questionIndex);
-				},
-				function Failure(res){
-
 				}
-			)
+			);
+		}
+
+		this.addExercise = function(){
+			ExerciseFactory.addExercise(vm.courseCode, vm.assignmentID).then(
+				function Success(newExercise){
+					newExercise.exerciseIndex = vm.assignment.exercises.length;
+					vm.assignment.content.push(newExercise);
+					vm.assignment.exercises.push(newExercise);
+				}
+			);
+		}
+
+		this.deleteExercise = function(contentIndex, exerciseIndex){
+			ExerciseFactory.deleteExercise(vm.courseCode, vm.assignmentID, exerciseIndex).then(
+				function Success(){
+					vm.assignment.content.splice(contentIndex, 1);
+					vm.assignment.exercises.splice(exerciseIndex, 1);
+					$scope.$broadcast('EXERCISE_DELETE', exerciseIndex);
+				}
+			);
 		}
 
 		getAssignment();
 	})
 
-	.controller('QuestionController', function(UserInfo){
+	.controller('QuestionController', function($scope, UserInfo){
 		var vm = this;
 
-		//question is instantiated through the ng-init
-		vm.question = {};
+		//get the question contents from the parent scope
+		vm.question = $scope.$parent.content;
 		
 		this.logQuestion = function(){
 			console.log(vm.question);
@@ -73,8 +90,8 @@
 			}
 		});
 
-		this.editQuestion = function(bHasEdited){
-			if (bHasEdited){
+		this.editQuestion = function(){
+			if ($scope.editForm.$dirty){
 				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
 					function Success(res){
 						$scope.editing = false;
@@ -100,5 +117,31 @@
 		this.deleteMCOption = function(index){
 			vm.question.answerOptions.splice(index, 1);
 		}
+	})
+
+	.controller('ExerciseController', function($scope, UserInfo){
+		var vm = this;
+
+		//get the exercise contents from the parent scope
+		vm.exercise = $scope.$parent.content;
+		
+		this.logQuestion = function(){
+			console.log(vm.exercise);
+		}
+	})
+
+	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, QuestionFactory){
+		var vm = this;
+		vm.courseCode = $stateParams.courseCode;
+		vm.assignmentID = $stateParams.assignmentID;
+		
+		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
+			if (vm.exercise.exerciseIndex > exerciseIndex){
+				vm.exercise.exerciseIndex--;
+			}
+		});
+
+		//get the exercise contents from the parent scope
+		vm.exercise = $scope.$parent.content;
 	})
 })();

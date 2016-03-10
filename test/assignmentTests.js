@@ -225,6 +225,18 @@ describe('Assignment', function(){
 		});
 	});
 
+	describe('exercise', function(){
+		it('should create an exercise', function(done){
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/create')
+			.end(function(err, res){
+
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+	});
+
 	describe('edit', function(){
 		it('should save new info about assignment', function(done){
 			var edit = {
@@ -281,7 +293,6 @@ describe('Assignment', function(){
 			});
 		});
 
-		//wtf? index isn't fully created
 		it('should not create duplicate submissions', function(done){
 			testStudent
 			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/submission/create')
