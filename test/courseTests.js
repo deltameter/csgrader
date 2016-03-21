@@ -13,12 +13,14 @@ describe('Course', function(){
 		var apcsCourse = {
 			name: 'SMUSHD AP CS',
 			courseCode: 'smushdapcs',
-			password: 'topkekerino'
+			password: 'topkekerino',
+			defaultLanguage: 0
 		}
 
 		var rejectCourse = {
 			name: 'meme master mohan',
-			courseCode: '2345333'
+			courseCode: '2345333',
+			defaultLanguage: 0
 		}
 
 		it('should reject requests from students', function(done){

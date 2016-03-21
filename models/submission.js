@@ -15,7 +15,7 @@ var submissionSchema = new Schema({
 	//teacher has to manually score these for frqs (or if bIsHomework, it get auto set to full points)
 	questionPoints: [Number],
 
-	exerciseAnswers: [String],
+	exerciseAnswers: [Schema.Types.Mixed],
 	exerciseTries: [Number],
 	exercisesCorrect: [Boolean],
 	//allow teachers to take off or add points to exercises

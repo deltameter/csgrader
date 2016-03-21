@@ -78,7 +78,8 @@ module.exports.create = function(req, res){
 		owner: req.user._id,
 		name: req.body.name,
 		courseCode: req.body.courseCode.replace(/\s/g, ''),
-		password: req.body.password
+		password: req.body.password,
+		defaultLanguage: req.body.defaultLanguage
 	});
 
 	newCourse.save(function(err, course){

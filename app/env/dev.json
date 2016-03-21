@@ -2,10 +2,7 @@
 	"env": "dev",
 	"appLocation": "http://localhost:3000",
 	"mongoURL": "mongodb://localhost/csgrader",
-	"aws": {
-		"ACCESS_KEY": "AKIAILV4YX7OIA4FTRGA",
-		"SECRET_KEY": "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"
-	},
+	"gradingMachineURL": "http://162.243.32.207",
 	"sendgrid": {
 		"apiKey": "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",
 		"activationEmailTemplateID": "5c0c8104-4564-4b6a-951c-bee6519e551f"

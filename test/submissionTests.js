@@ -108,7 +108,54 @@ describe('Submission', function(){
 				done();
 			});
 		});
+	});
 
+	describe('exercise submission', function(){
+
+		it('should not accept an incorrect submission', function(done){
+			//takes a while for the grading machine to get back to us
+			this.timeout(5000);
+			var info = {
+				exerciseIndex: 0,
+				//hello world in java
+				code: {
+					Kang: 'public class Kang{ public String speak(){ return "WE WUZ NOT KANGZ"; } }'
+				}
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/exercise')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.errors).to.not.equal('');
+				done();
+			});
+		});
+
+		it('should accept a correct submission', function(done){
+			//takes a while for the grading machine to get back to us
+			this.timeout(5000);
+			var info = {
+				exerciseIndex: 0,
+				//hello world in java
+				code: {
+					Kang: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
+				}
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/exercise')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.errors).to.equal('');
+				done();
+			});
+		});
+	});
+
+	describe('submission tools', function(){
 		it('should get an exported CSV of values', function(done){
 			var info = {
 				classIndex: 0,
@@ -122,7 +169,7 @@ describe('Submission', function(){
 				expect(res.status).to.equal(200);
 				done();
 			});
-		})
+		});
 	});
 });
 //Ensure tests run in order we want

@@ -4,10 +4,24 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
 var exerciseSchema = new Schema({
-	exerciseContext: String,
-	code: [String],
+	language: { type: Number, required: true },
+	title: { type: String, required: true },
+	context: String,
+	code: Schema.Types.Mixed,
 	testCases: [String],
-	correctAnswer: String
+	correctAnswer: String,
+	triesAllowed: Number
+});
+
+exerciseSchema.pre('validate', function(next){
+
+	if (this.code === null || typeof this.code !== 'object'){
+		return next(Error('The code is not formatted in the proper way. Please delete this exercise and create it again'));
+	}else if (typeof this.code.Main === 'undefined' || this.code.Main === null || this.code.Main.length < 0){
+		return next(Error('A class/file entitled "Main" is required to run. Put your unit tests and such there.'));
+	}
+
+	return next();
 });
 
 mongoose.model('Exercise', exerciseSchema);

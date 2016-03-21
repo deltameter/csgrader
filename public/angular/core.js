@@ -1,6 +1,7 @@
 (function(){
 	var app = angular.module('grader', 
 		[
+			'ui.ace',
 			'ui.router',
 			'textAngular',
 			'general',

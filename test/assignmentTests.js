@@ -226,15 +226,40 @@ describe('Assignment', function(){
 	});
 
 	describe('exercise', function(){
+		var exercise = {
+			title: 'My Exercise',
+			language: 'Java'
+		}
+
 		it('should create an exercise', function(done){
 			testTeacher
 			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/create')
+			.send(exercise)
 			.end(function(err, res){
-
 				expect(res.status).to.equal(200);
 				done();
 			});
 		});
+
+		it('should accept an edit that finishes the exercise', function(done){
+			var edit = {
+				exerciseIndex: 0,
+				triesAllowed: 'unlimited',
+				context: 'Create a class called Kang that prints out with a public void speak that returns "WE WUZ KANGZ"',
+				code: { 
+					Main: 'import org.junit.*; public class Main{ public static void main(String[] args){ Kang kang = new Kang();' + 
+					'Assert.assertEquals("JEMAILE", "WE WUZ KANGZ", kang.speak()); }}'
+				}
+			}
+
+			testTeacher
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/edit')
+			.send(edit)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		})
 	});
 
 	describe('edit', function(){

@@ -115,6 +115,8 @@ module.exports = function(app, passport){
 
 	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
 
+	app.put(assignmentRoute + '/exercise/edit', teacherAssignmentAuth, assignments.editExercise);
+
 	//not idempotent so we use post instead of delete
 	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, assignments.deleteExercise);
 	
@@ -126,7 +128,8 @@ module.exports = function(app, passport){
 
 	app.put(assignmentRoute + '/submit/question', studentAssignmentAuth, submissions.submitQuestionAnswer);
 
-
+	app.put(assignmentRoute + '/submit/exercise', studentAssignmentAuth, submissions.submitExerciseAnswer);
+	
 	//******************************
 	//****** CS GRADER ROUTES ******
 	//******************************

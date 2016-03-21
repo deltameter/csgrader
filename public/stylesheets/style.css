@@ -69,3 +69,10 @@ img.centered {
 img.scale-to-fit{
 	width: 100%;
 }
+
+
+/* ACE Editor */
+
+.ace_editor { 
+	height: 200px; 
+}

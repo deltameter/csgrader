@@ -7,6 +7,11 @@ var gulp = require('gulp'),
 
 gulp.task('js', function () {
 	streamqueue({ objectMode: true },
+		//Load Ace
+		gulp.src('./bower_components/ace-builds/src-min-noconflict/ace.js'),
+		//Load ui-ace
+		gulp.src('./bower_components/angular-ui-ace/ui-ace.min.js'),
+
 		gulp.src('./public/angular/**/*.module.js'),
 		//include everything but the module js
 		gulp.src(['!./public/angular/**/main.min.js', '!./public/angular/**/*.module.js', 
@@ -22,5 +27,5 @@ gulp.task('js', function () {
 });
 
 gulp.task('watch', ['js'], function () {
-	gulp.watch('./public/angular/**/*.js', ['js'])
+	gulp.watch(gulp.src['!./public/angular/main.min.js', './public/angular/**/*.js'], ['js'])
 });

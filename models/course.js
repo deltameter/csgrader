@@ -13,6 +13,7 @@ var courseSchema = new Schema({
 	courseCode: { type: String, required: true, index: true, unique: true },
 	password: { type: String, required: true},
 
+	defaultLanguage: { type: Number, required: true },
 	//can possibly have multiple teacher teaching same course and want to share materials
 	//can also have different classrooms for different periods
 	classrooms: [mongoose.model('Classroom').schema],

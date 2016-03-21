@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
 	Question = mongoose.model('Question'),
 	Exercise = mongoose.model('Exercise'),
+	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getAssignment = function(req, res){
@@ -195,13 +196,42 @@ module.exports.deleteQuestion = function(req, res){
 module.exports.addExercise = function(req, res){
 	var assignment = res.locals.assignment;
 
-	assignment.exercises.push(new Exercise());
+
+	var language = languageHelper.findByString(req.body.language);
+
+	var newExercise = new Exercise({
+		title: req.body.title,
+		language: language.langID,
+		code: language.defaultCode
+	});
+
+	assignment.exercises.push(newExercise);
+
 	assignment.contentOrder.push('exercise');
+
 	assignment.save(function(err){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
 		return helper.sendSuccess(res, assignment.exercises[assignment.exercises.length-1]);
+	});
+}
+
+module.exports.editExercise = function(req, res){
+	var assignment = res.locals.assignment;
+	const exerciseIndex = req.body.exerciseIndex;
+
+	var exercise = assignment.exercises[exerciseIndex];
+
+	exercise.context = req.body.context;
+	exercise.code = req.body.code;
+	exercise.triesAllowed = req.body.triesAllowed === 'unlimited' ? 100000 : req.body.triesAllowed;
+
+	assignment.save(function(err, assignment){
+		if (err){
+			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		}
+		return helper.sendSuccess(res);
 	});
 }
 
