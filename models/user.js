@@ -31,11 +31,14 @@ var userSchema = new Schema({
 	courseCodes: [String],
 
 	//courses the user has taken or has taught
-	archivedCourses: [Schema.Types.ObjectId]
+	archivedCourses: [Schema.Types.ObjectId],
 	
 	//Teacher specific
 
 	//Student specific
+
+	//rate limit the # of times a user can submit in a certain time
+	exerciseSubmissionRate: { type: Number, default: 10 }
 });
 
 userSchema.path('firstName').validate(function(firstName){

@@ -119,29 +119,62 @@
 		}
 	})
 
-	.controller('ExerciseController', function($scope, UserInfo){
+	.controller('ExerciseController', function($scope, $stateParams, UserInfo, ExerciseFactory){
 		var vm = this;
+		vm.courseCode = $stateParams.courseCode;
+		vm.assignmentID = $stateParams.assignmentID;
 
 		//get the exercise contents from the parent scope
 		vm.exercise = $scope.$parent.content;
-		
-		this.logQuestion = function(){
-			console.log(vm.exercise);
+
+		//configure ace
+		vm.aceOptions = {
+			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
+			//mode: 'java',
+			onLoad: function(ace) {
+			    ace.setReadOnly(true);
+			    ace.$blockScrolling = Infinity; 
+			}
+		}
+
+		this.testExercise = function(){
+			ExerciseFactory.testExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+				function Success(res){
+					console.log(res);
+				}
+			)
 		}
 	})
 
-	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, QuestionFactory){
+	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, ExerciseFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 		
+		//get the exercise contents from the parent scope
+		vm.exercise = $scope.$parent.content;
+
+		//configure ace
+		vm.aceOptions = {
+			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
+			//mode: 'java',
+			onLoad: function(ace) {
+			    ace.$blockScrolling = Infinity; 
+			}
+		}
+
 		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
 			if (vm.exercise.exerciseIndex > exerciseIndex){
 				vm.exercise.exerciseIndex--;
 			}
 		});
 
-		//get the exercise contents from the parent scope
-		vm.exercise = $scope.$parent.content;
+		this.editExercise = function(){
+			ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+				function Success(res){
+					$scope.editing = false;
+				}
+			)
+		}
 	})
 })();

@@ -4,6 +4,8 @@ var general = require(__base + 'routes/controllers/general'),
 	users = require(__base + 'routes/controllers/users'),
 	courses = require(__base + 'routes/controllers/courses'),
 	assignments = require(__base + 'routes/controllers/assignments'),
+	exercises = require(__base + 'routes/controllers/exercises'),
+	questions = require(__base + 'routes/controllers/questions'),
 	submissions = require(__base + 'routes/controllers/submissions'),
 	classrooms = require(__base + 'routes/controllers/classrooms'),
 	helper = require(__base + 'routes/libraries/helper');
@@ -102,24 +104,26 @@ module.exports = function(app, passport){
 	//****** QUESTION ROUTES *******
 	//******************************
 
-	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, assignments.addQuestion);
+	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, questions.addQuestion);
 
-	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, assignments.editQuestion);
+	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, questions.editQuestion);
 
 	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, assignments.deleteQuestion);
+	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, questions.deleteQuestion);
 
 	//******************************
 	//****** EXERCISE ROUTES *******
 	//******************************
 
-	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, assignments.addExercise);
+	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, exercises.addExercise);
 
-	app.put(assignmentRoute + '/exercise/edit', teacherAssignmentAuth, assignments.editExercise);
+	app.put(assignmentRoute + '/exercise/edit', teacherAssignmentAuth, exercises.editExercise);
 
-	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, assignments.deleteExercise);
+	app.post(assignmentRoute + '/exercise/test', teacherAssignmentAuth, exercises.testExercise);
 	
+	//not idempotent so we use post instead of delete
+	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, exercises.deleteExercise);
+
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************

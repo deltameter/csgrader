@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+	fs = require('fs'),
 	concat = require('gulp-concat'),
 	sourcemaps = require('gulp-sourcemaps'),
 	uglify = require('gulp-uglify'),
@@ -18,14 +19,14 @@ gulp.task('js', function () {
 			'./public/angular/**/core.js', './public/angular/**/*.js'])
 		)
 	
-	.pipe(sourcemaps.init())
+	//.pipe(sourcemaps.init())
 	.pipe(concat('main.min.js'))
 	.pipe(ngAnnotate())
 	.pipe(uglify({ mangle: false }))
-	.pipe(sourcemaps.write())
-	.pipe(gulp.dest('./public/angular/'))
+	//.pipe(sourcemaps.write())
+	.pipe(gulp.dest('./public/'))
 });
 
 gulp.task('watch', ['js'], function () {
-	gulp.watch(gulp.src['!./public/angular/main.min.js', './public/angular/**/*.js'], ['js'])
+	gulp.watch(['!./public/angular/main.min.js', './public/angular/**/*.js'], ['js'])
 });

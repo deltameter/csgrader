@@ -82,11 +82,18 @@
 	.factory('ExerciseFactory', function($http){
 		return {
 			addExercise: addExercise,
+			editExercise: editExercise, 
+			testExercise: testExercise,
 			deleteExercise: deleteExercise
 		};
 
 		function addExercise(courseCode, assignmentID){
-			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/create').then(
+			var exercise = {
+				title: 'My Exercise',
+				language: 'Java'
+			}
+
+			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/create', exercise).then(
 				function Success(res){
 					var newExercise = res.data;
 					newExercise.type = 'exercise';
@@ -95,9 +102,26 @@
 			);
 		}
 
-/*		function editExercise(courseCode, assignmentID, question){
-			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', question);
-		}*/
+		function editExercise(courseCode, assignmentID, exercise){
+			var exerciseEdit = { 
+				exerciseIndex: exercise.exerciseIndex, 
+				context: exercise.context,
+				code: exercise.code,
+				triesAllowed: 'unlimited'
+			}
+
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/edit', exercise);
+		}
+
+		function testExercise(courseCode, assignmentID, exercise){
+			var exerciseTest = {
+				exerciseIndex: exercise.exerciseIndex,
+				code: exercise.code
+			}
+
+			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/test', exerciseTest);
+
+		}
 
 		function deleteExercise(courseCode, assignmentID, exerciseIndex){
 			var exercise = { exerciseIndex: exerciseIndex };

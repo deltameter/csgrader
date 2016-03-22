@@ -40,6 +40,12 @@
 					</div>
 
 					<div class="form-group">
+						<div class="col-md-10 col-md-offset-1">
+							<input type="text" ng-model="dashboardCtrl.newCourse.defaultLanguage" ng-pattern="/^[a-zA-Z0-9]*$/" placeholder="Default Language" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
 						<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
 							<button type="submit" class="btn btn-block btn-primary">Submit</button>
 						</div>

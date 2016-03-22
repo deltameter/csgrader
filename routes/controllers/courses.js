@@ -7,6 +7,7 @@ var mongoose = require('mongoose'),
 	Classroom = mongoose.model('Classroom'),
 	Student = mongoose.model('Student'),
 	async = require('async'),
+	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getCourses = function(req, res){
@@ -79,12 +80,12 @@ module.exports.create = function(req, res){
 		name: req.body.name,
 		courseCode: req.body.courseCode.replace(/\s/g, ''),
 		password: req.body.password,
-		defaultLanguage: req.body.defaultLanguage
+		defaultLanguage: languageHelper.findByString(req.body.defaultLanguage).langID
 	});
 
 	newCourse.save(function(err, course){
 		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		
+
 		//Enroll the user in the course
 		req.user.courses.push(course._id);
 		req.user.save(function(err, user){
