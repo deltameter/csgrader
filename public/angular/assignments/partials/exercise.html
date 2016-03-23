@@ -1,14 +1,26 @@
 <div class="exercise well">
 	{{ exerciseCtrl.exercise }}
+	<pre ng-show="exerciseCtrl.compilationInfo.output.length > 0">Output: {{ exerciseCtrl.compilationInfo.output }}</pre>
+	<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
 	<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise.code.Main"></div>
 
 	<div class="row">
-		<div class="col-xs-12" ng-show="assignmentCtrl.user.bIsTeacher">
-			<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
-				<btn class="btn btn-primary btn-block" ng-show="assignmentCtrl.user.bIsTeacher" ng-click="editing = true">Edit</btn>
+		<div ng-show="assignmentCtrl.user.bIsTeacher">
+			<div ng-show="exerciseCtrl.editing === false">
+				<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.toggleEdit()">Edit</btn>
+				</div>
+				<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()">Test</btn>
+				</div>
 			</div>
-			<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
-				<btn class="btn btn-success btn-block" ng-show="assignmentCtrl.user.bIsTeacher" ng-click="exerciseCtrl.testExercise()">Test</btn>
+			<div ng-show="exerciseCtrl.editing === true">
+				<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.editExercise()">Save</btn>
+				</div>
+				<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteExercise($index, exerciseEditCtrl.exercise.exerciseIndex)">Delete</btn>
+				</div>
 			</div>
 		</div>
 

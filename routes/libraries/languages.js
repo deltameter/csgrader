@@ -2,7 +2,7 @@ var languages = [
     {
         langID: 0,
         language: 'Java',
-        defaultCode: { Main: 'import org.junit.*; \n\n public class Main{\n\tpublic static void main(String[] args){\n\t\t\n\t}\n}' }
+        defaultCode: { Main: 'import org.junit.*;\n\npublic class Main{\n\tpublic static void main(String[] args){\n\t\t\n\t}\n}' }
     }
 ]
 

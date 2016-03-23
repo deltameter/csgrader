@@ -74,7 +74,6 @@ module.exports.deleteExercise = function(req, res){
 }
 
 module.exports.testExercise = function(req, res){
-	console.log(req.body);
 	var assignment = res.locals.assignment;
 
 	const i = req.body.exerciseIndex;
@@ -98,6 +97,8 @@ module.exports.testExercise = function(req, res){
 			assignment.save();
 		}
 
+		console.log(body.output);
+		
 		body.bIsCorrect = bIsCorrect;
 		return helper.sendSuccess(res, body);
 	});

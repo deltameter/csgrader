@@ -124,29 +124,61 @@
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 
+		vm.editing = false;
 		//get the exercise contents from the parent scope
 		vm.exercise = $scope.$parent.content;
+		//this object is resolved in the onload option
+		vm.aceEditor = {};
+		//info we get after every compilation (output/errors)
+		vm.compilationInfo = {};
+
+		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
+			if (vm.exercise.exerciseIndex > exerciseIndex){
+				vm.exercise.exerciseIndex--;
+			}
+		});
 
 		//configure ace
 		vm.aceOptions = {
 			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
 			//mode: 'java',
-			onLoad: function(ace) {
-			    ace.setReadOnly(true);
-			    ace.$blockScrolling = Infinity; 
+			onLoad: function(aceEditor) {
+				//Get the ace editor in our 
+			    aceEditor.setReadOnly(true);
+			    aceEditor.$blockScrolling = Infinity;
+
+			    vm.aceEditor = aceEditor;
 			}
+		}
+
+		this.toggleEdit = function(){
+			vm.editing = !vm.editing;
+			vm.aceEditor.setReadOnly(!vm.aceEditor.$readOnly);
+		}
+
+		this.resetExercise = function(){
+			vm.compilationInfo = {};
+		}
+
+		this.editExercise = function(){
+			ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+				function Success(res){
+					vm.toggleEdit();
+				}
+			)
 		}
 
 		this.testExercise = function(){
 			ExerciseFactory.testExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 				function Success(res){
-					console.log(res);
+					vm.compilationInfo.output = res.data.output;
+					vm.compilationInfo.errors = res.data.errors;
 				}
 			)
 		}
 	})
 
-	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, ExerciseFactory){
+/*	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, ExerciseFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -162,19 +194,5 @@
 			    ace.$blockScrolling = Infinity; 
 			}
 		}
-
-		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
-			if (vm.exercise.exerciseIndex > exerciseIndex){
-				vm.exercise.exerciseIndex--;
-			}
-		});
-
-		this.editExercise = function(){
-			ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
-				function Success(res){
-					$scope.editing = false;
-				}
-			)
-		}
-	})
+	})*/
 })();

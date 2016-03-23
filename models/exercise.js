@@ -17,7 +17,6 @@ var exerciseSchema = new Schema({
 });
 
 exerciseSchema.pre('validate', function(next){
-	console.log(this);
 	if (this.code === null || typeof this.code !== 'object'){
 		return next(Error('The code is not formatted in the proper way. Please delete this exercise and create it again'));
 	}else if (typeof this.code.Main === 'undefined' || this.code.Main === null || this.code.Main.length < 0){
