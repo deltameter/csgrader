@@ -6,7 +6,7 @@ var mongoose = require('mongoose'),
 var exerciseSchema = new Schema({
 	//the teacher must submit a finished submission of the exercise before releasing it
 	bIsTested: { type: Boolean, default: false },
-	language: { type: Number, required: true },
+	language: Schema.Types.Mixed,
 	title: { type: String, required: true },
 
 	context: String,

@@ -145,7 +145,7 @@ module.exports.submitExerciseAnswer = function(req, res){
 			uri: config.gradingMachineURL + '/compile',
 			method: 'POST',
 			json: {
-				language: assignment.exercises[i].language,
+				language: assignment.exercises[i].language.langID,
 				code: code
 			}
 		};

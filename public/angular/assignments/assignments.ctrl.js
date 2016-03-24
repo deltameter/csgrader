@@ -119,7 +119,7 @@
 		}
 	})
 
-	.controller('ExerciseController', function($scope, $stateParams, UserInfo, ExerciseFactory){
+	.controller('ExerciseController', function($scope, $stateParams, Config, UserInfo, ExerciseFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -131,6 +131,8 @@
 		vm.aceEditor = {};
 		//info we get after every compilation (output/errors)
 		vm.compilationInfo = {};
+		//select which file to run. Defaults at the file with the unit tests. 
+		vm.currentFile = 'Main';
 
 		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
 			if (vm.exercise.exerciseIndex > exerciseIndex){
@@ -158,6 +160,33 @@
 
 		this.resetExercise = function(){
 			vm.compilationInfo = {};
+		}
+
+		this.addFile = function(){
+			if (typeof vm.newFileName === 'undefined' || vm.newFileName.length === 0){
+				return;
+			}
+			vm.newFileName = vm.newFileName.split('.')[0];
+			vm.exercise.code[vm.newFileName] = '';
+			vm.newFileName = '';
+		}
+
+		this.deleteFile = function(){
+			if (vm.currentFile === Config.graderTestFile){
+				return;
+			}
+			
+			var files = Object.keys(vm.exercise.code);
+			var nextFile;
+
+			for (var i = 0; i < files.length; i++){
+				if (files[i] === vm.currentFile){
+					nextFile = files[Math.max(0, i - 1)];
+				}
+			}
+
+			delete vm.exercise.code[vm.currentFile];
+			vm.currentFile = nextFile;
 		}
 
 		this.editExercise = function(){

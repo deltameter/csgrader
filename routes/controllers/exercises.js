@@ -11,7 +11,7 @@ module.exports.addExercise = function(req, res){
 
 	var newExercise = new Exercise({
 		title: req.body.title,
-		language: language.langID,
+		language: language.definition,
 		code: language.defaultCode
 	});
 
@@ -83,21 +83,22 @@ module.exports.testExercise = function(req, res){
 		uri: config.gradingMachineURL + '/compile',
 		method: 'POST',
 		json: {
-			language: assignment.exercises[i].language,
+			language: assignment.exercises[i].language.langID,
 			code: code
 		}
 	};
 
 	httpClient(options, function(err, httpRes, body){
-		//no errors
+		if (err){
+			return helper.sendError(res, 500, 1000, 'Could not connect to the server. Please try again.');
+		}
+
 		var bIsCorrect = body.errors.length === 0;
 
 		if (bIsCorrect){
 			assignment.exercises[i].bIsTested = true;
 			assignment.save();
 		}
-
-		console.log(body.output);
 		
 		body.bIsCorrect = bIsCorrect;
 		return helper.sendSuccess(res, body);

@@ -39,4 +39,11 @@
   			}
   		});
 	});
+
+	app.factory('Config', function(){
+		return {
+			//where the tests run. this can't be deleted by the user. 
+			graderTestFile: 'Main'
+		}
+	});
 })();
