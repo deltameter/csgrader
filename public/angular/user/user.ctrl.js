@@ -43,13 +43,34 @@
 
 		this.signup = function() {
 			AuthService.signup(vm.user).then(
-				function(res){
+				function Success(res){
 					$state.go('root.main');
 				},
-				function(res){
+				function Failure(res){
+					console.log(res.data.userMessage);
 					vm.authMessage = res.data.userMessage;
-				});
+				}
+			);
 		};
+	})
+
+	.controller('RegistrationController', function($state, UserFactory){
+		var vm = this;
+		vm.regInfo = {};
+		vm.userMessage = '';
+
+		this.registerForCourse = function(){
+			UserFactory.registerForCourse(vm.regInfo).then(
+				function Success(res){
+					console.log(res);
+					$state.go('root.course', { courseCode: res.courseCode });
+				},
+				function Failure(res){
+					console.log(res);
+					vm.userMessage = res.data.userMessage;
+				}
+			)
+		}
 	})
 
 	.controller('ProfileController', function($state, UserInfo){

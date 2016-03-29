@@ -7,6 +7,22 @@ var mongoose = require('mongoose'),
 	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
 
+module.exports.getSubmission = function(req, res){
+	var assignment = res.locals.assignment;
+
+	Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id }, function(err, submission){
+		if (err){
+			return helper.sendError(res, 500, 1000, helper.errorHelper(err));
+		}
+		if (!submission){
+			//redirect them to create a new assignment if they don't have one
+			return module.exports.create(req, res);
+		}else{
+			return helper.sendSuccess(res, submission);
+		}
+	});
+}
+
 module.exports.create = function(req, res){
 	var assignment = res.locals.assignment;
 
@@ -52,8 +68,7 @@ module.exports.create = function(req, res){
 			return helper.sendError(res, 400, 3000, helper.errorHelper(err));
 		}
 
-		//if the submission is done being created, return the assignment
-		return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
+		return helper.sendSuccess(res, newSubmission);
 	});
 }
 

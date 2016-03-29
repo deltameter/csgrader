@@ -1,0 +1,37 @@
+<div class="container">
+	<div class="well">
+		{{ classroomCtrl.classroom }}
+	</div>
+	<div ng-repeat="student in classroomCtrl.classroom.students">
+		{{ student }}
+		<btn ng-click="classroomCtrl.deleteStudent(student._id)" class="btn btn-primary">X</btn>
+	</div>
+	<div class="form-horizontal">
+		<div class="form-group">
+			<label class="col-md-2 col-md-offset-1 control-label">New User</label>
+			<div class="col-md-2">
+				<input type="text" ng-model="classroomCtrl.newStudent.firstName" placeholder="First Name" class="form-control" autocomplete="off">
+			</div>
+			<div class="col-md-2">
+				<input type="text" ng-model="classroomCtrl.newStudent.lastName" placeholder="Last Name" class="form-control" autocomplete="off">
+			</div>
+			<div class="col-md-2">
+				<input type="text" ng-model="classroomCtrl.newStudent.gradebookID" placeholder="Gradebook ID" class="form-control" autocomplete="off">
+			</div>
+			<div class="col-md-1">
+				<btn ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm">+</btn>
+			</div>
+		</div>
+	</div>
+	<div class="form-horizontal">
+		<div class="form-group">
+			<label class="col-md-4 col-md-offset-1 control-label">Import from CSV</label>
+			<div class="col-md-4">
+				<input type="file" placeholder="First Name" class="form-control" autocomplete="off">
+			</div>
+			<div class="col-md-2">
+				<btn ng-click="classroomCtrl.importStudents()" class="btn btn-primary btn-sm">+</btn>
+			</div>
+		</div>
+	</div>
+</div>

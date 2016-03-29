@@ -43,9 +43,12 @@ assignmentSchema.statics = {
 			_id: assignment._id,
 			name: assignment.name,
 			description: assignment.description,
+			dueDate: assignment.dueDate,
 			pointsWorth: assignment.pointsWorth,
+			pointLoss: assignment.pointLoss,
 			questions: assignment.questions,
-			exercises: assignment.exercises
+			exercises: assignment.exercises,
+			contentOrder: assignment.contentOrder
 		}
 	}
 }

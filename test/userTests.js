@@ -1,4 +1,4 @@
-var app = require('./testprep').app,
+var app = require('./testPrep').app,
 	expect = require('chai').expect,
     supertest = require('supertest'),
     async = require('async'),

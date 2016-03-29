@@ -71,6 +71,12 @@ img.scale-to-fit{
 }
 
 
+/* Exercises */
+.exercise-button-container{
+	display: inline-block;
+	margin-right: 5px;
+}
+
 /* ACE Editor */
 
 .ace_editor { 

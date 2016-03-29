@@ -7,8 +7,6 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course');
 
 describe('Course', function(){
-	var classroom = {};
-
 	describe('creation', function(){
 		var apcsCourse = {
 			name: 'SMUSHD AP CS',
@@ -22,16 +20,6 @@ describe('Course', function(){
 			courseCode: '2345333',
 			defaultLanguage: 'Java'
 		}
-
-		it('should reject requests from students', function(done){
-			testStudent
-			.post('/api/course/create')
-			.send(apcsCourse)
-			.end(function(err, res){
-				expect(res.status).to.equal(401);
-				done();
-			});
-		});
 
 		it('should create a course given the right data', function(done){
 			testTeacher
@@ -69,7 +57,11 @@ describe('Course', function(){
 			name: '6th Period'
 		}
 
-		var newUser = {
+		var deleteClass = {
+			name: 'Meme Period'
+		}
+
+		var newStudent = {
 			firstName: 'little',
 			lastName: 'johnny',
 			gradebookID: '123'
@@ -84,11 +76,29 @@ describe('Course', function(){
 			.end(function(err, res){
 				if (err) throw err;
 				classroom = res.body;
-				newUser.classCode = res.body.classCode;
+				newStudent.classCode = res.body.classCode;
 				expect(res.status).to.equal(200);
 				done();
 			});
 		});
+
+		it('should delete a classroom', function(done){
+			testTeacher
+			.post('/api/course/smushdapcs/classroom/create')
+			.send(deleteClass)
+			.end(function(err, res){
+				if (err) throw err;
+				var classCode = res.body.classCode;
+
+				testTeacher
+				.delete('/api/course/smushdapcs/classroom/' + classCode)
+				.end(function(err, res){
+					if (err) throw err;
+					expect(res.status).to.equal(200);
+					done();
+				});
+			})
+		})
 
 		it('shouldn\'t register a student whose teacher hasn\'t entered them in yet', function(done){
 			var regInfo = {
@@ -107,16 +117,16 @@ describe('Course', function(){
 		});
 
 		it('should accept the creation of several users', function(done){
-			var newUser2 = JSON.parse(JSON.stringify(newUser));
-			var newUser3 = JSON.parse(JSON.stringify(newUser));
-			newUser2.gradebookID = '234';
-			newUser3.gradebookID = '345';
+			var newStudent2 = JSON.parse(JSON.stringify(newStudent));
+			var newStudent3 = JSON.parse(JSON.stringify(newStudent));
+			newStudent2.gradebookID = '234';
+			newStudent3.gradebookID = '345';
 
 			async.parallel([
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/student/create')
-					.send(newUser)
+					.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/create')
+					.send(newStudent)
 					.end(function(err, res){
 						if (err) throw err;
 						expect(res.status).to.equal(200);
@@ -125,8 +135,8 @@ describe('Course', function(){
 				},
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/student/create')
-					.send(newUser2)
+					.post('/api/course/smushdapcs/classroom/' + classroom.classCode + '/student/create')
+					.send(newStudent2)
 					.end(function(err, res){
 						if (err) throw err;
 						expect(res.status).to.equal(200);
@@ -135,8 +145,8 @@ describe('Course', function(){
 				},
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/student/create')
-					.send(newUser3)
+					.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/create')
+					.send(newStudent3)
 					.end(function(err, res){
 						if (err) throw err;
 						expect(res.status).to.equal(200);
@@ -154,8 +164,7 @@ describe('Course', function(){
 
 		it('should accept a CSV file of students and create them all', function(done){
 			testTeacher
-			.post('/api/course/smushdapcs/classroom/student/import')
-			.field('classCode', classroom.classCode)
+			.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/import')
 			.attach('students', __dirname + '/resources/students.csv')
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -166,14 +175,14 @@ describe('Course', function(){
 		it('should edit a user', function(done){
 			var editUser = {
 				classCode: classroom.classCode,
-				studentID: modifyUser._id,
+				studentClassID: modifyUser._id,
 				firstName: 'Big',
 				lastName: 'Johnny',
 				gradebookID: '777'
 			}
 
 			testTeacher
-			.put('/api/course/smushdapcs/classroom/student/edit')
+			.put('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/edit')
 			.send(editUser)
 			.end(function(err, res){
 				if (err) throw err;
@@ -189,14 +198,8 @@ describe('Course', function(){
 		});
 
 		it('should delete a user', function(done){
-			var deleteUser = {
-				studentIndex: 2,
-				classCode: classroom.classCode
-			}
-
 			testTeacher
-			.delete('/api/course/smushdapcs/classroom/student/delete')
-			.send(deleteUser)
+			.delete('/api/course/smushdapcs/classroom/' + classroom.classCode + '/student/delete/' + modifyUser._id)
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(200);
@@ -210,7 +213,7 @@ describe('Course', function(){
 	});
 
 	describe('registration', function(){
-		it('shouldn\'t register a student with an ambiguous name', function(done){
+		it('shouldn\'t register a student who hasn\'t entered a gradebookID' , function(done){
 			var regInfo = {
 				identifier: 'smushdapcs-' + classroom.classCode,
 				password: 'topkekerino'
@@ -222,16 +225,16 @@ describe('Course', function(){
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(400);
-				expect(res.body.errorCode).to.equal(3001);
+				expect(res.body.errorCode).to.equal(1001);
 				done();
 			});
 		});
 
-		it('should register a student with an ambiguous name after they input their gradebookID', function(done){
+		it('should register a student after they input their gradebookID', function(done){
 			var regInfo = {
 				identifier: 'smushdapcs-' + classroom.classCode,
 				password: 'topkekerino',
-				studentGradebookID: '123'
+				gradebookID: '123'
 			}
 
 			testStudent

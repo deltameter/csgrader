@@ -6,6 +6,7 @@
 			'textAngular',
 			'general',
 			'courses',
+			'classrooms',
 			'user',
 			'assignments',
 			'misc'
@@ -27,13 +28,13 @@
 			}
 
   			if (AuthResolver.bIsResolved()){
-  				console.log('stateChangeStart resolved');
-  				console.log('auth: ' + AuthService.isAuthenticated());
+/*  				console.log('stateChangeStart resolved');
+  				console.log('auth: ' + AuthService.isAuthenticated());*/
   				ensureAuth(event, AuthService.isAuthenticated());
   			}else{
   				AuthResolver.resolve().then(function(data){
-  					console.log('stateChangeStart not resolved');
-  					console.log('auth: ' + AuthService.isAuthenticated());
+/*  					console.log('stateChangeStart not resolved');
+  					console.log('auth: ' + AuthService.isAuthenticated());*/
   					ensureAuth(event, AuthService.isAuthenticated());
   				});
   			}
@@ -42,7 +43,7 @@
 
 	app.factory('Config', function(){
 		return {
-			//where the tests run. this can't be deleted by the user. 
+			//where the tests run. this file can't be deleted by the user. 
 			graderTestFile: 'Main'
 		}
 	});

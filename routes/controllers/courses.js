@@ -47,23 +47,21 @@ module.exports.getCourses = function(req, res){
 }
 
 module.exports.getCourse = function(req, res){
-	var projection;
-	console.log(req.params.courseCode);
-
 	var projection = { owner: 1, courseCode: 1, name: 1, assignments: { $slice: -5 } };
+	var assignmentFilter = { bIsOpen: true };
 
 	//show classrooms if is teacher
 	if (req.user.bIsTeacher){
 		projection.classrooms = 1;
+		delete assignmentFilter.bIsOpen;
 	}
 
 	Course
 	.findOne({ courseCode: req.params.courseCode })
 	.select(projection)
 	.populate('owner', 'firstName lastName')
-	.populate('assignments', 'courseID name description')
+	.populate('assignments', 'courseID name description', assignmentFilter)
 	.exec(function(err, course){
-		console.log(course);
 		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
 
 		return helper.sendSuccess(res, course);
@@ -80,7 +78,7 @@ module.exports.create = function(req, res){
 		name: req.body.name,
 		courseCode: req.body.courseCode.replace(/\s/g, ''),
 		password: req.body.password,
-		defaultLanguage: languageHelper.findByString(req.body.defaultLanguage).langID
+		defaultLanguage: languageHelper.findByString(req.body.defaultLanguage).definition.langID
 	});
 
 	newCourse.save(function(err, course){
@@ -133,7 +131,7 @@ module.exports.register = function(req, res){
 	var courseCode = identifier.substring(0, identifier.indexOf('-'));
 	var classCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
 
-	Course.findOne({courseCode: courseCode}, function(err, course){
+	Course.findOne({courseCode: courseCode}, { classrooms: 1, password: 1, courseCode: 1 }, function(err, course){
 		if (!course) { 
 			return helper.sendError(res, 400, 3000, 'Course not found. Code was most likely incorrect.'); 
 		}
@@ -161,29 +159,19 @@ module.exports.register = function(req, res){
 
 		//Find the user by their name. 
 		//If there are more than two students that match the profile, ask them to provide a student ID as well.
-		var newStudent = course.classrooms[classroomIndex].students.filter(function(student){
-			return student.firstName.toLowerCase() === req.user.firstName.toLowerCase() 
-				&& student.lastName.toLowerCase() === req.user.lastName.toLowerCase();
+		var newStudent = course.classrooms[classroomIndex].students.find(function(student){
+			return student.lastName.toLowerCase() === req.user.lastName.toLowerCase()
+				&& student.gradebookID === req.body.gradebookID;
 		});
 
-		if (newStudent.length > 1){
-			if (typeof req.body.studentGradebookID === 'undefined'){
-				return helper.sendError(res, 400, 3001, 'There are multiple students with that name.'+
-					'Please enter your student ID.');
-			}else{
-				//Find user by the gradebook id they put in 
-				newStudent = course.classrooms[classroomIndex].students.filter(function(student){
-					return student.gradebookID === req.body.studentGradebookID;
-				});
-			}
-		}else if (newStudent.length === 0){
+		if (!newStudent){
 			return helper.sendError(res, 400, 1001, 
 				'Your teacher has not included you in the list of students.' +
 				'Please ask them to enter in a new student using the first and last name you signed up with');
 		}
 
-		if (typeof newStudent[0].userID === 'undefined' && newStudent.length === 1){
-			newStudent[0].userID = req.user._id;
+		if (typeof newStudent.userID === 'undefined'){
+			newStudent.userID = req.user._id;
 		}else{
 			return helper.sendError(res, 400, 3000, 'It seems you\'ve already registered');
 		}
@@ -204,7 +192,7 @@ module.exports.register = function(req, res){
 		}, function(err, results){
 			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 
-			return helper.sendSuccess(res);
+			return helper.sendSuccess(res, { courseCode: course.courseCode });
 		});
 	});
 }

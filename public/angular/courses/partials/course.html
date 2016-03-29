@@ -4,7 +4,7 @@
 	<p>{{ courseCtrl.newAssignment }}</p>
 
 	<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2" ng-repeat="assignment in courseCtrl.course.assignments.slice().reverse()">
-		<a ui-sref="root.assignment({ courseCode: '{{ courseCtrl.course.courseCode }}', assignmentID: '{{ assignment._id }}' })">
+		<a ui-sref="root.assignment({ courseCode: courseCtrl.course.courseCode, assignmentID: assignment._id })">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<h3 class="panel-title">{{ assignment.name }}</h3>
@@ -50,5 +50,5 @@
 			</form>
 		</div>
 	</div>
-
+	<a ui-sref="root.classrooms({ courseCode: courseCtrl.course.courseCode })">KANGZ</a>
 </div>

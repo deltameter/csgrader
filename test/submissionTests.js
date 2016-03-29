@@ -4,7 +4,6 @@ var testTeacher = require('./assignmentTests').testTeacher,
     async = require('async');
 
 describe('Submission', function(){
-
 	describe('submit question', function(){
 		it('should accept a fill in the blank answer', function(done){
 			var answer = {
@@ -163,7 +162,7 @@ describe('Submission', function(){
 			}
 
 			testTeacher
-			.get('/api/course/smushdapcs/classroom/grades/export')
+			.get('/api/course/smushdapcs/classroom/' + classroom.classCode + 'grades/export')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);

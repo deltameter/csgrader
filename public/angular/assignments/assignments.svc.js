@@ -1,28 +1,20 @@
 (function(){
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
+			getAssignment: getAssignment,
 			createAssignment: createAssignment,
-			getAssignment: getAssignment
-		};
-
-		function createAssignment(courseCode, newAssignment){
-			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
-				function Success(res){
-					return res.data;
-				}
-			);
+			openAssignment: openAssignment
 		};
 
 		function getAssignment(courseCode, assignmentID){
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID).then(
 				function Success(res){
-
 					var assignment = res.data;
 					//exercise index, question index, frq index
 					var eI = 0, qI = 0, fI = 0;
 
 					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
-					console.log(assignment);
+
 					for (var i = 0; i < assignment.contentOrder.length; i++){
 						//true = exercise, false = question
 						if (assignment.contentOrder[i] === 'exercise'){
@@ -49,6 +41,22 @@
 				}
 			);
 		};
+
+		function createAssignment(courseCode, newAssignment){
+			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
+				function Success(res){
+					return res.data;
+				}
+			);
+		};
+
+		function openAssignment(courseCode, assignmentID, openInfo){
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/open', openInfo).then(
+				function Success(res){
+					return res.data;
+				}
+			);
+		}
 	})
 
 	.factory('QuestionFactory', function($http){

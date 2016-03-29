@@ -1,6 +1,19 @@
 (function(){
-	angular.module('user').factory('AuthService', function ($http, UserInfo) {
+	angular.module('user').factory('UserFactory', function ($http) {
+		return {
+			registerForCourse: registerForCourse
+		}
 
+		function registerForCourse(regInfo){
+			return $http.put('/api/course/register', regInfo).then(
+				function Success(res){
+					return res.data;
+				}
+			)
+		}
+	})
+	
+	.factory('AuthService', function ($http, UserInfo) {
 		return {
 			login: login,
 			signup: signup,
@@ -22,9 +35,6 @@
 				function(res){
 					UserInfo.setUser(res.data);
 					return res.data;
-				},
-				function(res){
-					return res.data;
 				}
 			);
 		};
@@ -43,9 +53,9 @@
 		function isAuthenticated(){
 			return UserInfo.live();
 		};
-	});
+	})
 
-	angular.module('user').factory('UserInfo', function ($rootScope) {
+	.factory('UserInfo', function ($rootScope) {
 		return {
 			live: live,
 			setUser: setUser,
@@ -68,9 +78,9 @@
 		function destroyUser(){
 			$rootScope.currentUser = {};
 		};
-	});
+	})
 
-	angular.module('user').factory('AuthResolver', function($q, $rootScope, $state) {
+	.factory('AuthResolver', function($q, $rootScope, $state) {
 		var bIsResolved = false;
 
 		return {
@@ -94,5 +104,5 @@
 				return bIsResolved;
 			}
 		};
-	});
+	})
 })();

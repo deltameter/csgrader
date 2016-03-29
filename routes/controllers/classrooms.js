@@ -5,10 +5,19 @@ const mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
 	Submission = mongoose.model('Submission'),
 	Student = mongoose.model('Student'),
+	User = mongoose.model('User'),
 	async = require('async'),
 	config = require(__base + 'app/config'),
 	csv = require('csv'),
 	helper = require(__base + 'routes/libraries/helper');
+
+module.exports.getClassroom = function(req, res){
+	return helper.sendSuccess(res, res.locals.classroom);
+}
+
+module.exports.getClassrooms = function(req, res){
+	return helper.sendSuccess(res, res.locals.course.classrooms);
+}
 
 module.exports.create = function(req, res){
 	var course = res.locals.course;
@@ -31,6 +40,7 @@ module.exports.create = function(req, res){
 				break;
 			}
 		}
+
 		if (bIsUnique){
 			break;
 		}
@@ -42,17 +52,22 @@ module.exports.create = function(req, res){
 		classCode: classCode
 	});
 
-
 	course.classrooms.push(newClassroom);
 
 	course.save(function(err, course){
-		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
+		if (err){ return helper.sendError(res, 400, 1001, helper.errorHelper(err)) };
 
-		if (config.env === 'test'){
-			return helper.sendSuccess(res, 
-				{ classCode: newClassroom.classCode });
-		}
+		return helper.sendSuccess(res, newClassroom);
+	});
+}
 
+module.exports.deleteClassroom = function(req, res){
+	var course = res.locals.course;
+
+	course.classrooms.splice(res.locals.classroomIndex, 1);
+
+	course.save(function(err){
+		if(err){ return helper.sendError(res, 400, 1001, helper.errorHelper(err)) };
 		return helper.sendSuccess(res);
 	});
 }
@@ -60,17 +75,11 @@ module.exports.create = function(req, res){
 module.exports.importStudents = function(req, res){
 	//REQUIRES classroom.classCode, csv file
 	var course = res.locals.course;
-
-	var classroom = course.classrooms.find(function(classroom){
-		return classroom.classCode = req.body.classCode;
-	});
-
-	if (!classroom){
-		return helper.sendError(res, 400, 300, 'That class was not found.');
-	}
+	var classroom = res.locals.classroom;
 
 	var columnSelector = function(columns){
 		for (var i = 0; i < columns.length; i++){
+			//remove spaces and capitals
 			columns[i] = columns[i].replace(/ /g,'').toLowerCase();
 		}
 		return columns;
@@ -79,7 +88,7 @@ module.exports.importStudents = function(req, res){
 	csv.parse(req.file.buffer, { trim: true, columns: columnSelector }, function(err, students){
 		for (var i = 0; i < students.length; i++){
 			var newStudent = new Student({
-				gradebookID: students[i].id,
+				gradebookID: students[i].gradebookid,
 				firstName: students[i].firstname,
 				lastName: students[i].lastname
 			});
@@ -97,14 +106,7 @@ module.exports.importStudents = function(req, res){
 module.exports.addStudent = function(req, res){
 	//REQUIRES classroom._id, student.firstname, student.lastname, student.gradebook
 	var course = res.locals.course;
-
-	var classroom = course.classrooms.find(function(classroom){
-		return classroom.classCode = req.body.classCode;
-	});
-
-	if (!classroom){
-		return helper.sendError(res, 400, 300, 'That class was not found.');
-	}
+	var classroom = res.locals.classroom;
 
 	var newStudent = new Student({
 		gradebookID: req.body.gradebookID,
@@ -114,31 +116,25 @@ module.exports.addStudent = function(req, res){
 
 	classroom.students.push(newStudent);
 
-	course.save(function(err, classroom){
+
+	course.save(function(err, course){
 		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		if (config.env === 'test'){
-			return helper.sendSuccess(res, newStudent);
-		}
-		return helper.sendSuccess(res);
+		return helper.sendSuccess(res, newStudent);
 	});
 }
 
 module.exports.editStudent = function(req, res){
-	//REQUIRES student._id
+	//REQUIRES classroom.student._id
 	var course = res.locals.course;
+	var classroom = res.locals.classroom;
+	//IMPORTANT, this is the ID of the STUDENT model, not the USER model!!!
+	const studentClassID = req.body.studentClassID;
 
-	var classroom = course.classrooms.find(function(classroom){
-		return classroom.classCode = req.body.classCode;
-	});
-
-	if (!classroom){
-		return helper.sendError(res, 400, 300, 'That class was not found.');
-	}
 
 	var studentIndex = -1;
 
 	for (var i = 0; i < classroom.students.length; i++){
-		if (classroom.students[i]._id.toString() === req.body.studentID){
+		if (classroom.students[i]._id.toString() === studentClassID){
 			studentIndex = i;
 			break;
 		}
@@ -159,37 +155,40 @@ module.exports.editStudent = function(req, res){
 }
 
 module.exports.deleteStudent = function(req, res){
-	//REQUIRES student._id
+	//REQUIRES classroom.student._id
 	var course = res.locals.course;
-	var studentIndex = req.body.studentIndex;
-	var studentID;
+	var classroom = res.locals.classroom;
+	//IMPORTANT, this is the ID of the STUDENT model, not the USER model!!!
+	const studentClassID = req.params.studentClassID;
+	var sI = -1;
+	//use this to delete the course from the user
+	var studentUserID;
 
-	var classroom = course.classrooms.find(function(classroom){
-		return classroom.classCode = req.body.classCode;
-	});
-
-	if (!classroom){
-		return helper.sendError(res, 400, 300, 'That class was not found.');
+	for (var i = 0; i < classroom.students.length; i++){
+		if (classroom.students[i]._id.toString() === studentClassID){
+			sI = i;
+			break;
+		}
 	}
 
-	if (typeof studentIndex !== 'number'){
-		return helper.sendError(res, 400, 300, 'That student was not found.');
+	if (sI === -1){
+		return helper.sendError(res, 400, 3000, 'That student was not found.');
 	}
 
-	//get student's userID so we can remove this course from them
-	studentID = classroom.students[studentIndex].userID;
-
-	classroom.students.splice(studentIndex, 1);
-
+	studentUserID = classroom.students[sI].userID;
+	classroom.students.splice(sI, 1);
 
 	course.save(function(err){
 		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 
 		//remove course from student's courses array
-		if (typeof studentID !== 'undefined'){
-			User.findOne({ _id: studentID }, function(err, user){
+		if (typeof studentUserID !== 'undefined'){
+			User.findOne({ _id: studentUserID }, function(err, user){
 				var courseIndex = user.courses.indexOf(course._id);
 				user.courses.splice(courseIndex, 1);
+				user.markModified('courses');
+				user.save();
+				
 				return helper.sendSuccess(res);
 			});
 		}else{
@@ -202,12 +201,12 @@ module.exports.exportGrades = function(req, res){
 	//requires assignment.ID
 	var time = Date.now();
 	var course = res.locals.course;
-	var cI = req.body.classIndex;
+	var classroom = res.locals.classroom;
 
-	var studentIDs = new Array(course.classrooms[cI].students.length);
+	var studentIDs = new Array(classroom.students.length);
 
 	for(var i = 0; i < studentIDs.length; i++){
-		studentIDs[i] = course.classrooms[cI].students[i].userID;
+		studentIDs[i] = classroom.students[i].userID;
 	}
 
  	async.parallel({
@@ -240,7 +239,7 @@ module.exports.exportGrades = function(req, res){
 		}
 
 
-		createGradesCSV(course.classrooms[cI], submissions, assignment, function(completedCSV){
+		createGradesCSV(classroom, submissions, assignment, function(completedCSV){
 			helper.sendSuccess(res);
 		});
  	});

@@ -1,6 +1,7 @@
 <div class="container" ng-cloak>
 	<p>{{ profileCtrl.user.firstName }}</p>
 	<p>{{ profileCtrl.user.lastName }}</p>
-
+	{{profileCtrl.user}}
+	<registration ng-hide="profileCtrl.user.bIsTeacher"></registration>
 	<a ui-sref="root.logout">Log out</a>
 </div>

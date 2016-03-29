@@ -301,13 +301,14 @@ describe('Assignment', function(){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id)
 			.end(function(err, res){
-				expect(res.status).to.equal(302);
+				expect(res.status).to.equal(200);
+
 				testStudent
-				.post(res.header.location)
+				.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 				.end(function(err, res){
 					expect(res.status).to.equal(200);
 					done();
-				})
+				});
 			});
 		});
 

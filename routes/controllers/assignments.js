@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
 	Question = mongoose.model('Question'),
 	Exercise = mongoose.model('Exercise'),
+	submissions = require(__base + 'routes/controllers/submissions'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
 
@@ -13,19 +14,7 @@ module.exports.getAssignment = function(req, res){
 	var assignment = res.locals.assignment;
 
 	if (!req.user.bIsTeacher){
-		Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id}, function(err, submission){
-			if (err){
-				return helper.sendError(res, 500, 1000, helper.errorHelper(err));
-			}
-
-			if (!submission){
-				//redirect them to create a new assignment if they don't have one
-				return res.redirect('/api/course/'+ req.params.courseCode 
-					+'/assignment/' + req.params.assignmentID + '/submission/create');
-
-			}
-			return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
-		});
+		return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
 	}else{
 		return helper.sendSuccess(res, assignment);
 	}
@@ -74,7 +63,7 @@ module.exports.open = function(req, res){
 
 	assignment.bIsOpen = true;
 	assignment.dueDate = req.body.dueDate;
-	assignment.deadlineType = req.body.deadlineType;
+	assignment.deadlineType = req.body.deadlineType.toLowerCase();
 	assignment.pointLoss = req.body.pointLoss;
 
 	assignment.save(function(err, assignment){

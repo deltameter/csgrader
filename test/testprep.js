@@ -40,4 +40,6 @@ before(function(done){
 
 //TOP KEK
 global.assignment = {};
+global.classroom = {};
+
 module.exports.app = app;

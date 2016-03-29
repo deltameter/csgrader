@@ -10,16 +10,28 @@
 		vm.assignmentID = $stateParams.assignmentID;
 
 		vm.assignment = {};
+		vm.openInfo = {
+			deadlineType: 'select' //ask users to select a deadline type
+		};
 
 		var getAssignment = function(){
  			AssignmentFactory.getAssignment(vm.courseCode, vm.assignmentID).then(
 				function Success(assignment){
 					vm.assignment = assignment;
-				},
-				function Failure(err){
-
 				}
 			);
+		}
+
+		this.openAssignment = function(){
+			console.log('wot');
+			AssignmentFactory.openAssignment(vm.courseCode, vm.assignmentID, vm.openInfo).then(
+				function Success(res){
+					vm.assignment.bIsOpen = true;
+					vm.assignment.dueDate = vm.openInfo.dueDate;
+					vm.assignment.deadlineType = vm.openInfo.deadlineType;
+					vm.assignment.pointLoss = vm.openInfo.pointLoss;
+				}
+			)
 		}
 
 		this.addQuestion = function(){
@@ -133,6 +145,8 @@
 		vm.compilationInfo = {};
 		//select which file to run. Defaults at the file with the unit tests. 
 		vm.currentFile = 'Main';
+		//user has to double click to delete a file
+		vm.startDeleteFile = false;
 
 		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
 			if (vm.exercise.exerciseIndex > exerciseIndex){
@@ -171,7 +185,18 @@
 			vm.newFileName = '';
 		}
 
+		this.setCurrentFile = function(file){
+			vm.currentFile = file;
+			vm.startDeleteFile = false;
+		}
+
 		this.deleteFile = function(){
+			//Click twice to delete
+			if (!vm.startDeleteFile){
+				vm.startDeleteFile = true;
+				return;
+			}
+
 			if (vm.currentFile === Config.graderTestFile){
 				return;
 			}
@@ -206,22 +231,4 @@
 			)
 		}
 	})
-
-/*	.controller('ExerciseEditController', function($scope, $stateParams, UserInfo, ExerciseFactory){
-		var vm = this;
-		vm.courseCode = $stateParams.courseCode;
-		vm.assignmentID = $stateParams.assignmentID;
-		
-		//get the exercise contents from the parent scope
-		vm.exercise = $scope.$parent.content;
-
-		//configure ace
-		vm.aceOptions = {
-			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
-			//mode: 'java',
-			onLoad: function(ace) {
-			    ace.$blockScrolling = Infinity; 
-			}
-		}
-	})*/
 })();

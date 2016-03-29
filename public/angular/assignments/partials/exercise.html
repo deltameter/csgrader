@@ -6,10 +6,10 @@
 	<div class="row small-spacer">
 		<div class="col-xs-10 col-xs-offset-1">
 			<div class="col-md-9 col-xs-12">
-				<cuck ng-repeat="(file, value) in exerciseCtrl.exercise.code">
-					<btn ng-click="exerciseCtrl.currentFile = file" class="btn btn-primary">{{ file + exerciseCtrl.exercise.language.fileExt }}</btn>
-					<btn ng-show="exerciseCtrl.editing && exerciseCtrl.currentFile === file" ng-click="exerciseCtrl.deleteFile()" class="btn btn-danger btn-sm">X</btn>
-				</cuck>
+				<div class="exercise-button-container" ng-repeat="(file, value) in exerciseCtrl.exercise.code">
+					<btn ng-click="exerciseCtrl.setCurrentFile(file)" class="btn btn-primary">{{ file + exerciseCtrl.exercise.language.fileExt }}</btn>
+					<btn ng-show="exerciseCtrl.editing && exerciseCtrl.currentFile === file" ng-class="exerciseCtrl.startDeleteFile ? 'btn-danger' : 'btn-warning'" ng-click="exerciseCtrl.deleteFile()" class="btn btn-sm">X</btn>
+				</div>
 			</div>
 			<div class="col-md-3 col-xs-6 col-md-offset-0 col-xs-offset-6" ng-show="exerciseCtrl.editing === true">
 				<div class="col-xs-9">

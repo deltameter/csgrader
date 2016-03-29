@@ -10,8 +10,10 @@ var general = require(__base + 'routes/controllers/general'),
 	classrooms = require(__base + 'routes/controllers/classrooms'),
 	helper = require(__base + 'routes/libraries/helper');
 
-var auth = require (__base + 'routes/middlewares/authorization'),
-	studentAuth = [auth.requiresLogin, auth.requiresStudent],
+var auth = require(__base + 'routes/middlewares/authorization'),
+	resources = require(__base + 'routes/middlewares/resources');
+
+var studentAuth = [auth.requiresLogin, auth.requiresStudent],
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
 	courseAuth = [auth.requiresLogin, auth.requiresEnrollment],
 	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
@@ -72,23 +74,32 @@ module.exports = function(app, passport){
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************
+	//cI = classroom index
+	const classroomRoute = '/api/course/:courseCode/classroom/:classCode';
+	const teacherClass = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, resources.loadSpecificClass];
 
 	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
 
-	app.post('/api/course/:courseCode/classroom/student/create', teacherCourseAuth, classrooms.addStudent);
+	app.get('/api/course/:courseCode/classroom', teacherCourseAuth, classrooms.getClassrooms);
 
-	app.post('/api/course/:courseCode/classroom/student/import', teacherCourseAuth, multer.single('students'), classrooms.importStudents);
+	app.get(classroomRoute, teacherClass, classrooms.getClassroom);
 
-	app.put('/api/course/:courseCode/classroom/student/edit', teacherCourseAuth, classrooms.editStudent);
+	app.delete(classroomRoute, teacherClass, classrooms.deleteClassroom);
 
-	app.delete('/api/course/:courseCode/classroom/student/delete', teacherCourseAuth, classrooms.deleteStudent);
+	app.post(classroomRoute + '/student/create', teacherClass, classrooms.addStudent);
 
-	app.get('/api/course/:courseCode/classroom/grades/export', teacherCourseAuth, classrooms.exportGrades)
+	app.post(classroomRoute + '/student/import', teacherClass, multer.single('students'), classrooms.importStudents);
+
+	app.put(classroomRoute + '/student/edit', teacherClass, classrooms.editStudent);
+
+	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherClass, classrooms.deleteStudent);
+
+	app.get(classroomRoute + '/grades/export', teacherClass, classrooms.exportGrades)
 
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
-	var assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
+	const assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
 
 	app.get(assignmentRoute, courseAuth, auth.requiresAssignment, assignments.getAssignment);
 
@@ -127,7 +138,9 @@ module.exports = function(app, passport){
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************
+	app.get(assignmentRoute + '/submission', studentAssignmentAuth, submissions.create);
 
+	//deprecated
 	app.post(assignmentRoute + '/submission/create', studentAssignmentAuth, submissions.create);
 
 	app.put(assignmentRoute + '/submit/question', studentAssignmentAuth, submissions.submitQuestionAnswer);
