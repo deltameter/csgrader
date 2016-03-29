@@ -26,4 +26,14 @@ exerciseSchema.pre('validate', function(next){
 	return next();
 });
 
+exerciseSchema.statics = {
+	safeSendStudent: function(exercise){
+		return {
+			title: exercise.title,
+			context: exercise.context,
+			code: exercise.code,
+			triesAllowed: exercise.triesAllowed
+		}
+	}
+}
 mongoose.model('Exercise', exerciseSchema);

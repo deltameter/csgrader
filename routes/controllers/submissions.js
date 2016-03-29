@@ -17,9 +17,9 @@ module.exports.getSubmission = function(req, res){
 		if (!submission){
 			//redirect them to create a new assignment if they don't have one
 			return module.exports.create(req, res);
-		}else{
-			return helper.sendSuccess(res, submission);
 		}
+
+		return helper.sendSuccess(res, submission);
 	});
 }
 

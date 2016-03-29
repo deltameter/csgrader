@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose'),
 	Question = mongoose.model('Question'),
+	Exercise = mongoose.model('Exercise'),
 	Schema = mongoose.Schema;
 
 const deadlineTypes = 'strict pointloss lenient'.split(' ');
@@ -37,6 +38,10 @@ assignmentSchema.statics = {
 	safeSendStudent: function(assignment){
 		for (var i = 0; i < assignment.questions.length; i++){
 			assignment.questions[i] = Question.safeSendStudent(assignment.questions[i]);
+		}
+
+		for (var i = 0; i < assignment.exercises.length; i++){
+			assignment.exercises[i] = Exercise.safeSendStudent(assignment.exercises[i]);
 		}
 
 		return {

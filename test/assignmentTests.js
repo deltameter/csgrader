@@ -302,7 +302,6 @@ describe('Assignment', function(){
 			.get('/api/course/smushdapcs/assignment/' + assignment._id)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-
 				testStudent
 				.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 				.end(function(err, res){
@@ -319,22 +318,15 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should not create duplicate submissions', function(done){
+		it('should not create duplicate submissions simply return it every time after', function(done){
 			testStudent
-			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/submission/create')
+			.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 			.end(function(err, res){
-				expect(res.status).to.equal(400);
-				expect(res.body.errorCode).to.equal(3000);
-				done();
-			});
-		});
-
-		it('should simply return it every time after', function(done){
-			testStudent
-			.get('/api/course/smushdapcs/assignment/' + assignment._id)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				done();
+				Submission.count({}, function(err, count){
+					expect(count).to.equal(1);
+					expect(res.status).to.equal(200);
+					done();
+				});
 			});
 		});
 	});

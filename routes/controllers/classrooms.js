@@ -277,5 +277,4 @@ var createGradesCSV = function(classroom, submissions, assignment, callback){
 	csv.stringify(gradeInfo, function(err, completedCSV){
 		callback(completedCSV);
 	});
-	
 }
