@@ -5,10 +5,11 @@ var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
 	Submission = mongoose.model('Submission'),
 	config = require(__base + 'app/config'),
+	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getSubmission = function(req, res){
-	var assignment = res.locals.assignment;
+	const assignment = res.locals.assignment;
 
 	Submission.findOne({ studentID: req.user._id, assignmentID: assignment._id }, function(err, submission){
 		if (err){
@@ -22,9 +23,10 @@ module.exports.getSubmission = function(req, res){
 		return helper.sendSuccess(res, submission);
 	});
 }
-
+//Called in get assignment
 module.exports.create = function(req, res){
-	var assignment = res.locals.assignment;
+
+	const assignment = res.locals.assignment;
 
 	var questionAnswers = new Array(assignment.questions.length),
 		questionTries = new Array(assignment.questions.length),
@@ -44,7 +46,10 @@ module.exports.create = function(req, res){
 	}
 
 	for (var i = 0; i < assignment.exercises.length; i++){
-		exerciseAnswers[i] = '';
+		exerciseAnswers[i] = assignment.exercises[i].code;
+
+		delete exerciseAnswers[i][languageHelper.testFileName];
+
 		exerciseTries[i] = 0;
 		exercisesCorrect[i] = false;
 		exercisePoints[i] = 0;
@@ -89,7 +94,9 @@ module.exports.submitQuestionAnswer = function(req, res){
 			return helper.sendError(res, 400, 3000, 'You\'ve already gotten this answer correct');
 		}
 
-		if (submission.questionTries[i] >= assignment.questions[i].triesAllowed){
+		//-1 = unlimited tries
+		if (assignment.questions[i].triesAllowed !== -1 && 
+			submission.questionTries[i] >= assignment.questions[i].triesAllowed){
 			return helper.sendError(res, 400, 3000, 'You can\'t try this question any more');
 		}
 
@@ -132,6 +139,28 @@ module.exports.submitQuestionAnswer = function(req, res){
 	});
 }
 
+module.exports.saveExerciseAnswer = function(req, res){
+	const assignment = res.locals.assignment;
+	const i = req.body.exerciseIndex;
+
+	Submission
+	.findOne({studentID: req.user._id, assignmentID: req.params.assignmentID }, { exerciseAnswers: 1 }, 
+	function(err, submission){
+		if (err){
+			return helper.sendError(res, 500, 1000, helper.errorHelper(err));
+		}
+
+		if (!submission){
+			return helper.sendError(res, 400, 3000, 'You don\'t have a submission for this assignment');
+		}
+
+		submission.exerciseAnswers[i] = req.body.code;
+		submission.save(function(err, submission){
+			return helper.sendSuccess(res);
+		});
+	});
+}
+
 module.exports.submitExerciseAnswer = function(req, res){
 	const assignment = res.locals.assignment;
 	const i = req.body.exerciseIndex;
@@ -145,11 +174,9 @@ module.exports.submitExerciseAnswer = function(req, res){
 			return helper.sendError(res, 400, 3000, 'You don\'t have a submission for this assignment');
 		}
 
-		if (submission.exercisesCorrect[i]){
-			return helper.sendError(res, 400, 3000, 'You\'ve already gotten this answer correct');
-		}
-
-		if (submission.exerciseTries[i] >= assignment.exercises[i].triesAllowed){
+		//-1 = unlimited
+		if (assignment.exercises[i].triesAllowed !== -1 && 
+			submission.exerciseTries[i] >= assignment.exercises[i].triesAllowed){
 			return helper.sendError(res, 400, 3000, 'You can\'t try this exercise any more');
 		}
 
@@ -167,9 +194,10 @@ module.exports.submitExerciseAnswer = function(req, res){
 
 		httpClient(options, function(err, httpRes, body){
 			//no errors
-			if (body.errors.length === 0){
-				submission.pointsEarned += assignment.questions[i].pointsWorth;
-				submission.exercisePoints[i] += assignment.questions[i].pointsWorth;
+			if (body.errors.length === 0 && !submission.exercisesCorrect[i]){
+				body.bIsCorrect = true;
+				submission.pointsEarned += assignment.exercises[i].pointsWorth;
+				submission.exercisePoints[i] = assignment.exercises[i].pointsWorth;
 				submission.exercisesCorrect[i] = true;
 				submission.markModified('exercisePoints');
 				submission.markModified('exercisesCorrect');
@@ -183,7 +211,6 @@ module.exports.submitExerciseAnswer = function(req, res){
 			
 			//Don't wait for the submission to save. Auto grader already takes long enough
 			submission.save();
-
 			return helper.sendSuccess(res, body);
 		});
 	});
