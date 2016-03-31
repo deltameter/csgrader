@@ -244,6 +244,7 @@ describe('Assignment', function(){
 		it('should accept an edit that finishes the exercise', function(done){
 			var edit = {
 				exerciseIndex: 0,
+				pointsWorth: 10,
 				triesAllowed: 'unlimited',
 				context: 'Create a class called Kang that prints out with a public void speak that returns "WE WUZ KANGZ"',
 				code: { 
@@ -260,6 +261,26 @@ describe('Assignment', function(){
 				done();
 			});
 		})
+
+		it('should test the assignment', function(done){
+			this.timeout(5000);
+
+			var test = {
+				exerciseIndex: 0,
+				//hello world in java
+				code: {
+					Kang: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
+				}
+			}
+
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/test')
+			.send(test)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
 	});
 
 	describe('edit', function(){
@@ -297,24 +318,22 @@ describe('Assignment', function(){
 	});
 
 	describe('retrieval', function(){
-		it ('should redirect and create a new submission on first time', function(done){
+		it ('should create a new submission on first time', function(done){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
+
 				testStudent
 				.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 				.end(function(err, res){
 					expect(res.status).to.equal(200);
-					done();
-				});
-			});
-		});
 
-		it('should create a new submission on first try', function(done){
-			Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
-				expect(submission).to.exist;
-				done();
+					Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
+						expect(submission).to.exist;
+						done();
+					});
+				});
 			});
 		});
 

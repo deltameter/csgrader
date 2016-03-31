@@ -1,0 +1,27 @@
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" ui-sref="root.main.public" ng-show="!navCtrl.bLoggedIn">
+				CSGrader {{ navCtrl.$state.current.name }} {{ navCtrl.bLoggedIn }}
+			</a>
+			<a class="navbar-brand" ui-sref="root.main.dashboard" ng-show="navCtrl.bLoggedIn">
+				CSGrader {{ navCtrl.$state.current.name }} {{ navCtrl.bLoggedIn }}
+			</a>
+		</div>
+		<div ng-cloak>
+			<ul class="nav navbar-nav navbar-right" ng-show="navCtrl.bLoggedIn === true">
+				<li><a ui-sref="root.profile">Profile</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right" ng-show="navCtrl.bLoggedIn === false">
+				<li><a ui-sref="root.login">Sign in!</a></li>
+			</ul>
+        <div>
+	</div>
+</nav>

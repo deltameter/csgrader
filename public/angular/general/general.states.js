@@ -4,7 +4,7 @@
 		$stateProvider
 		.state('root', {
 			abstract: true,
-			template: '<ui-view/>',
+			template: '<div ui-view></div>',
 			resolve: {
 				auth: function resolveAuthentication(AuthResolver) { 
 					return (AuthResolver.bIsResolved() === true || AuthResolver.resolve());
@@ -14,7 +14,7 @@
 
 		.state('root.main', {
 			url: '/',
-			template: '<ui-view/>',
+			template: '<div ui-view></div>',
 			data: {
 				bIsPublic: true
 			},

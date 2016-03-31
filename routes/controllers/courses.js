@@ -113,12 +113,13 @@ module.exports.delete = function(req, res){
 	req.user.checkPassword(req.body.password, function(err, bIsPassword){
 		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
 
-		var course = res.locals.course;
-
-		course.remove(function(err){
-			if (err) return helper.sendError(res, 500, 1000, 'Something went wrong with the database');
+		Course.findOne({courseCode: req.params.courseCode}, function(err, course){
 			
-			return helper.sendSuccess(res);
+			course.remove(function(err){
+				if (err) return helper.sendError(res, 500, 1000, 'Something went wrong with the database');
+				
+				return helper.sendSuccess(res);
+			});
 		});
 	});
 }

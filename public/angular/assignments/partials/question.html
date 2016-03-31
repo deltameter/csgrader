@@ -4,23 +4,34 @@
 	</div>
 
 	<div class="row med-spacer">
+		{{ questionCtrl.question.studentAnswer }}
 		<h3>Points: {{ questionCtrl.question.pointsWorth }}</h3>
+		
+		<div ng-show="!assignmentCtrl.user.bIsTeacher">
+			<p>{{ questionCtrl.question.tries }}/{{ questionCtrl.question.triesAllowed }}</p>
+			<p>Correct: {{ questionCtrl.question.bIsCorrect }}</p>
+			<p>Points Earned: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}</p>
+		</div>
+
 		<div class="form-horizontal">
 			<div ng-show="questionCtrl.question.questionType ==='fillblank'">
 				<div class="form-group">
 					<label for="textArea" class="col-md-2 control-label">Your answer</label>
 					<div class="col-md-8">
-						<input type="text" class="form-control" ng-model="questionCtrl.answer"/>
+						<input type="text" class="form-control" ng-model="questionCtrl.question.studentAnswer"/>
 					</div>
 				</div>
 			</div>
 			<div ng-show="questionCtrl.question.questionType ==='mc'">
+				<div ng-repeat="answer in questionCtrl.question.answerOptions track by $index">
+					<btn class="btn" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-success' : 'btn-primary'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
+				</div>
 			</div>
 			<div ng-show="questionCtrl.question.questionType ==='frq'">
 				<div class="form-group">
 					<label for="textArea" class="col-md-2 control-label">Your answer</label>
 					<div class="col-md-8">
-						<textarea class="form-control" rows="4" ng-model="questionCtrl.answer"></textarea>
+						<textarea class="form-control" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
 					</div>
 				</div>
 			</div>

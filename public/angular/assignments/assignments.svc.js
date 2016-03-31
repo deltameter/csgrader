@@ -2,6 +2,7 @@
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
 			getAssignment: getAssignment,
+			getSubmission: getSubmission,
 			createAssignment: createAssignment,
 			openAssignment: openAssignment
 		};
@@ -11,13 +12,14 @@
 				function Success(res){
 					var assignment = res.data;
 					//exercise index, question index, frq index
-					var eI = 0, qI = 0, fI = 0;
+					var eI = 0, qI = 0;
 
 					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
 
 					for (var i = 0; i < assignment.contentOrder.length; i++){
 						//true = exercise, false = question
 						if (assignment.contentOrder[i] === 'exercise'){
+							console.log(assignment.exercises[eI])
 							assignment.content[i] = assignment.exercises[eI];
 							assignment.content[i].type = 'exercise';
 							assignment.content[i].exerciseIndex = eI
@@ -27,11 +29,6 @@
 							assignment.content[i].type = 'question';
 							assignment.content[i].questionIndex = qI;
 							qI++;
-
-							if (assignment.content[i].questionType === 'frq'){
-								assignment.content[i].frqIndex = fI;
-								fI++
-							}
 						}
 					}
 					return assignment;
@@ -41,6 +38,34 @@
 				}
 			);
 		};
+
+		function getSubmission(courseCode, assignmentID, assignment){
+			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID + '/submission').then(
+				function Success(res){
+					var submission = res.data;
+
+					for (var i = 0; i < assignment.questions.length; i++){
+						assignment.questions[i].studentAnswer = submission.questionAnswers[i];
+						assignment.questions[i].tries = submission.questionTries[i];
+						assignment.questions[i].pointsEarned = submission.questionPoints[i];
+						assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
+
+					}
+
+					for (var i = 0; i < assignment.exercises.length; i++){
+						assignment.exercises[i].code = submission.exerciseAnswers[i];
+						assignment.exercises[i].tries = submission.exerciseTries[i];
+						assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
+						assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
+					}
+
+					return submission;
+				},
+				function Failure(res){
+
+				}
+			)
+		}
 
 		function createAssignment(courseCode, newAssignment){
 			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
@@ -64,7 +89,8 @@
 		return {
 			addQuestion: addQuestion,
 			editQuestion: editQuestion,
-			deleteQuestion: deleteQuestion
+			deleteQuestion: deleteQuestion,
+			submitQuestion: submitQuestion
 		};
 
 		function addQuestion(courseCode, assignmentID){
@@ -85,6 +111,10 @@
 			var question = { questionIndex: questionIndex };
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/delete', question);
 		}
+
+		function submitQuestion(courseCode, assignmentID, answer){
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/submit', answer);
+		}
 	})
 
 	.factory('ExerciseFactory', function($http){
@@ -92,6 +122,7 @@
 			addExercise: addExercise,
 			editExercise: editExercise, 
 			testExercise: testExercise,
+			submitExercise: submitExercise,
 			deleteExercise: deleteExercise
 		};
 
@@ -115,7 +146,8 @@
 				exerciseIndex: exercise.exerciseIndex, 
 				context: exercise.context,
 				code: exercise.code,
-				triesAllowed: 'unlimited'
+				triesAllowed: exercise.triesAllowed,
+				pointsWorth: exercise.pointsWorth
 			}
 
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/edit', exercise);
@@ -129,6 +161,15 @@
 
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/test', exerciseTest);
 
+		}
+
+		function submitExercise(courseCode, assignmentID, exercise){
+			var submission = {
+				exerciseIndex: exercise.exerciseIndex,
+				code: exercise.code
+			}
+
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/submit', submission);
 		}
 
 		function deleteExercise(courseCode, assignmentID, exerciseIndex){

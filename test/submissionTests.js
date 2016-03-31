@@ -12,7 +12,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -28,7 +28,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -44,7 +44,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -60,7 +60,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -76,7 +76,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(400);
@@ -92,7 +92,7 @@ describe('Submission', function(){
 
 			var test = function(callback){
 				testStudent
-				.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/question')
+				.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
 				.send(answer)
 				.end(function(err, res){
 					callback(err, { res: res, bIsCorrect: res.body.bIsCorrect });
@@ -104,6 +104,21 @@ describe('Submission', function(){
 				//expect the last one to throw an error
 				expect(results[3].res.status).to.equal(400);
 				expect(results[3].res.body.errorCode).to.equal(3000);
+				done();
+			});
+		});
+
+		it('shouldn\'t accept an answer to a question that doesn\'t exist', function(done){
+			var answer = {
+				questionIndex: 100,
+				answer: 'Implying implications'
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(404);
 				done();
 			});
 		});
@@ -123,11 +138,30 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/exercise')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				expect(res.body.errors).to.not.equal('');
+				done();
+			});
+		});
+
+		it('should save an exercise answer', function(done){
+
+			var info = {
+				exerciseIndex: 0,
+				//hello world in java
+				code: {
+					Kang: 'public class Kang{ public String speak(){ return "I AM UNCERTAIN AS TO THE STATUS OF OUR KANGNESS"; } }'
+				}
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/save')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
 				done();
 			});
 		});
@@ -144,7 +178,7 @@ describe('Submission', function(){
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/submit/exercise')
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);

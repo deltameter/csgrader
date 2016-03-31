@@ -1,5 +1,35 @@
 <div class="exercise well">
 	{{ exerciseCtrl.exercise }}
+	<div ng-show="!assignmentCtrl.user.bIsTeacher">
+		<p>{{ exerciseCtrl.exercise.tries }}/{{ exerciseCtrl.exercise.triesAllowed }}</p>
+		<p>Correct: {{ exerciseCtrl.exercise.bIsCorrect }}</p>
+		<p>Points Earned: {{ exerciseCtrl.exercise.pointsEarned }}/{{ exerciseCtrl.exercise.pointsWorth }}</p>
+	</div>
+
+	<div class="row" ng-show="!exerciseCtrl.editing">
+		<div ta-bind ng-model="exerciseCtrl.exercise.context"></div>
+	</div>
+
+	<form class="form-horizontal" name="editForm" ng-show="exerciseCtrl.editing">
+		<text-angular ng-model="exerciseCtrl.exercise.context"></text-angular>
+
+		<div class="row">
+			<div class="form-group small-spacer col-md-5 col-md-offset-1">
+				<label class="col-md-6 control-label">Points</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" ng-model="exerciseCtrl.exercise.pointsWorth"/>
+				</div>
+			</div>
+
+			<div class="form-group small-spacer col-md-5">
+				<label class="col-md-6 control-label">Tries allowed</label>
+				<div class="col-md-6">
+					<input type="text" class="form-control" ng-model="exerciseCtrl.exercise.triesAllowed"/>
+				</div>
+			</div>
+		</div>
+	</form>
+
 	<pre ng-show="exerciseCtrl.compilationInfo.output.length > 0">Output: {{ exerciseCtrl.compilationInfo.output }}</pre>
 	<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
 

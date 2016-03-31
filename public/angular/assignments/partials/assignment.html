@@ -1,5 +1,7 @@
 <div class="container" ng-cloak>
+	{{ assignmentCtrl.assignment.questions[0] }}
 	<div ng-repeat="content in assignmentCtrl.assignment.content">
+		Finished: {{ content.bIsFinished }}
 		<div ng-if="content.type === 'question'">
 			<question ng-show="editing !== true"></question>
 			<question-edit ng-show="editing === true"></question-edit>

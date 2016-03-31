@@ -62,14 +62,14 @@ module.exports.editQuestion = function(req, res){
 	question.answerOptions = req.body.answerOptions;
 	question.mcAnswer = req.body.mcAnswer;
 	question.fillAnswers = req.body.fillAnswers;
-	question.triesAllowed = (req.body.triesAllowed === 'unlimited' ? 10000 : req.body.triesAllowed);
+	question.triesAllowed = (req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed);
 	
 
 	assignment.save(function(err, assignment){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
-		return helper.sendSuccess(res);
+		return helper.sendSuccess(res, { bIsFinished: assignment.questions[req.body.questionIndex].bIsFinished });
 	});
 }
 

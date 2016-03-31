@@ -35,13 +35,15 @@ module.exports.editExercise = function(req, res){
 
 	exercise.context = req.body.context;
 	exercise.code = req.body.code;
-	exercise.triesAllowed = req.body.triesAllowed === 'unlimited' ? 100000 : req.body.triesAllowed;
+	exercise.triesAllowed = req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed;
+	exercise.pointsWorth = req.body.pointsWorth;
 
 	assignment.save(function(err, assignment){
 		if (err){
 			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
 		}
-		return helper.sendSuccess(res);
+		
+		return helper.sendSuccess(res, { bIsFinished: assignment.exercises[req.body.exerciseIndex].bIsFinished });
 	});
 }
 
@@ -67,7 +69,7 @@ module.exports.deleteExercise = function(req, res){
 
 	assignment.markModified('contentOrder');
 
-	assignment.save(function(err){1
+	assignment.save(function(err){
 		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
 		return helper.sendSuccess(res);
 	});
@@ -77,7 +79,9 @@ module.exports.testExercise = function(req, res){
 	var assignment = res.locals.assignment;
 
 	const i = req.body.exerciseIndex;
-	const code = req.body.code;
+	var code = req.body.code;
+
+	code.Main = assignment.exercises[i].code.Main;
 
 	var options = {
 		uri: config.gradingMachineURL + '/compile',
@@ -95,12 +99,17 @@ module.exports.testExercise = function(req, res){
 
 		var bIsCorrect = body.errors.length === 0;
 
+		body.bIsCorrect = bIsCorrect;
+
 		if (bIsCorrect){
 			assignment.exercises[i].bIsTested = true;
-			assignment.save();
+			assignment.save(function(err, assignment){
+
+				body.bIsFinished = assignment.exercises[i].bIsFinished;
+				return helper.sendSuccess(res, body);
+			});
+		}else{
+			return helper.sendSuccess(res, body);
 		}
-		
-		body.bIsCorrect = bIsCorrect;
-		return helper.sendSuccess(res, body);
 	});
 }

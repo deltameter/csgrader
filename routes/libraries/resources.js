@@ -1,13 +1,11 @@
 var mongoose = require('mongoose'),
-	Course = mongoose.model('Course'),
 	helper = require(__base + 'routes/libraries/helper');
 
-module.exports.loadSpecificClass = function(req, res, next){
-	const course = res.locals.course;
+module.exports.loadSpecificClass = function(course, classCode){
 	var classroomIndex = -1;
 
 	for(var i = 0; i < course.classrooms.length; i++){
-		if (course.classrooms[i].classCode === req.params.classCode){
+		if (course.classrooms[i].classCode === classCode){
 			classroomIndex = i;
 			break;
 		}
@@ -17,7 +15,8 @@ module.exports.loadSpecificClass = function(req, res, next){
 		return helper.sendError(res, 400, 300, 'That class was not found.');
 	}
 
-	res.locals.classroom = course.classrooms[classroomIndex];
-	res.locals.classroomIndex = classroomIndex;
-	return next();
+	return {
+		classroom: course.classrooms[classroomIndex],
+		classroomIndex: classroomIndex
+	}
 }

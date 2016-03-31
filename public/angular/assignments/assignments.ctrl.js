@@ -10,20 +10,31 @@
 		vm.assignmentID = $stateParams.assignmentID;
 
 		vm.assignment = {};
+		vm.submission = {};
+
 		vm.openInfo = {
 			deadlineType: 'select' //ask users to select a deadline type
 		};
 
-		var getAssignment = function(){
+		var init = function(){
  			AssignmentFactory.getAssignment(vm.courseCode, vm.assignmentID).then(
 				function Success(assignment){
 					vm.assignment = assignment;
+					if (!vm.user.bIsTeacher){
+						AssignmentFactory.getSubmission(vm.courseCode, vm.assignmentID, vm.assignment).then(
+							function Success(submission){
+								vm.submission = submission;
+							}
+						)
+					}else{
+						//do this so kwe can use ng-hide="!vm.submission"
+						vm.submission = { bIsTeacher: true }
+					}
 				}
 			);
 		}
 
 		this.openAssignment = function(){
-			console.log('wot');
 			AssignmentFactory.openAssignment(vm.courseCode, vm.assignmentID, vm.openInfo).then(
 				function Success(res){
 					vm.assignment.bIsOpen = true;
@@ -74,21 +85,41 @@
 			);
 		}
 
-		getAssignment();
+		init();
 	})
 
-	.controller('QuestionController', function($scope, UserInfo){
+	.controller('QuestionController', function($scope, $stateParams, QuestionFactory){
 		var vm = this;
+
+		vm.courseCode = $stateParams.courseCode;
+		vm.assignmentID = $stateParams.assignmentID;
 
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
-		
-		this.logQuestion = function(){
-			console.log(vm.question);
+
+		this.submitQuestion = function(){
+			var answer = {
+				answer: vm.answer,
+				questionIndex: vm.question.questionIndex
+			}
+
+			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, answer).then(
+				function Success(res){
+					vm.question.tries++;
+
+					if (res.data.bIsCorrect){
+						vm.question.bIsCorrect = true;
+
+						if (vm.question.questionType != 'frq' || vm.question.bIsHomework){
+							vm.question.pointsEarned = vm.question.pointsWorth;
+						}
+					}
+				}
+			)
 		}
 	})
 
-	.controller('QuestionEditController', function($scope, $stateParams, UserInfo, QuestionFactory){
+	.controller('QuestionEditController', function($scope, $stateParams, QuestionFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -107,6 +138,7 @@
 				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
 					function Success(res){
 						$scope.editing = false;
+						vm.question.bIsFinished = res.data.bIsFinished;
 					}
 				)
 			}else{
@@ -136,18 +168,28 @@
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 
-		vm.editing = false;
 		//get the exercise contents from the parent scope
 		vm.exercise = $scope.$parent.content;
+
+		//exercise index. use this to access the submission stuff
+		vm.eI = vm.exercise.exerciseIndex;
+
+		vm.editing = false;
 		//this object is resolved in the onload option
 		vm.aceEditor = {};
 		//info we get after every compilation (output/errors)
 		vm.compilationInfo = {};
-		//select which file to run. Defaults at the file with the unit tests. 
-		vm.currentFile = 'Main';
+
 		//user has to double click to delete a file
 		vm.startDeleteFile = false;
 
+		//select which file to run. Defaults at the file with the unit tests for teachers. 
+		if (UserInfo.getUser().bIsTeacher){
+			vm.currentFile = 'Main';
+		}else{
+			vm.currentFile = Object.keys(vm.exercise.code)[0];
+		}
+		
 		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
 			if (vm.exercise.exerciseIndex > exerciseIndex){
 				vm.exercise.exerciseIndex--;
@@ -159,10 +201,13 @@
 			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
 			//mode: 'java',
 			onLoad: function(aceEditor) {
-				//Get the ace editor in our 
-			    aceEditor.setReadOnly(true);
+				if (UserInfo.getUser().bIsTeacher){
+			    	aceEditor.setReadOnly(true);
+				}
+
 			    aceEditor.$blockScrolling = Infinity;
 
+			    //Get the ace editor in our controller
 			    vm.aceEditor = aceEditor;
 			}
 		}
@@ -217,6 +262,7 @@
 		this.editExercise = function(){
 			ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 				function Success(res){
+					vm.exercise.bIsFinished = res.data.bIsFinished;
 					vm.toggleEdit();
 				}
 			)
@@ -225,8 +271,25 @@
 		this.testExercise = function(){
 			ExerciseFactory.testExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 				function Success(res){
+					vm.exercise.bIsFinished = res.data.bIsFinished;
 					vm.compilationInfo.output = res.data.output;
 					vm.compilationInfo.errors = res.data.errors;
+				}
+			)
+		}
+
+		this.submitExercise = function(){
+			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+				function Success(res){
+					var compilationInfo = res.data;
+					vm.compilationInfo.output = compilationInfo.output;
+					vm.compilationInfo.errors = compilationInfo.errors;
+
+					vm.exercise.tries++;
+					if (compilationInfo.bIsCorrect){
+						vm.exercise.bIsCorrect = true;
+						vm.question.pointsEarned = vm.exercise.pointsWorth;
+					}
 				}
 			)
 		}

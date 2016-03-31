@@ -1,13 +1,16 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+	languageHelper = require(__base + 'routes/libraries/languages');
 
 var exerciseSchema = new Schema({
 	//the teacher must submit a finished submission of the exercise before releasing it
+	bIsFinished: { type: Boolean, default: false },
 	bIsTested: { type: Boolean, default: false },
-	language: Schema.Types.Mixed,
+	language: { type: Schema.Types.Mixed, required: true },
 	title: { type: String, required: true },
+	pointsWorth: Number,
 
 	context: String,
 	code: Schema.Types.Mixed,
@@ -26,11 +29,32 @@ exerciseSchema.pre('validate', function(next){
 	return next();
 });
 
+exerciseSchema.pre('save', function(next){
+	var exercise = this;
+
+	//If it's not finished, check if it is now finished
+	if (!exercise.bIsFinished){
+		if (exercise.bIsTested && typeof exercise.context !== 'undefined'
+		 && typeof exercise.pointsWorth !== 'undefined' && typeof exercise.triesAllowed !== 'undefined'){
+			exercise.bIsFinished = true;
+		}
+	}
+
+	return next();
+});
+
 exerciseSchema.statics = {
 	safeSendStudent: function(exercise){
+		delete exercise.code[languageHelper.testFileName];
+
 		return {
 			title: exercise.title,
 			context: exercise.context,
+			language: {
+				langauge: exercise.language.langauge, 
+				fileExt: exercise.language.fileExt
+			},
+			pointsWorth: exercise.pointsWorth,
 			code: exercise.code,
 			triesAllowed: exercise.triesAllowed
 		}

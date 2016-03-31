@@ -78,7 +78,14 @@ describe('Course', function(){
 				classroom = res.body;
 				newStudent.classCode = res.body.classCode;
 				expect(res.status).to.equal(200);
-				done();
+
+				testTeacher
+				.get('/api/course/smushdapcs/classroom/' + res.body.classCode)
+				.end(function(err, res){
+					if (err) throw err;
+					expect(res.status).to.equal(200);
+					done();
+				});
 			});
 		});
 
