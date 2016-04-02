@@ -58,57 +58,6 @@ assignmentSchema.statics = {
 	}
 }
 
-assignmentSchema.pre('validate', function(next) {
-	//If the assignment is being opened, it must contain a due date
-	var assignment = this;
-
-    if (assignment.bIsOpen && (typeof assignment.dueDate === 'undefined' || assignment.dueDate < Date.now())){
-        return next(Error('Due date must be in the future.'));
-    //Ensure content order and questions + exercises count add up
-    }else if (assignment.contentOrder.length !== assignment.questions.length + assignment.exercises.length){
-        return next(Error('Amount of points lost due to tardiness must be less than total points.'));
-    }else{
-    	return next();
-    }
-});
-
-assignmentSchema.pre('save', function(next){
-	var assignment = this;
-
-	if (assignment.isModified('bIsOpen') && assignment.bIsOpen === true){
-		var bIsFinished = true;
-		var pointsWorth = 0;
-
-		for (var i = 0; i < assignment.questions.length; i++){
-			pointsWorth += assignment.questions[i].pointsWorth;
-			if (!assignment.questions[i].bIsFinished) { 
-				bIsFinished = false;
-				break;
-			}
-		}
-
-		if (!bIsFinished){
-			return next(Error('Not all of your questions are finished.'));
-		}
-
-		for (var i = 0; i < assignment.exercises.length; i++){
-			pointsWorth += assignment.exercises[i].pointsWorth;
-			if (!assignment.exercises[i].bIsFinished) { 
-				bIsFinished = false;
-				break;
-			}
-		}
-
-		if (!bIsFinished){
-			return next(Error('Not all of your exercises are finished.'));
-		}
-
-		assignment.pointsWorth = pointsWorth;
-	}
-
-	return next();
-});
-
 assignmentSchema.path('pointLoss').validate(function(pointLoss){
 	return pointLoss >= 0 && pointLoss <= 100;
 }, 'Point loss % due to lateness must be between 0-100%.');

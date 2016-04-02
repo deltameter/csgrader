@@ -1,115 +1,51 @@
 var mongoose = require('mongoose'),
-	Exercise = mongoose.model('Exercise'),
-	httpClient = require('request'),
+	Assignment = require(__base + 'routes/services/assignment'),
+	Exercise = require(__base + 'routes/services/exercise'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
-	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.addExercise = function(req, res){
-	var assignment = res.locals.assignment;
-	const language = languageHelper.findByString(req.body.language);
+	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	var newExercise = new Exercise({
-		title: req.body.title,
-		language: language.definition,
-		code: language.defaultCode
-	});
+		const language = languageHelper.findByString(req.body.language);
 
-	assignment.exercises.push(newExercise);
-
-	assignment.contentOrder.push('exercise');
-
-	assignment.save(function(err){
-		if (err){
-			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		}
-		return helper.sendSuccess(res, assignment.exercises[assignment.exercises.length-1]);
+		Exercise.addExercise(assignment, language, req.body.title, function(err, exercise){
+			if (err){ return helper.sendError(res, 400, err); }
+			return helper.sendSuccess(res, exercise);
+		});
 	});
 }
 
 module.exports.editExercise = function(req, res){
-	var assignment = res.locals.assignment;
-	const exerciseIndex = req.body.exerciseIndex;
+	Assignment.get(req.params.assignmentID, { exercises: 1 }, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	var exercise = assignment.exercises[exerciseIndex];
-
-	exercise.context = req.body.context;
-	exercise.code = req.body.code;
-	exercise.triesAllowed = req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed;
-	exercise.pointsWorth = req.body.pointsWorth;
-
-	assignment.save(function(err, assignment){
-		if (err){
-			return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		}
-		
-		return helper.sendSuccess(res, { bIsFinished: assignment.exercises[req.body.exerciseIndex].bIsFinished });
+		Exercise.editExercise(assignment, req.body.exerciseIndex, req.body, function(err, editInfo){
+			if (err){ return helper.sendError(res, 400, err); }
+			return helper.sendSuccess(res, editInfo);
+		});
 	});
 }
 
 module.exports.deleteExercise = function(req, res){
-	var assignment = res.locals.assignment;
-	const exerciseIndex = req.body.exerciseIndex;
+	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	assignment.exercises.splice(exerciseIndex, 1);
-
-	//Splice it out of the content order
-	var numOfExercises = 0;
-	for (var i = 0; i < assignment.contentOrder.length; i++){
-
-		if (assignment.contentOrder[i] === 'exercise'){
-			if (numOfExercises === exerciseIndex){
-				assignment.contentOrder.splice(i, 1);
-				break;
-			}else{
-				numOfExercises++;
-			}
-		}
-	}
-
-	assignment.markModified('contentOrder');
-
-	assignment.save(function(err){
-		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
-		return helper.sendSuccess(res);
+		Exercise.deleteExercise(assignment, req.body.exerciseIndex, function(err){
+			if (err) return helper.sendError(res, 400, err);
+			return helper.sendSuccess(res);
+		})
 	});
 }
 
 module.exports.testExercise = function(req, res){
-	var assignment = res.locals.assignment;
+	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	const i = req.body.exerciseIndex;
-	var code = req.body.code;
-
-	code.Main = assignment.exercises[i].code.Main;
-
-	var options = {
-		uri: config.gradingMachineURL + '/compile',
-		method: 'POST',
-		json: {
-			language: assignment.exercises[i].language.langID,
-			code: code
-		}
-	};
-
-	httpClient(options, function(err, httpRes, body){
-		if (err){
-			return helper.sendError(res, 500, 1000, 'Could not connect to the server. Please try again.');
-		}
-
-		var bIsCorrect = body.errors.length === 0;
-
-		body.bIsCorrect = bIsCorrect;
-
-		if (bIsCorrect){
-			assignment.exercises[i].bIsTested = true;
-			assignment.save(function(err, assignment){
-
-				body.bIsFinished = assignment.exercises[i].bIsFinished;
-				return helper.sendSuccess(res, body);
-			});
-		}else{
-			return helper.sendSuccess(res, body);
-		}
+		Exercise.testExercise(assignment, req.body.exerciseIndex, req.body.code, function(err, compilationInfo){
+			if (err){ return helper.sendError(res, 400, err); }
+			return helper.sendSuccess(res, compilationInfo);
+		});
 	});
 }

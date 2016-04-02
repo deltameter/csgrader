@@ -13,11 +13,7 @@ var general = require(__base + 'routes/controllers/general'),
 var auth = require(__base + 'routes/middlewares/authorization');
 
 var studentAuth = [auth.requiresLogin, auth.requiresStudent],
-	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
-	courseAuth = [auth.requiresLogin, auth.requiresEnrollment],
-	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
-	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresAssignment],
-	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresAssignment];
+	teacherAuth = [auth.requiresLogin, auth.requiresTeacher];
 
 var multer = require('multer')();
 
@@ -32,16 +28,16 @@ module.exports = function(app, passport){
 	app.post('/auth/local', function(req, res, next) {
 		passport.authenticate('local', function(err, user, info) {
 			if (err){ 
-				return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+				return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
 			}
 
 			if (!user){
-				return helper.sendError(res, 401, 1001, 'That user does not exist or you did not enter the correct password.');
+				return helper.sendError(res, 401, 'That user does not exist or you did not enter the correct password.');
 			}
 
 			req.logIn(user, function(err) {
 				if (err){ 
-					return helper.sendError(res, 401, 1000, 'An error occured while you were trying to access the database.');
+					return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
 				}
 				return users.getSelf(req, res);
 			});
@@ -68,7 +64,7 @@ module.exports = function(app, passport){
 
 	app.put('/api/course/register', studentAuth, courses.register);
 
-	app.get('/api/course/:courseCode/', courseAuth, courses.getCourse);
+	app.get('/api/course/:courseCode/', auth.requiresLogin, courses.getCourse);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******
@@ -76,80 +72,74 @@ module.exports = function(app, passport){
 	//cI = classroom index
 	const classroomRoute = '/api/course/:courseCode/classroom/:classCode';
 
-	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
+	app.post('/api/course/:courseCode/classroom/create', teacherAuth, classrooms.create);
 
-	app.get('/api/course/:courseCode/classroom', teacherCourseAuth, classrooms.getClassrooms);
+	app.get('/api/course/:courseCode/classroom', teacherAuth, classrooms.getClassrooms);
 
-	app.get(classroomRoute, teacherCourseAuth, classrooms.getClassroom);
+	app.get(classroomRoute, teacherAuth, classrooms.getClassroom);
 
-	app.delete(classroomRoute, teacherCourseAuth, classrooms.deleteClassroom);
+	app.delete(classroomRoute, teacherAuth, classrooms.deleteClassroom);
 
-	app.post(classroomRoute + '/student/create', teacherCourseAuth, classrooms.addStudent);
+	app.post(classroomRoute + '/student/create', teacherAuth, classrooms.addStudent);
 
-	app.post(classroomRoute + '/student/import', teacherCourseAuth, multer.single('students'), classrooms.importStudents);
+	app.post(classroomRoute + '/student/import', teacherAuth, multer.single('students'), classrooms.importStudents);
 
-	app.put(classroomRoute + '/student/edit', teacherCourseAuth, classrooms.editStudent);
+	app.put(classroomRoute + '/student/edit', teacherAuth, classrooms.editStudent);
 
-	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherCourseAuth, classrooms.deleteStudent);
+	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherAuth, classrooms.deleteStudent);
 
-	app.get(classroomRoute + '/grades/export', teacherCourseAuth, classrooms.exportGrades)
+	app.get(classroomRoute + '/grades/export', teacherAuth, classrooms.exportGrades)
 
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
 	const assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
-	var teacherEditAssignment = teacherAssignmentAuth.slice();
-	teacherEditAssignment.push(auth.assignmentEditable);
 
-	app.get(assignmentRoute, courseAuth, auth.requiresAssignment, assignments.getAssignment);
+	app.get(assignmentRoute, auth.requiresLogin, assignments.getAssignment);
 
-	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
+	app.post('/api/course/:courseCode/assignment/create', teacherAuth, assignments.create);
 
-	app.put(assignmentRoute +'/edit', teacherEditAssignment, assignments.edit);
+	app.put(assignmentRoute +'/edit', teacherAuth, assignments.edit);
 	
-	app.put(assignmentRoute + '/open', teacherEditAssignment, assignments.open);
+	app.put(assignmentRoute + '/open', teacherAuth, assignments.open);
 
-	app.delete(assignmentRoute + '/delete', teacherCourseAuth, auth.requiresAssignment, assignments.delete);
+	app.delete(assignmentRoute + '/delete', teacherAuth, assignments.delete);
 
 	//******************************
 	//****** QUESTION ROUTES *******
 	//******************************
-	var teacherEditProblem = teacherEditAssignment.slice();
-	teacherEditProblem.push(auth.problemExists);
 
-	app.post(assignmentRoute + '/question/create', teacherEditAssignment, questions.addQuestion);
+	app.post(assignmentRoute + '/question/create', teacherAuth, questions.addQuestion);
 
-	app.put(assignmentRoute + '/question/edit', teacherEditProblem, questions.editQuestion);
+	app.put(assignmentRoute + '/question/edit', teacherAuth, questions.editQuestion);
 
 	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/question/delete', teacherEditProblem, questions.deleteQuestion);
+	app.post(assignmentRoute + '/question/delete', teacherAuth, questions.deleteQuestion);
 
 	//******************************
 	//****** EXERCISE ROUTES *******
 	//******************************
 
-	app.post(assignmentRoute + '/exercise/create', teacherEditAssignment, exercises.addExercise);
+	app.post(assignmentRoute + '/exercise/create', teacherAuth, exercises.addExercise);
 
-	app.put(assignmentRoute + '/exercise/edit', teacherEditProblem, exercises.editExercise);
+	app.put(assignmentRoute + '/exercise/edit', teacherAuth, exercises.editExercise);
 
-	app.post(assignmentRoute + '/exercise/test', teacherEditProblem, exercises.testExercise);
+	app.post(assignmentRoute + '/exercise/test', teacherAuth, exercises.testExercise);
 	
 	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/exercise/delete', teacherEditProblem, exercises.deleteExercise);
+	app.post(assignmentRoute + '/exercise/delete', teacherAuth, exercises.deleteExercise);
 
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************
-	var studentSubmitProblem = studentAssignmentAuth.slice();
-	studentSubmitProblem.push(auth.problemExists);
 
-	app.get(assignmentRoute + '/submission', studentAssignmentAuth, submissions.getSubmission);
+	app.get(assignmentRoute + '/submission', studentAuth, submissions.getSubmission);
 
-	app.put(assignmentRoute + '/question/submit', studentSubmitProblem, submissions.submitQuestionAnswer);
+	app.put(assignmentRoute + '/question/submit', studentAuth, submissions.submitQuestionAnswer);
 
-	app.put(assignmentRoute + '/exercise/submit', studentSubmitProblem, submissions.submitExerciseAnswer);
+	app.put(assignmentRoute + '/exercise/submit', studentAuth, submissions.submitExerciseAnswer);
 
-	app.put(assignmentRoute + '/exercise/save', studentSubmitProblem, submissions.saveExerciseAnswer);
+	app.put(assignmentRoute + '/exercise/save', studentAuth, submissions.saveExerciseAnswer);
 	
 	//******************************
 	//****** CS GRADER ROUTES ******
@@ -177,7 +167,7 @@ module.exports = function(app, passport){
 	// will print stacktrace
 	if (app.get('env') === 'development') {
 		app.use(function(err, req, res, next) {
-			return helper.sendError(res, 500, 1000, err.message);
+			return helper.sendError(res, 500, err.message);
 		});
 	}
 
@@ -185,7 +175,7 @@ module.exports = function(app, passport){
 	// no stacktraces leaked to user
 	app.use(function(err, req, res, next) {
 		app.use(function(err, req, res, next) {
-			return helper.sendError(res, 500, 1000, err.message);
+			return helper.sendError(res, 500, err.message);
 		});
 	});
 }

@@ -56,7 +56,6 @@ describe('User', function(){
 		});
 
 		it('should create a student given the correct information', function(done){
-
 			testStudent
 			.post('/api/user/join')
 			.send(testStudentInfo)
@@ -91,7 +90,7 @@ describe('User', function(){
 			.put('/api/user/emailActivation')
 			.send({ activationCode: 'topkek' })
 			.end(function(err, res){
-				expect(res.status).to.equal(401);
+				expect(res.status).to.equal(400);
 				done();
 			});
 		});

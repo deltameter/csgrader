@@ -1,88 +1,68 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	Assignment = mongoose.model('Assignment'),
-	Submission = mongoose.model('Submission'),
-	Course = mongoose.model('Course'),
-	Question = mongoose.model('Question'),
-	Exercise = mongoose.model('Exercise'),
-	submissions = require(__base + 'routes/controllers/submissions'),
-	languageHelper = require(__base + 'routes/libraries/languages'),
+	Assignment = require(__base + 'routes/services/assignment'),
+	Course = require(__base + 'routes/services/course'),
+	Submission = require(__base + 'routes/services/submission'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getAssignment = function(req, res){
-	var assignment = res.locals.assignment;
+	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	if (!req.user.bIsTeacher){
-		return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
-	}else{
-		return helper.sendSuccess(res, assignment);
-	}
+		if (!req.user.bIsTeacher){
+			return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
+		}else{
+			return helper.sendSuccess(res, assignment);
+		}
+	})
 }
 
 module.exports.create = function(req, res){
-	Course.findOne({courseCode: req.params.courseCode}, { assignments: 1 }, function(err, course){
+	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+		if (err){ return helper.sendError(res, 400, err); }
 
-		var newAssignment = new Assignment({
-			courseID: course._id,
-			name: req.body.name,
-			description: req.body.description
-		});
-
-		newAssignment.save(function(err, assignment){
-			if (err){
-				return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-			}
-
-			course.assignments.push(newAssignment._id);
-			
-			course.save(function(err, course){
-				if (err){
-				//Wow, we're fucked
-					return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-				}
-				return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
-			});
-		});
-	});
+		Assignment.create(course, req.body, function(err, newAssignment){
+			if (err) return helper.sendError(res, 400, err);
+			return helper.sendSuccess(res, newAssignment);
+		})
+	}) 
 }
 
 module.exports.edit = function(req, res){
-	var assignment = res.locals.assignment;
+	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	assignment.name = req.body.name;
-	assignment.description = req.body.description;
+		Assignment.edit(assignment, req.body, function(err, assignment){
+			if (err){ return helper.sendError(res, 400, err); }
 
-	assignment.save(function(err, assignment){
-		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		return helper.sendSuccess(res);
+			return helper.sendSuccess(res, assignment);
+		})
 	});
 }
 
 module.exports.open = function(req, res){
-	var assignment = res.locals.assignment;
+	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
 
-	assignment.bIsOpen = true;
-	assignment.dueDate = req.body.dueDate;
-	assignment.deadlineType = req.body.deadlineType.toLowerCase();
-	assignment.pointLoss = req.body.pointLoss;
+		Assignment.open(assignment, req.body, function(err, assignment){
+			if (err){ return helper.sendError(res, 400, err); }
 
-	assignment.save(function(err, assignment){
-		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-		return helper.sendSuccess(res);
+			return helper.sendSuccess(res, assignment)
+		})
 	});
 }
 
 module.exports.delete = function(req, res){
-	Course.findOne({courseCode: req.params.courseCode}, { assignments: 1}, function(err, course){
-		var assignment = res.locals.assignment;
+	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+		if (err){ return helper.sendError(res, 400, err); }
+		Assignment.get(req.params.assignmentID, { _id: 1 }, function(err, assignment){
+			if (err){ return helper.sendError(res, 400, err); }
 
-		var aIndex = course.assignments.indexOf(assignment._id);
-		course.assignments.splice(aIndex, 1);
-
-		course.save(function(err){
-			if (err) return helper.errorHelper(res, 400, 3000, errorHelper(err));
-			return helper.sendSuccess(res);
+			Assignment.delete(course, assignment, function(err, newAssignment){
+				if (err) return helper.sendError(res, 400, err);
+				return helper.sendSuccess(res, newAssignment);
+			});
 		});
 	});
 }

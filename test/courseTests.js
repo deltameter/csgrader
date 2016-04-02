@@ -58,7 +58,7 @@ describe('Course', function(){
 		}
 
 		var deleteClass = {
-			name: 'Meme Period'
+			name: 'DELETE CLASS'
 		}
 
 		var newStudent = {
@@ -179,7 +179,7 @@ describe('Course', function(){
 			});
 		});
 
-		it('should edit a user', function(done){
+		it('should edit a student', function(done){
 			var editUser = {
 				classCode: classroom.classCode,
 				studentClassID: modifyUser._id,
@@ -232,7 +232,6 @@ describe('Course', function(){
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(400);
-				expect(res.body.errorCode).to.equal(1001);
 				done();
 			});
 		});

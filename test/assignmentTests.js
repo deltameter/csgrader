@@ -116,6 +116,27 @@ describe('Assignment', function(){
 			});
 		});
 
+		it('should delete a question', function(done){
+			//create a question to delete
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/create')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+
+				var questionDelete = {
+					questionIndex: 5
+				}
+
+				testTeacher
+				.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/delete')
+				.send(questionDelete)
+				.end(function(err, res){
+					expect(res.status).to.equal(200);
+					done();
+				});
+			});
+		})
+
 		it('should set the first to be a fill in the blank question', function(done){
 			var questionEdit = {
 				questionIndex: 0,
@@ -241,6 +262,28 @@ describe('Assignment', function(){
 			});
 		});
 
+		it ('should delete an exercise', function(done){
+			//create exercise to delete
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/create')
+			.send(exercise)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				
+				var exerciseDelete = {
+					exerciseIndex: 1
+				}
+
+				testTeacher
+				.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/delete')
+				.send(exerciseDelete)
+				.end(function(err, res){
+					expect(res.status).to.equal(200);
+					done();
+				});
+			});
+		});
+
 		it('should accept an edit that finishes the exercise', function(done){
 			var edit = {
 				exerciseIndex: 0,
@@ -341,9 +384,9 @@ describe('Assignment', function(){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 			.end(function(err, res){
+				expect(res.status).to.equal(200);
 				Submission.count({}, function(err, count){
 					expect(count).to.equal(1);
-					expect(res.status).to.equal(200);
 					done();
 				});
 			});

@@ -8,95 +8,17 @@ module.exports.requiresLogin = function(req, res, next){
 		return next();
 	}
 
-	return helper.sendError(res, 401, 2000,  'Please log in.');
+	return helper.sendError(res, 401, 'Please log in.');
 }
 
 module.exports.requiresStudent = function(req, res, next){
 	if (!req.user.bIsTeacher) return next();
 
-	return helper.sendError(res, 401, 2001, 'You must be a student to access this.');
+	return helper.sendError(res, 401, 'You must be a student to access this.');
 }
 
 module.exports.requiresTeacher = function(req, res, next){
 	if (req.user.bIsTeacher) return next();
 
-	return helper.sendError(res, 401, 2001, 'You must be a teacher to access this.');
-}
-
-module.exports.requiresEnrollment = function(req, res, next){
-	if (typeof req.session.authorizedCourses === 'undefined' || 
-		req.session.authorizedCourses.indexOf(req.params.courseCode) === -1){
-
-		Course.findOne({courseCode: req.params.courseCode}, function(err, course){
-			if (err){
-				return helper.sendError(res, 500, 1000, 
-					'An error occured while you were trying to access the database. Please try again.');
-			}
-			if (!course){ 
-				return helper.sendError(res, 404, 1001, 'That course does not exist.');
-			}
-			//If the student is not enrolled in this course, don't let them view it
-			if (req.user.courses.indexOf(course._id) === -1){
-				return helper.sendError(res, 401, 2002, 'You must be enrolled in this course to access it.');
-			}
-
-			if (typeof req.session.authorizedCourses === 'undefined'){
-				req.session.authorizedCourses = [];
-			}
-
-			req.session.authorizedCourses.push(req.params.courseCode);
-			req.session.save();
-
-			return next();
-		});	
-	}else{
-		return next();
-	}
-}
-
-module.exports.requiresAssignment = function(req, res, next){
-	Assignment.findOne({ _id : req.params.assignmentID }, function(err, assignment){
-		if (err){
-			return helper.sendError(res, 500, 1000, 
-				'An error occured while you were trying to access the database. Please try again.');
-		}
-
-		if (!assignment){ 
-			return helper.sendError(res, 404, 1001, 'That assignment does not exist.');
-		}
-
-		if (req.user.courses.indexOf(assignment.courseID) === -1){
-			return helper.sendError(res, 401, 2002, 'You must be enrolled in this course to access it.');
-		}
-
-		if (!assignment.bIsOpen && !req.user.bIsTeacher){
-			return helper.sendError(res, 404, 1001, 'That assignment does not exist or is not available.');
-		}
-
-		res.locals.assignment = assignment;
-		return next();
-	});
-};
-
-module.exports.assignmentEditable = function(req, res, next){
-	if (res.locals.assignment.bIsOpen){
-		return helper.sendError(res, 401, 2002, 'You can\'t edit assignments after they\'ve been opened!');
-	}
-
-	return next();
-}
-
-module.exports.problemExists = function(req, res, next){
-	var assignment = res.locals.assignment;
-	if (typeof req.body.questionIndex !== 'undefined'
-	 	&& typeof assignment.questions[req.body.questionIndex] !== 'undefined'){
-
-		return next();
-	}else if (typeof req.body.exerciseIndex !== 'undefined'
-	 	&& typeof assignment.exercises[req.body.exerciseIndex] !== 'undefined'){
-		
-		return next();
-	}
-
-	return helper.sendError(res, 404, 1000, 'That problem does not exist.');
+	return helper.sendError(res, 401, 'You must be a teacher to access this.');
 }

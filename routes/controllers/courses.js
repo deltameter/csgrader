@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
-	Course = mongoose.model('Course'),
+	Course = require(__base + 'routes/services/course'),
 	Assignment = mongoose.model('Assignment'),
 	Classroom = mongoose.model('Classroom'),
 	Student = mongoose.model('Student'),
@@ -11,189 +11,69 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getCourses = function(req, res){
-	Course.find({ _id : { $in : req.user.courses }}, { name: 1, courseCode: 1, assignments: 1 }, function(err, courses){
+	Course.getUsersCourses(req.user, function(err, courses){
+		if (err) return helper.sendError(res, 500, err);
 
-		var getLastAssignment = function(course, callback){
-			if (course.assignments.length <= 0){
-				return callback(null, null);
-			}
-
-			const a = course.assignments.length - 1; 
-
-			Assignment.findOne(
-				{ _id: course.assignments[a] }, 
-				{ name: 1, dueDate: 1, pointsWorth: 1 }, 
-				function(err, assignment){
-					return callback(err, assignment);
-			});
-		}
-
-		async.map(courses, getLastAssignment, function(err, results){
-			for(var i = 0; i < courses.length; i++){
-				
-				courses[i].assignments = undefined;
-				courses[i]._id = undefined;
-
-				if (results[i] !== null){
-					courses[i].assignmentName = results[i].name;
-					courses[i].assignmentDueDate = results[i].dueDate;
-					courses[i].assignmentPoints = results[i].pointsWorth;
-				}
-			}
-
-			return helper.sendSuccess(res, courses);
-		});
+		return helper.sendSuccess(res, courses);
 	});
 }
 
 module.exports.getCourse = function(req, res){
-	var projection = { owner: 1, courseCode: 1, name: 1, assignments: { $slice: -5 } };
-	var assignmentFilter = { bIsOpen: true };
+	const projection = { owner: 1, courseCode: 1, name: 1, assignments: { $slice: -5 } };
 
-	//show classrooms if is teacher
-	if (req.user.bIsTeacher){
-		projection.classrooms = 1;
-		delete assignmentFilter.bIsOpen;
-	}
-
-	Course
-	.findOne({ courseCode: req.params.courseCode })
-	.select(projection)
-	.populate('owner', 'firstName lastName')
-	.populate('assignments', 'courseID name description', assignmentFilter)
-	.exec(function(err, course){
-		if (err) return helper.sendError(res, 400, 3000, helper.errorHelper(err));
-
+	Course.getUserCourse(req.user, req.params.courseCode, projection, function(err, course){
+		if (err) return helper.sendError(res, 500, err);
 		return helper.sendSuccess(res, course);
 	});
 }
 
 module.exports.create = function(req, res){
-	if (req.user.courses.length >= 10){
-		return helper.sendError(res, 400, 1001, 'You have already created the maximum amount of courses allowed.');
-	}
+	Course.create(req.user, req.body, function(err, courseID){
+		if (err) { return helper.sendError(res, 400, err) };
 
-	var newCourse = new Course({
-		owner: req.user._id,
-		name: req.body.name,
-		courseCode: req.body.courseCode.replace(/\s/g, ''),
-		password: req.body.password,
-		defaultLanguage: languageHelper.findByString(req.body.defaultLanguage).definition.langID
-	});
-
-	newCourse.save(function(err, course){
-		if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-
-		//Enroll the user in the course
-		req.user.courses.push(course._id);
-		req.user.save(function(err, user){
-			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-			return helper.sendSuccess(res);
-		});
+		return helper.sendSuccess(res, { courseID: courseID });
 	});
 }
 
-module.exports.changeCourseInfo = function(req, res){
-	req.user.checkPassword(req.body.password, function(err, bIsPassword){
-		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
+module.exports.changeInfo = function(req, res){
+	Course.getCourse(req.params.courseCode, { name: 1, password: 1 }, function(course, err){
+		if (err) { return helper.sendError(res, 400, err) };
 
-		if (course.owner === req.user._id){
-			course.name = req.body.name;
-			course.password = req.body.password;
-			course.save(function(err, course){
-				if (err) return  helper.sendError(res, 400, 3000, helper.errorHelper(err));
+		Course.changeInfo(user, course, req.body, function(err){
+			if (err) { return helper.sendError(res, 400, err) };
 
-				return helper.sendSuccess(res);
-			})
-		} 
-	});
+			return helper.sendSuccess(res);
+		});
+	})
 }
 
 module.exports.delete = function(req, res){
-	req.user.checkPassword(req.body.password, function(err, bIsPassword){
-		if (!bIsPassword) return helper.sendError(res, 400, 3000, 'Incorrect password.');
+	Course.getCourse(req.params.courseCode, { _id: 1 }, function(course, err){
+		if (err) { return helper.sendError(res, 400, err) };
+		
+		Course.changeInfo(user, course, req.body, function(err){
+			if (err) { return helper.sendError(res, 400, err) };
 
-		Course.findOne({courseCode: req.params.courseCode}, function(err, course){
-			
-			course.remove(function(err){
-				if (err) return helper.sendError(res, 500, 1000, 'Something went wrong with the database');
-				
-				return helper.sendSuccess(res);
-			});
+			return helper.sendSuccess(res);
 		});
-	});
+	})
 }
 
 module.exports.register = function(req, res){
 	//REQUIRES course.identifier, course.password;
 	//REQUIRES studentGradebookID
 
-	var identifier = req.body.identifier;
-	var courseCode = identifier.substring(0, identifier.indexOf('-'));
-	var classCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
+	const identifier = req.body.identifier;
+	const courseCode = identifier.substring(0, identifier.indexOf('-'));
+	const classCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
 
-	Course.findOne({courseCode: courseCode}, { classrooms: 1, password: 1, courseCode: 1 }, function(err, course){
-		if (!course) { 
-			return helper.sendError(res, 400, 3000, 'Course not found. Code was most likely incorrect.'); 
-		}
+	Course.getCourse(courseCode, { classrooms: 1, password: 1, courseCode: 1 }, function(err, course){
+		if (err) { return helper.sendError(res, 400, err) };
 
-		if (course.password !== req.body.password){
-			return helper.sendError(res, 400, 3000, 'Incorrect password.');
-		}
+		Course.register(req.user, course, classCode, req.body, function(err){
+			if (err) { return helper.sendError(res, 400, err) };
 
-		if (req.user.courses.indexOf(course._id) !== -1){
-			return helper.sendError(res, 400, 3000, 'It seems you are already enrolled in this course.');
-		}
-		//Find user classroom.
-		var classroomIndex = -1;
-
-		for (var i = 0; i < course.classrooms.length; i++){
-			if (course.classrooms[i].classCode === classCode){
-				classroomIndex = i;
-				break;
-			}
-		}
-
-		if (classroomIndex === -1){
-			return helper.sendError(res, 400, 3000, 'Classroom not found. Code was most likely incorrect.');
-		}
-
-		//Find the user by their name. 
-		//If there are more than two students that match the profile, ask them to provide a student ID as well.
-		var newStudent = course.classrooms[classroomIndex].students.find(function(student){
-			return student.lastName.toLowerCase() === req.user.lastName.toLowerCase()
-				&& student.gradebookID === req.body.gradebookID;
+			return helper.sendSuccess(res);
 		});
-
-		if (!newStudent){
-			return helper.sendError(res, 400, 1001, 
-				'Your teacher has not included you in the list of students.' +
-				'Please ask them to enter in a new student using the first and last name you signed up with');
-		}
-
-		if (typeof newStudent.userID === 'undefined'){
-			newStudent.userID = req.user._id;
-		}else{
-			return helper.sendError(res, 400, 3000, 'It seems you\'ve already registered');
-		}
-
-		async.parallel({
-			user: function(callback){
-				req.user.courses.push(course._id);
-				req.user.courseCodes.push(course.courseCode);
-				req.user.save(function(err){
-					callback(err);
-				});
-			},
-			course: function(callback){
-				course.save(function(err){
-					callback(err);
-				});
-			}
-		}, function(err, results){
-			if (err) return helper.sendError(res, 400, 1001, helper.errorHelper(err));
-
-			return helper.sendSuccess(res, { courseCode: course.courseCode });
-		});
-	});
+	})
 }
