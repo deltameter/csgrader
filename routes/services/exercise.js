@@ -9,7 +9,7 @@ var mongoose = require('mongoose'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var verifyExerciseExists = function(assignment, exerciseIndex){
-	if (typeof assignment.exerciseIndex === 'undefined'){
+	if (exerciseIndex >= assignment.exercises.length){
 		return new DescError('That exercise does not exist', 404);
 	}
 }
@@ -21,6 +21,9 @@ var verifyAssignmentClosed = function(assignment){
 }
 
 module.exports.addExercise = function(assignment, language, title, callback){
+	var authErr = verifyAssignmentClosed(assignment);
+	if (authErr){ return callback(authErr) };
+
 	var newExercise = new Exercise({
 		title: title,
 		language: language.definition,
@@ -38,6 +41,9 @@ module.exports.addExercise = function(assignment, language, title, callback){
 }
 
 module.exports.editExercise = function(assignment, exerciseIndex, edit, callback){
+	var authErr = verifyExerciseExists(assignment, exerciseIndex);
+	if (authErr){ return callback(authErr) };
+
 	const i = exerciseIndex;
 	var exercise = assignment.exercises[i];
 
@@ -54,6 +60,9 @@ module.exports.editExercise = function(assignment, exerciseIndex, edit, callback
 }
 
 module.exports.deleteExercise = function(assignment, exerciseIndex, callback){
+	var authErr = (verifyExerciseExists(assignment, exerciseIndex) || verifyAssignmentClosed(assignment));
+	if (authErr){ return callback(authErr) };
+
 	assignment.exercises.splice(exerciseIndex, 1);
 
 	//Splice it out of the content order
@@ -79,6 +88,9 @@ module.exports.deleteExercise = function(assignment, exerciseIndex, callback){
 }
 
 module.exports.testExercise = function(assignment, exerciseIndex, code, callback){
+	var authErr = verifyExerciseExists(assignment, exerciseIndex);
+	if (authErr){ return callback(authErr) };
+
 	const i = exerciseIndex;
 
 	code.Main = assignment.exercises[i].code.Main;

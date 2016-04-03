@@ -12,8 +12,12 @@ var general = require(__base + 'routes/controllers/general'),
 
 var auth = require(__base + 'routes/middlewares/authorization');
 
-var studentAuth = [auth.requiresLogin, auth.requiresStudent],
-	teacherAuth = [auth.requiresLogin, auth.requiresTeacher];
+const studentAuth = [auth.requiresLogin, auth.requiresStudent],
+	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
+	studentCourseAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment],
+	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
+	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment, auth.requiresAssignment],
+	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, auth.requiresAssignment];
 
 var multer = require('multer')();
 
@@ -64,7 +68,7 @@ module.exports = function(app, passport){
 
 	app.put('/api/course/register', studentAuth, courses.register);
 
-	app.get('/api/course/:courseCode/', auth.requiresLogin, courses.getCourse);
+	app.get('/api/course/:courseCode/', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******
@@ -72,74 +76,74 @@ module.exports = function(app, passport){
 	//cI = classroom index
 	const classroomRoute = '/api/course/:courseCode/classroom/:classCode';
 
-	app.post('/api/course/:courseCode/classroom/create', teacherAuth, classrooms.create);
+	app.post('/api/course/:courseCode/classroom/create', teacherCourseAuth, classrooms.create);
 
-	app.get('/api/course/:courseCode/classroom', teacherAuth, classrooms.getClassrooms);
+	app.get('/api/course/:courseCode/classroom', teacherCourseAuth, classrooms.getClassrooms);
 
-	app.get(classroomRoute, teacherAuth, classrooms.getClassroom);
+	app.get(classroomRoute, teacherCourseAuth, classrooms.getClassroom);
 
-	app.delete(classroomRoute, teacherAuth, classrooms.deleteClassroom);
+	app.delete(classroomRoute, teacherCourseAuth, classrooms.deleteClassroom);
 
-	app.post(classroomRoute + '/student/create', teacherAuth, classrooms.addStudent);
+	app.post(classroomRoute + '/student/create', teacherCourseAuth, classrooms.addStudent);
 
-	app.post(classroomRoute + '/student/import', teacherAuth, multer.single('students'), classrooms.importStudents);
+	app.post(classroomRoute + '/student/import', teacherCourseAuth, multer.single('students'), classrooms.importStudents);
 
-	app.put(classroomRoute + '/student/edit', teacherAuth, classrooms.editStudent);
+	app.put(classroomRoute + '/student/edit', teacherCourseAuth, classrooms.editStudent);
 
-	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherAuth, classrooms.deleteStudent);
+	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherCourseAuth, classrooms.deleteStudent);
 
-	app.get(classroomRoute + '/grades/export', teacherAuth, classrooms.exportGrades)
+	app.get(classroomRoute + '/grades/export', teacherCourseAuth, classrooms.exportGrades)
 
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
 	const assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
 
-	app.get(assignmentRoute, auth.requiresLogin, assignments.getAssignment);
+	app.get(assignmentRoute, auth.requiresLogin, auth.requiresEnrollment, assignments.getAssignment);
 
-	app.post('/api/course/:courseCode/assignment/create', teacherAuth, assignments.create);
+	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);
 
-	app.put(assignmentRoute +'/edit', teacherAuth, assignments.edit);
+	app.put(assignmentRoute +'/edit', teacherAssignmentAuth, assignments.edit);
 	
-	app.put(assignmentRoute + '/open', teacherAuth, assignments.open);
+	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
 
-	app.delete(assignmentRoute + '/delete', teacherAuth, assignments.delete);
+	app.delete(assignmentRoute + '/delete', teacherAssignmentAuth, assignments.delete);
 
 	//******************************
 	//****** QUESTION ROUTES *******
 	//******************************
 
-	app.post(assignmentRoute + '/question/create', teacherAuth, questions.addQuestion);
+	app.post(assignmentRoute + '/question/create', teacherAssignmentAuth, questions.addQuestion);
 
-	app.put(assignmentRoute + '/question/edit', teacherAuth, questions.editQuestion);
+	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, questions.editQuestion);
 
 	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/question/delete', teacherAuth, questions.deleteQuestion);
+	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, questions.deleteQuestion);
 
 	//******************************
 	//****** EXERCISE ROUTES *******
 	//******************************
 
-	app.post(assignmentRoute + '/exercise/create', teacherAuth, exercises.addExercise);
+	app.post(assignmentRoute + '/exercise/create', teacherAssignmentAuth, exercises.addExercise);
 
-	app.put(assignmentRoute + '/exercise/edit', teacherAuth, exercises.editExercise);
+	app.put(assignmentRoute + '/exercise/edit', teacherAssignmentAuth, exercises.editExercise);
 
-	app.post(assignmentRoute + '/exercise/test', teacherAuth, exercises.testExercise);
+	app.post(assignmentRoute + '/exercise/test', teacherAssignmentAuth, exercises.testExercise);
 	
 	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/exercise/delete', teacherAuth, exercises.deleteExercise);
+	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, exercises.deleteExercise);
 
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************
 
-	app.get(assignmentRoute + '/submission', studentAuth, submissions.getSubmission);
+	app.get(assignmentRoute + '/submission', studentAssignmentAuth, submissions.getSubmission);
 
-	app.put(assignmentRoute + '/question/submit', studentAuth, submissions.submitQuestionAnswer);
+	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
 
-	app.put(assignmentRoute + '/exercise/submit', studentAuth, submissions.submitExerciseAnswer);
+	app.put(assignmentRoute + '/exercise/submit', studentAssignmentAuth, submissions.submitExerciseAnswer);
 
-	app.put(assignmentRoute + '/exercise/save', studentAuth, submissions.saveExerciseAnswer);
+	app.put(assignmentRoute + '/exercise/save', studentAssignmentAuth, submissions.saveExerciseAnswer);
 	
 	//******************************
 	//****** CS GRADER ROUTES ******

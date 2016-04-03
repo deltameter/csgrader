@@ -6,8 +6,8 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
-var verifyExerciseExists = function(assignment, exerciseIndex){
-	if (typeof assignment.exerciseIndex === 'undefined'){
+var verifyQuestionExists = function(assignment, exerciseIndex){
+	if (exerciseIndex >= assignment.questions.length){
 		return new DescError('That exercise does not exist', 404);
 	}
 }
@@ -19,6 +19,9 @@ var verifyAssignmentClosed = function(assignment){
 }
 
 module.exports.addQuestion = function(assignment, callback){
+	var authErr = verifyAssignmentClosed(assignment);
+	if (authErr){ return callback(authErr) };
+
 	assignment.questions.push(new Question());
 	assignment.contentOrder.push('question');
 	assignment.markModified('contentOrder');
@@ -31,6 +34,8 @@ module.exports.addQuestion = function(assignment, callback){
 }
 
 module.exports.editQuestion = function(assignment, questionIndex, edit, callback){
+	var authErr = verifyQuestionExists(assignment, questionIndex);
+	if (authErr){ return callback(authErr) };
 
 	var question = assignment.questions[questionIndex];
 
@@ -77,6 +82,9 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 }
 
 module.exports.deleteQuestion = function(assignment, questionIndex, callback){
+	var authErr = (verifyQuestionExists(assignment, questionIndex) || verifyAssignmentClosed(assignment));
+	if (authErr){ return callback(authErr) };
+
 	assignment.questions.splice(questionIndex, 1);
 
 	//Splice it out of the content order
