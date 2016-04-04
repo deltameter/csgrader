@@ -6,7 +6,11 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
 const deadlineTypes = 'strict pointloss lenient'.split(' ');
-const contentTypes = 'question exercise'.split(' ');
+
+function contentValidator(val){
+	return (val.indexOf('exercise') === 0 || val.indexOf('question') === 0);
+}
+const contentValidation = [contentValidator, '{PATH} must be exercise or question'];
 
 var assignmentSchema = new Schema({
 	courseID: { type: Schema.Types.ObjectId, required: true },
@@ -29,7 +33,7 @@ var assignmentSchema = new Schema({
 	//Basically decides the order the questions and exercises go in.
 	//false = question, true = exercise
 	//allows a way to interweave questions and exercises
-	contentOrder: [{ type: String, enum: contentTypes }],
+	contentOrder: [{ type: String, validate: contentValidation }],
 
 	studentSubmissions: [Schema.Types.ObjectId]
 });

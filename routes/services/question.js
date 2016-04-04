@@ -22,11 +22,14 @@ module.exports.addQuestion = function(assignment, callback){
 	var authErr = verifyAssignmentClosed(assignment);
 	if (authErr){ return callback(authErr) };
 
-	assignment.questions.push(new Question());
-	assignment.contentOrder.push('question');
-	assignment.markModified('contentOrder');
+	var newQuestion = new Question();
+	assignment.questions.push(newQuestion);
+
+	//ContentOrder includes the type it is along with it's ID
+	assignment.contentOrder.push('question' + newQuestion._id);
 
 	assignment.save(function(err, assignment){
+		console.log(err)
 		if (err) { return callback(err, null); }
 
 		return callback(null, assignment.questions[assignment.questions.length-1]);
@@ -81,24 +84,15 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 	});
 }
 
-module.exports.deleteQuestion = function(assignment, questionIndex, callback){
+module.exports.deleteQuestion = function(assignment, questionIndex, questionID, callback){
 	var authErr = (verifyQuestionExists(assignment, questionIndex) || verifyAssignmentClosed(assignment));
 	if (authErr){ return callback(authErr) };
 
 	assignment.questions.splice(questionIndex, 1);
 
 	//Splice it out of the content order
-	var numOfQuestions = 0;
-	for (var i = 0; i < assignment.contentOrder.length; i++){
-		if (assignment.contentOrder[i] === 'question'){
-			if (numOfQuestions === questionIndex){
-				assignment.contentOrder.splice(i, 1);
-				break;
-			}else{
-				numOfQuestions++;
-			}
-		}
-	}
+	var contentIndex = assignment.contentOrder.indexOf('question' + questionID);
+	assignment.contentOrder.splice(contentIndex, 1);
 
 	assignment.markModified('contentOrder');
 

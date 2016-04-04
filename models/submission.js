@@ -23,7 +23,8 @@ var submissionSchema = new Schema({
 
 	//Line num, class, and actual comment
 	teacherComments: [Schema.Types.Mixed]
-});
+}, { minimize: false });
+//set minimize: false or else empty exerciseAnswers are saved as null and that messes up the angular frontend
 
 submissionSchema.index({ studentID: 1, assignmentID: 1 }, { unique: true });
 

@@ -21,7 +21,7 @@ module.exports.sendSuccess = function(res, obj){
 }
 
 module.exports.sendError = function(res, httpStatus, err){
-	var msg = errors.parseErr(err);
+	var userMessage = errors.parseErr(err);
 	
-	return res.status(httpStatus).json({msg: msg});
+	return res.status(httpStatus).json({userMessage: userMessage});
 }

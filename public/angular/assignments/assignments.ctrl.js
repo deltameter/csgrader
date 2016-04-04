@@ -10,7 +10,6 @@
 		vm.assignmentID = $stateParams.assignmentID;
 
 		vm.assignment = {};
-		vm.submission = {};
 
 		vm.openInfo = {
 			deadlineType: 'select' //ask users to select a deadline type
@@ -20,16 +19,6 @@
  			AssignmentFactory.getAssignment(vm.courseCode, vm.assignmentID).then(
 				function Success(assignment){
 					vm.assignment = assignment;
-					if (!vm.user.bIsTeacher){
-						AssignmentFactory.getSubmission(vm.courseCode, vm.assignmentID, vm.assignment).then(
-							function Success(submission){
-								vm.submission = submission;
-							}
-						)
-					}else{
-						//do this so kwe can use ng-hide="!vm.submission"
-						vm.submission = { bIsTeacher: true }
-					}
 				}
 			);
 		}
@@ -99,7 +88,7 @@
 
 		this.submitQuestion = function(){
 			var answer = {
-				answer: vm.answer,
+				answer: vm.question.studentAnswer,
 				questionIndex: vm.question.questionIndex
 			}
 
@@ -170,9 +159,6 @@
 
 		//get the exercise contents from the parent scope
 		vm.exercise = $scope.$parent.content;
-
-		//exercise index. use this to access the submission stuff
-		vm.eI = vm.exercise.exerciseIndex;
 
 		vm.editing = false;
 		//this object is resolved in the onload option
@@ -288,7 +274,7 @@
 					vm.exercise.tries++;
 					if (compilationInfo.bIsCorrect){
 						vm.exercise.bIsCorrect = true;
-						vm.question.pointsEarned = vm.exercise.pointsWorth;
+						vm.exercise.pointsEarned = vm.exercise.pointsWorth;
 					}
 				}
 			)

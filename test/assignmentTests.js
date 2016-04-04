@@ -105,6 +105,7 @@ describe('Assignment', function(){
 					.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/create')
 					.end(function(err, res){
 						callback(err, res.status);
+						deleteQuestionID = res.body._id;
 					});
 				}
 			], function(err, results){
@@ -124,7 +125,8 @@ describe('Assignment', function(){
 				expect(res.status).to.equal(200);
 
 				var questionDelete = {
-					questionIndex: 5
+					questionIndex: 5,
+					questionID: res.body._id
 				}
 
 				testTeacher
@@ -271,7 +273,8 @@ describe('Assignment', function(){
 				expect(res.status).to.equal(200);
 				
 				var exerciseDelete = {
-					exerciseIndex: 1
+					exerciseIndex: 1,
+					exerciseID: res.body._id
 				}
 
 				testTeacher
@@ -358,6 +361,52 @@ describe('Assignment', function(){
 				done();
 			});
 		});
+
+		it('should not add or delete questions after the assignment has been opened', function(done){
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/create')
+			.end(function(err, res){
+				expect(res.status).to.equal(400);
+
+				var questionDelete = {
+					questionIndex: 0
+				}
+
+				testTeacher
+				.post('/api/course/smushdapcs/assignment/' + assignment._id + '/question/delete')
+				.send(questionDelete)
+				.end(function(err, res){
+					expect(res.status).to.equal(400);
+					done();
+				});
+			});
+		});
+
+		it('should not add or delete exercises after the assignment has been opened', function(done){
+			var deniedExercise = {
+				title: 'Denied Exercise',
+				language: 'Java'
+			}
+
+			testTeacher
+			.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/create')
+			.send(deniedExercise)
+			.end(function(err, res){
+				expect(res.status).to.equal(400);
+
+				var exerciseDelete = {
+					exerciseIndex: 0
+				}
+
+				testTeacher
+				.post('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/delete')
+				.send(exerciseDelete)
+				.end(function(err, res){
+					expect(res.status).to.equal(400);
+					done();
+				});
+			});
+		});
 	});
 
 	describe('retrieval', function(){
@@ -367,15 +416,9 @@ describe('Assignment', function(){
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 
-				testStudent
-				.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
-				.end(function(err, res){
-					expect(res.status).to.equal(200);
-
-					Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
-						expect(submission).to.exist;
-						done();
-					});
+				Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
+					expect(submission).to.exist;
+					done();
 				});
 			});
 		});

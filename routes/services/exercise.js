@@ -32,7 +32,8 @@ module.exports.addExercise = function(assignment, language, title, callback){
 
 	assignment.exercises.push(newExercise);
 
-	assignment.contentOrder.push('exercise');
+	//ContentOrder includes the type it is along with the index on the exercise array
+	assignment.contentOrder.push('exercise' + newExercise._id);
 
 	assignment.save(function(err){
 		if (err){ return callback(err, null); }
@@ -59,25 +60,15 @@ module.exports.editExercise = function(assignment, exerciseIndex, edit, callback
 	});
 }
 
-module.exports.deleteExercise = function(assignment, exerciseIndex, callback){
+module.exports.deleteExercise = function(assignment, exerciseIndex, exerciseID, callback){
 	var authErr = (verifyExerciseExists(assignment, exerciseIndex) || verifyAssignmentClosed(assignment));
 	if (authErr){ return callback(authErr) };
 
 	assignment.exercises.splice(exerciseIndex, 1);
 
 	//Splice it out of the content order
-	var numOfExercises = 0;
-	for (var i = 0; i < assignment.contentOrder.length; i++){
-
-		if (assignment.contentOrder[i] === 'exercise'){
-			if (numOfExercises === exerciseIndex){
-				assignment.contentOrder.splice(i, 1);
-				break;
-			}else{
-				numOfExercises++;
-			}
-		}
-	}
+	var contentIndex = assignment.contentOrder.indexOf('exercise' + exerciseID);
+	assignment.contentOrder.splice(contentIndex, 1);
 
 	assignment.markModified('contentOrder');
 

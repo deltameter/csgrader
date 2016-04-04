@@ -30,7 +30,7 @@ module.exports.deleteQuestion = function(req, res){
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, questions: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Question.deleteQuestion(assignment, req.body.questionIndex, function(err){
+		Question.deleteQuestion(assignment, req.body.questionIndex, req.body.questionID, function(err){
 			if (err) { return helper.sendError(res, 400, err); }
 			return  helper.sendSuccess(res);
 		});

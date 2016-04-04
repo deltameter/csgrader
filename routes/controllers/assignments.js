@@ -11,9 +11,25 @@ module.exports.getAssignment = function(req, res){
 		if (err){ return helper.sendError(res, 400, err); }
 
 		if (!req.user.bIsTeacher){
-			return helper.sendSuccess(res, Assignment.safeSendStudent(assignment));
+			var studentAssignment = Assignment.safeSendStudent(assignment);
+
+			Submission.get(req.user._id, assignment._id, {}, function(err, submission){
+				if (err){
+					//Could not find a submission by this name. Make one.
+					if (err.name === 'DescError' && err.code === 404){
+						Submission.create(req.user._id, assignment, function(err, submission){
+							studentAssignment.submission = submission;
+							return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
+						});
+					}else{
+						return helper.sendError(res, 400, err);
+					}
+				}else{
+					return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
+				}
+			});
 		}else{
-			return helper.sendSuccess(res, assignment);
+			return helper.sendSuccess(res, { assignment: assignment });
 		}
 	})
 }

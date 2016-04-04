@@ -137,8 +137,6 @@ module.exports = function(app, passport){
 	//***** SUBMISSION ROUTES ******
 	//******************************
 
-	app.get(assignmentRoute + '/submission', studentAssignmentAuth, submissions.getSubmission);
-
 	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
 
 	app.put(assignmentRoute + '/exercise/submit', studentAssignmentAuth, submissions.submitExerciseAnswer);

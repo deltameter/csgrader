@@ -6,42 +6,6 @@ var mongoose = require('mongoose'),
 	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
 
-module.exports.getSubmission = function(req, res){
-	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
-		if (err){ return helper.sendError(res, 400, err); }
-
-		Submission.get(req.user._id, assignment._id, {}, function(err, submission){
-			if (err){
-				//Could not find a submission by this name. Make one.
-				if (err.name === 'DescError' && err.code === 404){
-					Submission.create(req.user._id, assignment, function(err, submission){
-						return helper.sendSuccess(res, submission);
-					});
-				}else{
-					return helper.sendError(res, 400, err);
-				}
-			}else{
-				return helper.sendSuccess(res, submission);
-			}
-		});
-	});
-}
-
-//Called in get assignment
-module.exports.create = function(req, res){
-	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
-		if (err){ return helper.sendError(res, 400, err); }
-
-		Submission.create(req.user._id, assignment, function(err, submission){
-			if (err){
-				return helper.sendError(res, 400, err);
-			}
-
-			return helper.sendSuccess(res, submission);
-		});
-	});
-}
-
 module.exports.submitQuestionAnswer = function(req, res){
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, questions: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }

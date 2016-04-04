@@ -32,7 +32,7 @@ module.exports.deleteExercise = function(req, res){
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Exercise.deleteExercise(assignment, req.body.exerciseIndex, function(err){
+		Exercise.deleteExercise(assignment, req.body.exerciseIndex, req.body.exerciseID, function(err){
 			if (err) return helper.sendError(res, 400, err);
 			return helper.sendSuccess(res);
 		})

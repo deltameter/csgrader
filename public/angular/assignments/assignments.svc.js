@@ -1,8 +1,14 @@
 (function(){
+	function arrayObjectIndexOf(myArray, property, searchTerm) {
+		for(var i = 0, len = myArray.length; i < len; i++) {
+			if (myArray[i][property] === searchTerm) return i;
+		}
+		return -1;
+	}
+
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
 			getAssignment: getAssignment,
-			getSubmission: getSubmission,
 			createAssignment: createAssignment,
 			openAssignment: openAssignment
 		};
@@ -10,7 +16,7 @@
 		function getAssignment(courseCode, assignmentID){
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID).then(
 				function Success(res){
-					var assignment = res.data;
+					var assignment = res.data.assignment;
 					//exercise index, question index, frq index
 					var eI = 0, qI = 0;
 
@@ -18,17 +24,46 @@
 
 					for (var i = 0; i < assignment.contentOrder.length; i++){
 						//true = exercise, false = question
-						if (assignment.contentOrder[i] === 'exercise'){
-							console.log(assignment.exercises[eI])
-							assignment.content[i] = assignment.exercises[eI];
+						//content order is the type of problem, then the ID of said problem
+						if (assignment.contentOrder[i].indexOf('exercise') === 0){
+							//get the id by removing exercise from the thing
+							var id = assignment.contentOrder[i].split('exercise')[1];
+							var location = arrayObjectIndexOf(assignment.exercises, '_id', id);
+
+							assignment.content[i] = assignment.exercises[location];
 							assignment.content[i].type = 'exercise';
-							assignment.content[i].exerciseIndex = eI
+							assignment.content[i].exerciseIndex = eI;
 							eI++;
-						}else if (assignment.contentOrder[i] === 'question'){
-							assignment.content[i] = assignment.questions[qI];
+
+						}else if (assignment.contentOrder[i].indexOf('question') === 0){
+							//get the id by removing question from the thing
+							var id = assignment.contentOrder[i].split('question')[1];
+							var location = arrayObjectIndexOf(assignment.questions, '_id', id);
+
+							assignment.content[i] = assignment.questions[location];
 							assignment.content[i].type = 'question';
 							assignment.content[i].questionIndex = qI;
 							qI++;
+						}
+					}
+
+					//if a submission is included, load it. This means either a student is loading this,
+					//or a teacher is viewing a student submission
+					if (res.data.submission){
+						var submission = res.data.submission;
+
+						for (var i = 0; i < assignment.questions.length; i++){
+							assignment.questions[i].studentAnswer = submission.questionAnswers[i];
+							assignment.questions[i].tries = submission.questionTries[i];
+							assignment.questions[i].pointsEarned = submission.questionPoints[i];
+							assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
+						}
+
+						for (var i = 0; i < assignment.exercises.length; i++){
+							assignment.exercises[i].code = submission.exerciseAnswers[i];
+							assignment.exercises[i].tries = submission.exerciseTries[i];
+							assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
+							assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
 						}
 					}
 					return assignment;
@@ -38,34 +73,6 @@
 				}
 			);
 		};
-
-		function getSubmission(courseCode, assignmentID, assignment){
-			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID + '/submission').then(
-				function Success(res){
-					var submission = res.data;
-
-					for (var i = 0; i < assignment.questions.length; i++){
-						assignment.questions[i].studentAnswer = submission.questionAnswers[i];
-						assignment.questions[i].tries = submission.questionTries[i];
-						assignment.questions[i].pointsEarned = submission.questionPoints[i];
-						assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
-
-					}
-
-					for (var i = 0; i < assignment.exercises.length; i++){
-						assignment.exercises[i].code = submission.exerciseAnswers[i];
-						assignment.exercises[i].tries = submission.exerciseTries[i];
-						assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
-						assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
-					}
-
-					return submission;
-				},
-				function Failure(res){
-
-				}
-			)
-		}
 
 		function createAssignment(courseCode, newAssignment){
 			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
