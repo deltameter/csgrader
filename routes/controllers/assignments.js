@@ -10,7 +10,7 @@ module.exports.getAssignment = function(req, res){
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		if (!req.user.bIsTeacher){
+		if (req.user.role !== 'teacher'){
 			var studentAssignment = Assignment.safeSendStudent(assignment);
 
 			Submission.get(req.user._id, assignment._id, {}, function(err, submission){
@@ -35,6 +35,12 @@ module.exports.getAssignment = function(req, res){
 }
 
 module.exports.create = function(req, res){
+	req.checkBody('name', 'Please include the assignment name').notEmpty();
+	req.checkBody('description', 'Please include the assignment description').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 
@@ -46,6 +52,12 @@ module.exports.create = function(req, res){
 }
 
 module.exports.edit = function(req, res){
+	req.checkBody('name', 'Please include the assignment name').notEmpty();
+	req.checkBody('description', 'Please include the assignment description').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
@@ -58,6 +70,13 @@ module.exports.edit = function(req, res){
 }
 
 module.exports.open = function(req, res){
+	req.checkBody('dueDate', 'Please include the due date').isDate();
+	req.checkBody('deadlineType', 'Please include the deadline type').notEmpty();
+	req.checkBody('pointLoss', 'Please include the % point loss').isInt();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
@@ -72,6 +91,7 @@ module.exports.open = function(req, res){
 module.exports.delete = function(req, res){
 	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
+		
 		Assignment.get(req.params.assignmentID, { _id: 1 }, function(err, assignment){
 			if (err){ return helper.sendError(res, 400, err); }
 

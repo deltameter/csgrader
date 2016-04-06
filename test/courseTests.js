@@ -204,7 +204,7 @@ describe('Course', function(){
 			});
 		});
 
-		it('should delete a user', function(done){
+		it('should delete a student', function(done){
 			testTeacher
 			.delete('/api/course/smushdapcs/classroom/' + classroom.classCode + '/student/delete/' + modifyUser._id)
 			.end(function(err, res){

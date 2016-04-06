@@ -29,7 +29,6 @@ module.exports.addQuestion = function(assignment, callback){
 	assignment.contentOrder.push('question' + newQuestion._id);
 
 	assignment.save(function(err, assignment){
-		console.log(err)
 		if (err) { return callback(err, null); }
 
 		return callback(null, assignment.questions[assignment.questions.length-1]);

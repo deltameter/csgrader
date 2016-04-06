@@ -44,10 +44,10 @@
 			);
 		}
 		
-		this.deleteQuestion = function(contentIndex, questionIndex){
-			QuestionFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex).then(
+		this.deleteQuestion = function(contentOrderIndex, questionIndex, questionID){
+			QuestionFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex, questionID).then(
 				function Success(){
-					vm.assignment.content.splice(contentIndex, 1);
+					vm.assignment.content.splice(contentOrderIndex, 1);
 					vm.assignment.questions.splice(questionIndex, 1);
 					$scope.$broadcast('QUESTION_DELETE', questionIndex);
 				}
@@ -64,10 +64,10 @@
 			);
 		}
 
-		this.deleteExercise = function(contentIndex, exerciseIndex){
-			ExerciseFactory.deleteExercise(vm.courseCode, vm.assignmentID, exerciseIndex).then(
+		this.deleteExercise = function(contentOrderIndex, exerciseIndex, exerciseID){
+			ExerciseFactory.deleteExercise(vm.courseCode, vm.assignmentID, exerciseIndex, exerciseID).then(
 				function Success(){
-					vm.assignment.content.splice(contentIndex, 1);
+					vm.assignment.content.splice(contentOrderIndex, 1);
 					vm.assignment.exercises.splice(exerciseIndex, 1);
 					$scope.$broadcast('EXERCISE_DELETE', exerciseIndex);
 				}
@@ -170,7 +170,7 @@
 		vm.startDeleteFile = false;
 
 		//select which file to run. Defaults at the file with the unit tests for teachers. 
-		if (UserInfo.getUser().bIsTeacher){
+		if (UserInfo.getUser().role === 'teacher'){
 			vm.currentFile = 'Main';
 		}else{
 			vm.currentFile = Object.keys(vm.exercise.code)[0];
@@ -187,7 +187,7 @@
 			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
 			//mode: 'java',
 			onLoad: function(aceEditor) {
-				if (UserInfo.getUser().bIsTeacher){
+				if (UserInfo.getUser().role === 'teacher'){
 			    	aceEditor.setReadOnly(true);
 				}
 

@@ -16,6 +16,11 @@ module.exports.addQuestion = function(req, res){
 }
 
 module.exports.editQuestion = function(req, res){
+	req.checkBody('questionIndex', 'Please include the question').isInt();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, questions: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
@@ -27,6 +32,12 @@ module.exports.editQuestion = function(req, res){
 }
 
 module.exports.deleteQuestion = function(req, res){
+	req.checkBody('questionIndex', 'Please include the question').isInt();
+	req.checkBody('questionID', 'Please include the questionID').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, questions: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 

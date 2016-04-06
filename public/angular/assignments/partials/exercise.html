@@ -1,6 +1,6 @@
 <div class="exercise well">
 	{{ exerciseCtrl.exercise }}
-	<div ng-show="!assignmentCtrl.user.bIsTeacher">
+	<div ng-show="assignmentCtrl.user.role !== 'teacher'">
 		<p>{{ exerciseCtrl.exercise.tries }}/{{ exerciseCtrl.exercise.triesAllowed }}</p>
 		<p>Correct: {{ exerciseCtrl.exercise.bIsCorrect }}</p>
 		<p>Points Earned: {{ exerciseCtrl.exercise.pointsEarned }}/{{ exerciseCtrl.exercise.pointsWorth }}</p>
@@ -53,7 +53,7 @@
 	<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise.code[exerciseCtrl.currentFile]"></div>
 
 	<div class="row">
-		<div ng-show="assignmentCtrl.user.bIsTeacher">
+		<div ng-show="assignmentCtrl.user.role === 'teacher'">
 			<div ng-show="exerciseCtrl.editing === false">
 				<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
 					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.toggleEdit()">Edit</btn>
@@ -67,12 +67,12 @@
 					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.editExercise()">Save</btn>
 				</div>
 				<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteExercise($index, exerciseEditCtrl.exercise.exerciseIndex)">Delete</btn>
+					<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteExercise($index, exerciseCtrl.exercise.exerciseIndex, exerciseCtrl.exercise._id)">Delete</btn>
 				</div>
 			</div>
 		</div>
 
-		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.user.bIsTeacher">
+		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.user.role !== 'teacher'">
 			<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.submitExercise()">Submit</btn>
 		</div>
 	</div>

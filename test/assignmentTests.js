@@ -351,6 +351,7 @@ describe('Assignment', function(){
 			var edit = {
 				dueDate: new Date (2025, 1, 17),
 				deadlineType: 'strict',
+				pointLoss: 50
 			}
 
 			testTeacher

@@ -13,8 +13,8 @@ DescError.prototype.constructor = DescError;
 module.exports.DescError = DescError;
 
 module.exports.parseErr = function(err) {
-
-	//If it isn't a mongoose-validation error, just throw it.
+	return err;
+/*	//If it isn't a mongoose-validation error, just throw it.
 	if (err.name !== 'ValidationError')
 		return err
 
@@ -49,5 +49,5 @@ module.exports.parseErr = function(err) {
 		else errors.push(util.format(messages[eObj.type], eObj.path));
 	});
 
-	return errors;
+	return errors;*/
 }

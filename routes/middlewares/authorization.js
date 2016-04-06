@@ -12,13 +12,13 @@ module.exports.requiresLogin = function(req, res, next){
 }
 
 module.exports.requiresStudent = function(req, res, next){
-	if (!req.user.bIsTeacher) return next();
+	if (req.user.role === 'student') return next();
 
 	return helper.sendError(res, 401, 'You must be a student to access this.');
 }
 
 module.exports.requiresTeacher = function(req, res, next){
-	if (req.user.bIsTeacher) return next();
+	if (req.user.role === 'teacher') return next();
 
 	return helper.sendError(res, 401, 'You must be a teacher to access this.');
 }
@@ -72,7 +72,7 @@ module.exports.requiresAssignment = function(req, res, next){
 				return helper.sendError(res, 401, 2002, 'You must be enrolled in this course to access it.');
 			}
 
-			if (!assignment.bIsOpen && !req.user.bIsTeacher){
+			if (!assignment.bIsOpen && req.user.role !== 'teacher'){
 				return helper.sendError(res, 404, 1001, 'That assignment does not exist or is not available.');
 			}
 

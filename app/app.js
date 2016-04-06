@@ -6,7 +6,8 @@ var express = require('express'),
 	config = require('./config'),
 	session = require('express-session'),
 	morgan = require('morgan'),
-	mongoStore = require('connect-mongo')(session);
+	mongoStore = require('connect-mongo')(session),
+	expressValidator = require('express-validator');
 
 module.exports = function(app, passport){
 	var sessionStore = new mongoStore({url: config.mongoURL});
@@ -30,6 +31,8 @@ module.exports = function(app, passport){
 	
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
+	app.use(expressValidator());
+
 	app.use(express.static(path.join(__base, '/public')));
 	app.use(sessionMiddleware);
 	app.use(passport.initialize());

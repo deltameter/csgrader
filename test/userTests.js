@@ -14,7 +14,7 @@ describe('User', function(){
 		password: 'password1', 
 		retypePassword: 'password1',
 		email: 'johndoe@gmail.com',
-		accountType: 'teacher'
+		role: 'teacher'
 	};
 
 	var testStudentInfo = {
@@ -23,7 +23,7 @@ describe('User', function(){
 		password: 'apple123',
 		retypePassword: 'apple123',
 		email: 'litlejohnny@school.com',
-		accountType: 'student'
+		role: 'student'
 	};
 
 	var testIdiotInfo = {
@@ -32,7 +32,7 @@ describe('User', function(){
 		password: '123',
 		retypePassword: '123',
 		email: 'asdf',
-		accountType: '123',
+		role: '123',
 	};
 
 	describe('account creation', function(){
@@ -150,7 +150,7 @@ describe('User', function(){
 			.end(function(err, res){
 				if (err) throw err;
 
-				expect(res.body.bIsTeacher).to.equal(true);
+				expect(res.body.role).to.equal('teacher');
 				done();
 			});
 		});

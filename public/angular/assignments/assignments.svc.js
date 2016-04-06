@@ -17,9 +17,6 @@
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID).then(
 				function Success(res){
 					var assignment = res.data.assignment;
-					//exercise index, question index, frq index
-					var eI = 0, qI = 0;
-
 					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
 
 					for (var i = 0; i < assignment.contentOrder.length; i++){
@@ -32,8 +29,7 @@
 
 							assignment.content[i] = assignment.exercises[location];
 							assignment.content[i].type = 'exercise';
-							assignment.content[i].exerciseIndex = eI;
-							eI++;
+							assignment.content[i].exerciseIndex = location;
 
 						}else if (assignment.contentOrder[i].indexOf('question') === 0){
 							//get the id by removing question from the thing
@@ -42,8 +38,7 @@
 
 							assignment.content[i] = assignment.questions[location];
 							assignment.content[i].type = 'question';
-							assignment.content[i].questionIndex = qI;
-							qI++;
+							assignment.content[i].questionIndex = location;
 						}
 					}
 
@@ -114,8 +109,9 @@
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', question);
 		}
 
-		function deleteQuestion(courseCode, assignmentID, questionIndex){
-			var question = { questionIndex: questionIndex };
+		function deleteQuestion(courseCode, assignmentID, questionIndex, questionID){
+			var question = { questionID: questionID, questionIndex: questionIndex };
+
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/delete', question);
 		}
 
@@ -179,8 +175,8 @@
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/submit', submission);
 		}
 
-		function deleteExercise(courseCode, assignmentID, exerciseIndex){
-			var exercise = { exerciseIndex: exerciseIndex };
+		function deleteExercise(courseCode, assignmentID, exerciseIndex, exerciseID){
+			var exercise = { exerciseID: exerciseID, exerciseIndex: exerciseIndex };
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/delete', exercise);
 		}
 	})

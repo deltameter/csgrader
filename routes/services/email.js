@@ -4,10 +4,27 @@ var config = require(__base + 'app/config'),
 	async = require('async'),
 	sendgrid = require('sendgrid')(config.sendgrid.apiKey);
 
+function saveEmailCode(user, code, callback){
+	user.emailAccessCode = code;
+	user.save(function(err){
+		callback(err, code);
+	})
+}
 module.exports.sendActivationEmail = function(user, callback){
 	//create random characters to send as email code
-	require('crypto').randomBytes(12, function(ex, buf) {
+	require('crypto').randomBytes(12, function(ex, buf){
 		var emailAccessCode = buf.toString('hex');
+
+		if (config.env === 'dev'){
+			user.bHasActivatedAccount = true;
+			return user.save(function(err){
+				return callback(err);
+			});
+		}
+
+		if (config.env === 'test'){
+			return saveEmailCode(user, emailAccessCode, callback);
+		}
 
 		//Send the email and save the email activation string.
 		async.parallel([
@@ -32,13 +49,10 @@ module.exports.sendActivationEmail = function(user, callback){
 				}
 			},
 			function(cb){
-				user.emailAccessCode = emailAccessCode;
-				user.save(function(err){
-					cb(err, null);
-				});
+				saveEmailCode(user, emailAccessCode, cb);
 			}
 		], function(err, results){
-			callback(err, emailAccessCode);
+			callback(err);
 		});
 	});
 }

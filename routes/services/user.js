@@ -16,14 +16,9 @@ module.exports.create = function(req, userInfo, callback){
 		firstName: userInfo.firstName,
 		lastName: userInfo.lastName,
 		password: userInfo.password,
-		email: userInfo.email.toLowerCase()
+		email: userInfo.email.toLowerCase(),
+		role: userInfo.role
 	});
-
-	if (typeof userInfo.accountType == 'undefined' || userInfo.accountType.length <= 0){
-		return callback(new DescError('Please select an account type'), 400);
-	}else{
-		newUser.bIsTeacher = (userInfo.accountType == 'teacher' ? true : false);
-	}
 
 	if (userInfo.password !== userInfo.retypePassword || !User.validPassword(userInfo.password)){
 		return callback(new DescError('Passwords must match.'), 400);

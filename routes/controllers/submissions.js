@@ -7,6 +7,12 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.submitQuestionAnswer = function(req, res){
+	req.checkBody('questionIndex', 'Please include the question').isInt();
+	req.checkBody('answer', 'Please include the question answer').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, questions: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 		const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
@@ -24,6 +30,12 @@ module.exports.submitQuestionAnswer = function(req, res){
 }
 
 module.exports.saveExerciseAnswer = function(req, res){
+	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
+	req.checkBody('code', 'Please include the exercise answer').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
@@ -40,6 +52,12 @@ module.exports.saveExerciseAnswer = function(req, res){
 }
 
 module.exports.submitExerciseAnswer = function(req, res){
+	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
+	req.checkBody('code', 'Please include the exercise answer').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 		const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };

@@ -38,7 +38,7 @@
 			retypePassword: '', 
 			password: '',
 			email: '',
-			accountType: ''
+			role: ''
 		};
 
 		this.signup = function() {

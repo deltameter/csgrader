@@ -87,6 +87,20 @@ module.exports.importStudents = function(course, classroom, csvFile, callback){
 	}
 
 	csv.parse(csvFile, { trim: true, columns: columnSelector }, function(err, students){
+		if (err || students.length === 0){
+			return callback(new DescError('No student records in that CSV.', 400), null);
+		}
+
+		if (typeof students[0].gradebookid === 'undefined'){
+			return callback(new DescError('Please include a "Gradebook ID" column.', 400), null);
+		}
+		if (typeof students[0].firstname === 'undefined'){
+			return callback(new DescError('Please include a "First Name" column.', 400), null);
+		}
+		if (typeof students[0].gradebookid === 'undefined'){
+			return callback(new lastname('Please include a "Last Name" column.', 400), null);
+		}
+
 		for (var i = 0; i < students.length; i++){
 			var newStudent = new Student({
 				gradebookID: students[i].gradebookid,

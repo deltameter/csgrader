@@ -23,7 +23,7 @@ module.exports.getUserCourse = function(user, courseCode, projection, callback){
 	var assignmentFilter = { bIsOpen: true };
 
 	//show classrooms if is teacher
-	if (user.bIsTeacher){
+	if (user.role === 'teacher'){
 		projection.classrooms = 1;
 		delete assignmentFilter.bIsOpen;
 	}
@@ -34,6 +34,7 @@ module.exports.getUserCourse = function(user, courseCode, projection, callback){
 	.populate('owner', 'firstName lastName')
 	.populate('assignments', 'courseID name description', assignmentFilter)
 	.exec(function(err, course){
+
 		if (err) { return callback(err) }
 
 		return callback(null, course);
@@ -104,19 +105,21 @@ module.exports.create = function(user, courseInfo, callback){
 }
 
 module.exports.changeInfo = function(user, course, info, callback){
-	user.checkPassword(info.password, function(err, bIsPassword){
+	user.checkPassword(info.teacherPassword, function(err, bIsPassword){
 		if (!bIsPassword){ return callback(new DescError('Invalid password'), 400); }
 
 		if (course.owner === user._id){
 			course.name = info.name;
-			course.password = info.password;
+			course.password = info.coursePassword;
 
 			course.save(function(err, course){
 				if (err) { return callback(err) };
 
 				return callback(null);
 			})
-		} 
+		}else{
+			return callback(new DescError('Must be the course owner to do this.'), 400);
+		}
 	});
 }
 
@@ -124,11 +127,15 @@ module.exports.delete = function(user, course, info, callback){
 	user.checkPassword(info.password, function(err, bIsPassword){
 		if (!bIsPassword){ return callback(new DescError('Invalid password'), 400); }
 
-		course.remove(function(err){
-			if (!bIsPassword){ return callback(err, 500); }
-			
-			return helper.sendSuccess(res);
-		});
+		if (course.owner === user._id){
+			course.remove(function(err){
+				if (!bIsPassword){ return callback(err, 500); }
+				
+				return helper.sendSuccess(res);
+			});
+		}else{
+			return callback(new DescError('Must be the course owner to do this.'), 400);
+		}
 	});
 }
 

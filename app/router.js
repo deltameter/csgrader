@@ -21,6 +21,8 @@ const studentAuth = [auth.requiresLogin, auth.requiresStudent],
 
 var multer = require('multer')();
 
+var intervals = require(__base + 'routes/services/intervals');
+
 module.exports = function(app, passport){
 
 

@@ -8,9 +8,11 @@ var mongoose = require('mongoose'),
 
 var SALT_LEVELS = 10;
 
+const roles = 'student teacher aide'.split(' ');
+
 var userSchema = new Schema({
 	//Meta info
-	bIsTeacher: Boolean,
+	role: { type: String, enum: roles},
 	bHasActivatedAccount: { type: Boolean, default: false },
 	emailAccessCode: String,
 	bIsBanned: { type: Boolean, default: false },
@@ -109,7 +111,7 @@ userSchema.methods = {
 userSchema.statics = {
 	safeSend: function(user){
 		return {
-			bIsTeacher: user.bIsTeacher,
+			role: user.role,
 			bHasActivatedAccount: user.bHasActivatedAccount,
 			firstName: user.firstName,
 			lastName: user.lastName,
