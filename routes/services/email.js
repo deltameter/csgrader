@@ -10,6 +10,7 @@ function saveEmailCode(user, code, callback){
 		callback(err, code);
 	})
 }
+
 module.exports.sendActivationEmail = function(user, callback){
 	//create random characters to send as email code
 	require('crypto').randomBytes(12, function(ex, buf){

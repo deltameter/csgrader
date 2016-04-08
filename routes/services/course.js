@@ -42,39 +42,8 @@ module.exports.getUserCourse = function(user, courseCode, projection, callback){
 }
 
 module.exports.getUsersCourses = function(user, callback){
-	Course.find({ _id : { $in : user.courses }}, { name: 1, courseCode: 1, assignments: 1 }, function(err, courses){
-		var getLastAssignment = function(course, cb){
-			if (course.assignments.length <= 0){
-				return cb(null, null);
-			}
-
-			const a = course.assignments.length - 1; 
-
-			Assignment.findOne(
-				{ _id: course.assignments[a] }, 
-				{ name: 1, dueDate: 1, pointsWorth: 1 }, 
-				function(err, assignment){
-					return cb(err, assignment);
-			});
-		}
-
-		async.map(courses, getLastAssignment, function(err, results){
-			if (err) { return callback(err, null); }
-
-			for(var i = 0; i < courses.length; i++){
-				
-				courses[i].assignments = undefined;
-				courses[i]._id = undefined;
-
-				if (results[i] !== null){
-					courses[i].assignmentName = results[i].name;
-					courses[i].assignmentDueDate = results[i].dueDate;
-					courses[i].assignmentPoints = results[i].pointsWorth;
-				}
-			}
-
-			return callback(null, courses);
-		});
+	Course.find({ _id : { $in : user.courses }}, { name: 1, courseCode: 1, openAssignments: 1 }, function(err, courses){
+		return callback(null, courses);
 	})
 }
 

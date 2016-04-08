@@ -72,19 +72,26 @@ module.exports.edit = function(req, res){
 module.exports.open = function(req, res){
 	req.checkBody('dueDate', 'Please include the due date').isDate();
 	req.checkBody('deadlineType', 'Please include the deadline type').notEmpty();
-	req.checkBody('pointLoss', 'Please include the % point loss').isInt();
-
+	
+	if (req.body.deadlineType === 'pointloss'){
+		req.checkBody('pointLoss', 'Please include the % point loss').isInt();
+	}
+	
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
+	Course.getCourse(req.params.courseCode, { openAssignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Assignment.open(assignment, req.body, function(err, assignment){
+		Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 			if (err){ return helper.sendError(res, 400, err); }
 
-			return helper.sendSuccess(res, assignment)
-		})
+			Assignment.open(course, assignment, req.body, function(err, assignment){
+				if (err){ return helper.sendError(res, 400, err); }
+
+				return helper.sendSuccess(res, assignment)
+			})
+		});
 	});
 }
 

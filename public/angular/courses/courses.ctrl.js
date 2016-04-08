@@ -8,18 +8,23 @@
 		var getCourses = function(){
 			CourseFactory.getCourses().then(
 				function Success(res){
+					console.log(res.data);
 					vm.courses = res.data;
-				}, 
-				function Failure(res){
-
 				}
 			);
 		};
 
 		this.createCourse = function(){
-			CourseFactory.createCourse(vm.newCourse).then(function(res){
-				console.log(res);
-			});
+			CourseFactory.createCourse(vm.newCourse).then(
+				function Success(res){
+					console.log(res);
+				},
+				function Failure(res){
+					console.log(res)
+					console.log(res.userMessage)
+					vm.newCourseMessage = res.data.userMessage;
+				}
+			);
 		}
 
 		getCourses();

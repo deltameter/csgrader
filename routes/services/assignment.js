@@ -5,6 +5,7 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
 	Question = mongoose.model('Question'),
 	Exercise = mongoose.model('Exercise'),
+	async = require('async'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
@@ -43,7 +44,7 @@ module.exports.edit = function(assignment, editInfo, callback){
 	});
 }
 
-module.exports.open = function(assignment, openInfo, callback){
+module.exports.open = function(course, assignment, openInfo, callback){
 	assignment.bIsOpen = true;
 	assignment.dueDate = openInfo.dueDate;
 	assignment.deadlineType = openInfo.deadlineType.toLowerCase();
@@ -83,7 +84,20 @@ module.exports.open = function(assignment, openInfo, callback){
 	assignment.pointsWorth = pointsWorth;
 
 	assignment.save(function(err, assignment){
-		return callback(err, assignment);
+		if (err){ return callback(err, assignment) };
+
+		var openAssignment = {
+			assignmentID: assignment._id,
+			name: assignment.name,
+			pointsWorth: assignment.pointsWorth,
+			dueDate: assignment.dueDate
+		}
+
+		course.openAssignments.push(openAssignment);
+
+		course.save(function(err){
+			return callback(err, assignment);
+		});
 	});
 }
 
