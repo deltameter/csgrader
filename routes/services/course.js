@@ -22,12 +22,6 @@ module.exports.getCourse = function(courseCode, projection, callback){
 module.exports.getUserCourse = function(user, courseCode, projection, callback){
 	var assignmentFilter = { bIsOpen: true };
 
-	//show classrooms if is teacher
-	if (user.role === 'teacher'){
-		projection.classrooms = 1;
-		delete assignmentFilter.bIsOpen;
-	}
-
 	Course
 	.findOne({ courseCode: courseCode })
 	.select(projection)
@@ -41,7 +35,7 @@ module.exports.getUserCourse = function(user, courseCode, projection, callback){
 	});
 }
 
-module.exports.getUsersCourses = function(user, callback){
+module.exports.getCourseList = function(user, callback){
 	Course.find({ _id : { $in : user.courses }}, { name: 1, courseCode: 1, openAssignments: 1 }, function(err, courses){
 		return callback(null, courses);
 	})

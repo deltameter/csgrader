@@ -34,6 +34,36 @@ module.exports.getAssignment = function(req, res){
 	})
 }
 
+module.exports.find = function(req, res){
+	//Want full list, no search terms
+	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+		if (err) return helper.sendError(res, 400, err);
+
+		var searchTerms = req.query.searchTerms;
+
+		const searchProjection = { 
+			name: 1, 
+			questionNum: { $size: '$questions'}, 
+			exerciseNum: { $size: '$exercises' }, 
+			bIsFinished: 1,
+			pointsWorth: 1
+		}
+
+		if (typeof searchTerms === 'undefined'){
+			Assignment.getAll(course, searchProjection, function(err, assignments){
+				if (err) return helper.sendError(res, 400, err);
+
+				return helper.sendSuccess(res, { assignments: assignments });
+			});
+		}else{
+			Assignment.search(course, searchTerms, 5, searchProjection, function(err, assignments){
+				if (err) return helper.sendError(res, 400, err);
+				return helper.sendSuccess(res, { assignments: assignments });
+			});
+		}
+	})
+}
+
 module.exports.create = function(req, res){
 	req.checkBody('name', 'Please include the assignment name').notEmpty();
 	req.checkBody('description', 'Please include the assignment description').notEmpty();
@@ -41,12 +71,12 @@ module.exports.create = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+	Course.getCourse(req.params.courseCode, { courseCode: 1, assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Assignment.create(course, req.body, function(err, newAssignment){
+		Assignment.create(course, req.body, function(err, assignmentID){
 			if (err) return helper.sendError(res, 400, err);
-			return helper.sendSuccess(res, newAssignment);
+			return helper.sendSuccess(res, { assignmentID: assignmentID });
 		})
 	}) 
 }

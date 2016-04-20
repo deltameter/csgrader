@@ -1,6 +1,83 @@
 (function(){
 	angular.module('assignments')
 
+	.controller('AssignmentsController', function($scope, $stateParams, $state, AssignmentFactory){
+		var vm = this;
+		vm.courseCode = $stateParams.courseCode;
+		vm.searchAssignments = [];
+
+		//# of assignments shown at one time in the assignments thing
+		vm.assignmentsShownLength = 5;
+		//current page
+		vm.listPage = 0;
+		//this is set whenever user asks for list of assignments. min page num is obvs 0
+		vm.maxListPage = 0;
+
+		vm.currentListAssignments = [];
+		vm.listAssignments = [];
+
+		//'search' or 'all'
+		vm.currentFindType = 'search';
+
+		//Used to keep a set number of search assignments/list assignments
+		$scope.range = function(num){
+			var arr = []; 
+
+			for (var i = 0; i < num; i++) { 
+				arr.push(i) 
+			} 
+
+			return arr;
+		}
+
+		this.createAssignment = function(){
+			AssignmentFactory.createAssignment(vm.courseCode, vm.newAssignment).then(
+				function Success(assignment){
+					$state.go('root.assignment', { courseCode: vm.courseCode, assignmentID: assignment.assignmentID });
+				}, 
+				function Failure(userMessage){
+					vm.userMessageCreate = userMessage;
+				}
+			);
+		}
+
+		this.search = function(){
+			//set this to null so it blinks and users know its searching if their next search returns the same results
+			vm.searchAssignments = [];
+
+			AssignmentFactory.search(vm.courseCode, vm.searchTerms).then(
+				function Success(assignments){
+					vm.currentFindType = 'search';
+					vm.searchAssignments = assignments;
+				}
+			)
+		}
+
+		this.getAll = function(){
+			AssignmentFactory.getAll(vm.courseCode).then(
+				function Success(assignments){
+					vm.currentFindType = 'all';
+					vm.listAssignments = assignments;
+					vm.listPage = 0;
+					vm.currentListAssignments = assignments.slice(0, vm.assignmentsShownLength);
+					//zero indexed so use math floor
+					vm.maxListPage = Math.floor(assignments.length / vm.assignmentsShownLength);
+				}
+			)
+		}
+
+		this.changePageNum = function(bIncreasingPage){
+			if (bIncreasingPage && vm.listPage !== vm.maxListPage){
+				vm.listPage++;
+			}else if (!bIncreasingPage && vm.listPage !== 0){
+				vm.listPage--;
+			}
+
+			var pageIndex = vm.listPage * vm.assignmentsShownLength;
+			vm.currentListAssignments = vm.listAssignments.slice(pageIndex, pageIndex + vm.assignmentsShownLength);
+		}
+	})
+
 	.controller('AssignmentController', 
 		function($scope, $stateParams, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
 

@@ -13,7 +13,9 @@ module.exports.submitQuestionAnswer = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Assignment.get(req.params.assignmentID, { bIsOpen: 1, questions: 1 }, function(err, assignment){
+	const assignmentProjection = { bIsOpen: 1, questions: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
+
+	Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 		const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
 
@@ -26,6 +28,31 @@ module.exports.submitQuestionAnswer = function(req, res){
 				return helper.sendSuccess(res, { bIsCorrect: bIsCorrect });
 			})
 		})
+	});
+}
+
+module.exports.submitExerciseAnswer = function(req, res){
+	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
+	req.checkBody('code', 'Please include the exercise answer').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const assignmentProjection = { bIsOpen: 1, exercises: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
+
+	Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
+		const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
+
+		Submission.get(req.user._id, assignment._id, exerciseProjection, function(err, submission){
+			if (err) return helper.sendError(res, 400, err);
+
+			Submission.submitExerciseAnswer(assignment, submission, req.body.exerciseIndex, req.body.code, function(err, compilationInfo){
+				if (err) return helper.sendError(res, 400, err);
+
+				return helper.sendSuccess(res, compilationInfo);
+			});
+		});
 	});
 }
 
@@ -48,28 +75,5 @@ module.exports.saveExerciseAnswer = function(req, res){
 				return helper.sendSuccess(res);
 			});
 		})
-	});
-}
-
-module.exports.submitExerciseAnswer = function(req, res){
-	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
-	req.checkBody('code', 'Please include the exercise answer').notEmpty();
-
-	var validationErrors = req.validationErrors();
-	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
-
-	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
-		if (err){ return helper.sendError(res, 400, err); }
-		const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
-
-		Submission.get(req.user._id, assignment._id, exerciseProjection, function(err, submission){
-			if (err) return helper.sendError(res, 400, err);
-
-			Submission.submitExerciseAnswer(assignment, submission, req.body.exerciseIndex, req.body.code, function(err, compilationInfo){
-				if (err) return helper.sendError(res, 400, err);
-
-				return helper.sendSuccess(res, compilationInfo);
-			});
-		});
 	});
 }

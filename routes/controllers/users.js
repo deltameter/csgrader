@@ -3,7 +3,6 @@
 var mongoose = require('mongoose'),
 	User = require(__base + 'routes/services/user'),
 	Email = require(__base + 'routes/services/email'),
-	async = require('async'),
 	config = require(__base + 'app/config'),
 	helper = require(__base + 'routes/libraries/helper');
 

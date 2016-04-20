@@ -14,9 +14,11 @@ const contentValidation = [contentValidator, '{PATH} must be exercise or questio
 
 var assignmentSchema = new Schema({
 	courseID: { type: Schema.Types.ObjectId, required: true },
+	courseCode: { type: String, required: true, index: true },
+	
 	//whether the assignment is up and viewable
 	bIsOpen: { type: Boolean, default: false },
-	name: { type: String, required: true},
+	name: { type: String, required: true, index: 'text' },
 	description: String,
 
 	deadlineType: { type: String, enum: deadlineTypes },

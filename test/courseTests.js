@@ -127,7 +127,11 @@ describe('Course', function(){
 			var newStudent2 = JSON.parse(JSON.stringify(newStudent));
 			var newStudent3 = JSON.parse(JSON.stringify(newStudent));
 			newStudent2.gradebookID = '234';
+			newStudent2.firstName = 'Student2First';
+			newStudent2.lastName = 'Student2Last';
 			newStudent3.gradebookID = '345';
+			newStudent3.firstName = 'Student3First';
+			newStudent3.lastName = 'Student3Last';
 
 			async.parallel([
 				function(callback){
@@ -157,6 +161,7 @@ describe('Course', function(){
 					.end(function(err, res){
 						if (err) throw err;
 						expect(res.status).to.equal(200);
+
 						modifyUser = res.body;
 						callback();
 					});
@@ -195,10 +200,14 @@ describe('Course', function(){
 				if (err) throw err;
 				expect(res.status).to.equal(200);
 
-				Course.find({}, function(err, courses){
-					expect(courses[0].classrooms[0].students[2].firstName).to.equal('Big');
-					expect(courses[0].classrooms[0].students[2].lastName).to.equal('Johnny');
-					expect(courses[0].classrooms[0].students[2].gradebookID).to.equal('777');
+				Course.findOne({}, function(err, course){
+					var student = course.classrooms[0].students.find(function(student){
+						return student._id.toString() === modifyUser._id.toString();
+					})
+
+					expect(student.firstName).to.equal('Big');
+					expect(student.lastName).to.equal('Johnny');
+					expect(student.gradebookID).to.equal('777');
 					done();
 				});
 			});

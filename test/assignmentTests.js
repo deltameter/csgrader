@@ -411,7 +411,39 @@ describe('Assignment', function(){
 	});
 
 	describe('retrieval', function(){
-		it ('should create a new submission on first time', function(done){
+		it('should return all assignments', function(done){
+			testTeacher
+			.get('/api/course/smushdapcs/assignment/')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.assignments.length).to.equal(1);
+				done();
+			})
+		})
+
+		it('should return an assignment if we search for "unit 1"', function(done){
+			testTeacher
+			.get('/api/course/smushdapcs/assignment/')
+			.query({ searchTerms: "unit 1" })
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.assignments.length).to.equal(1);
+				done();
+			})
+		})
+
+		it('should not return an assignment if we search for "dank fucking peeps"', function(done){
+			testTeacher
+			.get('/api/course/smushdapcs/assignment/')
+			.query({ searchTerms: "dank fucking peeps" })
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.assignments.length).to.equal(0);
+				done();
+			})
+		})
+
+		it ('should create a new submission on first access by student', function(done){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id)
 			.end(function(err, res){
@@ -424,7 +456,7 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should not create duplicate submissions simply return it every time after', function(done){
+		it('should not create duplicate submissions', function(done){
 			testStudent
 			.get('/api/course/smushdapcs/assignment/' + assignment._id + '/submission')
 			.end(function(err, res){

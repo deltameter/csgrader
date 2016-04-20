@@ -1,17 +1,12 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	User = mongoose.model('User'),
 	Course = require(__base + 'routes/services/course'),
-	Assignment = mongoose.model('Assignment'),
-	Classroom = mongoose.model('Classroom'),
-	Student = mongoose.model('Student'),
-	async = require('async'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getCourses = function(req, res){
-	Course.getUsersCourses(req.user, function(err, courses){
+	Course.getCourseList(req.user, function(err, courses){
 		if (err) return helper.sendError(res, 500, err);
 
 		return helper.sendSuccess(res, courses);
@@ -19,7 +14,7 @@ module.exports.getCourses = function(req, res){
 }
 
 module.exports.getCourse = function(req, res){
-	const projection = { owner: 1, courseCode: 1, name: 1, assignments: { $slice: -5 } };
+	const projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1 };
 
 	Course.getUserCourse(req.user, req.params.courseCode, projection, function(err, course){
 		if (err) return helper.sendError(res, 500, err);

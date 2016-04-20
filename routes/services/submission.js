@@ -96,8 +96,15 @@ module.exports.submitQuestionAnswer = function(assignment, submission, questionI
 	}
 
 	if (bIsCorrect){
-		submission.pointsEarned += assignment.questions[i].pointsWorth;
-		submission.questionPoints[i] += assignment.questions[i].pointsWorth;
+		var points = assignment.questions[i].pointsWorth;
+
+		//remove points if it's late
+		if (assignment.deadlineType === 'pointloss' && assignment.dueDate < Date.now()){
+			points = points * (assignment.pointLoss / 100);
+		}
+
+		submission.pointsEarned += points;
+		submission.questionPoints[i] += points;
 		submission.questionsCorrect[i] = true;
 		submission.markModified('questionPoints');
 		submission.markModified('questionsCorrect');
@@ -155,10 +162,22 @@ module.exports.submitExerciseAnswer = function(assignment, submission, exerciseI
 	httpClient(options, function(err, httpRes, compilationInfo){
 		if (err){ callback(err, null) }
 		//no errors
-		if (compilationInfo.errors.length === 0 && !submission.exercisesCorrect[i]){
-			compilationInfo.bIsCorrect = true;
-			submission.pointsEarned += assignment.exercises[i].pointsWorth;
-			submission.exercisePoints[i] = assignment.exercises[i].pointsWorth;
+
+		compilationInfo.bIsCorrect = (compilationInfo.errors.length === 0 && !submission.exercisesCorrect[i]);
+
+		if (compilationInfo.bIsCorrect){
+			var points = assignment.exercises[i].pointsWorth;
+
+			if (assignment.deadlineType === 'strict'){
+				console.log('asdf')
+			}
+			//remove points if it's late
+			if (assignment.deadlineType === 'pointloss' && assignment.dueDate < Date.now()){
+				points = points * (assignment.pointLoss / 100);
+			}
+
+			submission.pointsEarned += points;
+			submission.exercisePoints[i] = points;
 			submission.exercisesCorrect[i] = true;
 			submission.markModified('exercisePoints');
 			submission.markModified('exercisesCorrect');

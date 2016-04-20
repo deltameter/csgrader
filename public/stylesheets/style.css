@@ -1,6 +1,5 @@
 body {
   padding-top: 100px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
@@ -70,6 +69,11 @@ img.scale-to-fit{
 	width: 100%;
 }
 
+/* Assignments */
+.assignment-search-well{
+	padding-left: 35px;
+	padding-right: 35px;
+}
 
 /* Exercises */
 .exercise-button-container{
@@ -86,4 +90,8 @@ img.scale-to-fit{
 /* Dashboard */
 .course-title{
 	font-size: 24px;
+}
+
+.hidden-space{
+	visibility: hidden;
 }

@@ -101,6 +101,8 @@ module.exports = function(app, passport){
 	//******************************
 	const assignmentRoute = '/api/course/:courseCode/assignment/:assignmentID';
 
+	app.get('/api/course/:courseCode/assignment', auth.requiresLogin, auth.requiresEnrollment, assignments.find);
+
 	app.get(assignmentRoute, auth.requiresLogin, auth.requiresEnrollment, assignments.getAssignment);
 
 	app.post('/api/course/:courseCode/assignment/create', teacherCourseAuth, assignments.create);

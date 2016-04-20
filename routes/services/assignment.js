@@ -12,15 +12,41 @@ var mongoose = require('mongoose'),
 
 module.exports.get = function(assignmentID, projection, callback){
 	Assignment.findOne({ _id: assignmentID }, projection, function(err, assignment){
-		if (err || !assignment){ return callback(new DescError('That course was not found', 400), null) };
+		if (err || !assignment){ return callback(new DescError('That assignment was not found', 400), null) };
 
 		return callback(null, assignment);
 	});
 }
 
+module.exports.getAll = function(course, projection, callback){
+	Assignment.aggregate(
+		{ $match: { _id: { $in : course.assignments } } },
+		{ $project: projection },
+		{ $sort: { name : 1 }},
+		function(err, assignments){
+			if (err){ return callback(new DescError('An error occured while searching for assignments.', 400), null) };
+			return callback(null, assignments);
+		}
+	);
+}
+
+module.exports.search = function(course, searchTerms, searchLimit, projection, callback){
+	Assignment.aggregate(
+		{ $match: { _id: { $in : course.assignments }, $text : { $search: searchTerms } } },
+		{ $limit: searchLimit },
+		{ $project: projection },
+		{ $sort: { name : 1 } },
+		function(err, assignments){
+			if (err){ return callback(new DescError('An error occured while searching for assignments.', 400), null) };
+			return callback(null, assignments);
+		}
+	);
+}
+
 module.exports.create = function(course, assignmentInfo, callback){
 	var newAssignment = new Assignment({
 		courseID: course._id,
+		courseCode: course.courseCode,
 		name: assignmentInfo.name,
 		description: assignmentInfo.description
 	});
@@ -29,8 +55,9 @@ module.exports.create = function(course, assignmentInfo, callback){
 		if (err){ return callback(err, null); }
 
 		course.assignments.push(newAssignment._id);
+
 		course.save(function(err, course){
-			return callback(err, newAssignment);
+			return callback(err, newAssignment._id);
 		});
 	});
 }

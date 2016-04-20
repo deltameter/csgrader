@@ -8,7 +8,6 @@
 		var getCourses = function(){
 			CourseFactory.getCourses().then(
 				function Success(res){
-					console.log(res.data);
 					vm.courses = res.data;
 				}
 			);
@@ -49,17 +48,6 @@
 				}
 			);
 		};
-
-		this.createAssignment = function(){
-			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
-				function Success(assignment){
-					vm.course.assignments.push(assignment);
-				}, 
-				function Failure(res){
-
-				}
-			);
-		}
 
 		getCourse();
 	});

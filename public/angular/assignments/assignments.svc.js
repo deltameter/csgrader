@@ -9,6 +9,8 @@
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
 			getAssignment: getAssignment,
+			getAll: getAll,
+			search: search,
 			createAssignment: createAssignment,
 			openAssignment: openAssignment
 		};
@@ -64,11 +66,28 @@
 					return assignment;
 				},
 				function Failure(res){
-
+					console.log(res);
 				}
 			);
 		};
 
+		function getAll(courseCode){
+			return $http.get('/api/course/' + courseCode + '/assignment').then(
+				function Success(res){
+					return res.data.assignments;
+				}
+			);
+		}
+
+		function search(courseCode, searchTerms){
+			var search = { searchTerms: searchTerms };
+			return $http.get('/api/course/' + courseCode + '/assignment', { params: search }).then(
+				function Success(res){
+					return res.data.assignments;
+				}
+			);
+		}
+		
 		function createAssignment(courseCode, newAssignment){
 			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
 				function Success(res){
