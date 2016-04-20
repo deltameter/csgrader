@@ -25,7 +25,7 @@ describe('Assignment', function(){
 			.send(newAssignment)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				assignment = res.body;
+				assignment._id = res.body.assignmentID;
 				done();
 			});
 		});
@@ -43,7 +43,7 @@ describe('Assignment', function(){
 			.send(deleteAssignment)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				deleteAssignmentID = res.body._id;
+				deleteAssignmentID = res.body.assignmentID;
 
 				Course.find({}, function(err, course){
 					expect(course[0].assignments.length).to.equal(2);

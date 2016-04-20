@@ -80,6 +80,10 @@ module.exports.submitQuestionAnswer = function(assignment, submission, questionI
 		return callback(Error('You can\'t try this question any more'), null);
 	}
 
+	if (assignment.deadlineType !== 'strict'  && assignment.dueDate < Date.now()){
+		return callback(new DescError('It\'s past the due date!', 400), null);
+	}
+	
 	var bIsCorrect = false;
 
 	if (assignment.questions[i].bIsHomework){
@@ -148,6 +152,10 @@ module.exports.submitExerciseAnswer = function(assignment, submission, exerciseI
 		return callback(new DescError('You can\'t try this exercise any more', 400), null);
 	}
 
+	if (assignment.deadlineType !== 'strict'  && assignment.dueDate < Date.now()){
+		return callback(new DescError('It\'s past the due date!', 400), null);
+	}
+
 	code.Main = assignment.exercises[i].code.Main;
 
 	var options = {
@@ -168,9 +176,6 @@ module.exports.submitExerciseAnswer = function(assignment, submission, exerciseI
 		if (compilationInfo.bIsCorrect){
 			var points = assignment.exercises[i].pointsWorth;
 
-			if (assignment.deadlineType === 'strict'){
-				console.log('asdf')
-			}
 			//remove points if it's late
 			if (assignment.deadlineType === 'pointloss' && assignment.dueDate < Date.now()){
 				points = points * (assignment.pointLoss / 100);
