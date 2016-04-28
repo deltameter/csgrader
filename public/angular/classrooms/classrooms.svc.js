@@ -1,12 +1,11 @@
 (function(){
-	angular.module('classrooms').factory('ClassroomFactory', function($http){
+	angular.module('classrooms')
+	.factory('ClassroomFactory', function($http){
 		return {
 			createClassroom: createClassroom,
-			createStudent: createStudent,
 			getClassroom: getClassroom,
 			getClassrooms: getClassrooms,
-			deleteClassroom: deleteClassroom,
-			deleteStudent: deleteStudent
+			deleteClassroom: deleteClassroom
 		};
 
 		function createClassroom(courseCode, className){
@@ -15,14 +14,6 @@
 			}
 			
 			return $http.post('/api/course/' + courseCode + '/classroom/create', newClassroom).then(
-				function Success(res){
-					return res.data;
-				}
-			);
-		};
-
-		function createStudent(courseCode, classCode, newStudent){
-			return $http.post('/api/course/' + courseCode + '/classroom/' + classCode + '/student/create', newStudent).then(
 				function Success(res){
 					return res.data;
 				}
@@ -52,6 +43,37 @@
 				}
 			)
 		}
+	})
+
+	.factory('StudentFactory', function($http){
+		return {
+			createStudent: createStudent,
+			editStudent: editStudent,
+			deleteStudent: deleteStudent
+		};
+
+		function createStudent(courseCode, classCode, newStudent){
+			return $http.post('/api/course/' + courseCode + '/classroom/' + classCode + '/student/create', newStudent).then(
+				function Success(res){
+					return res.data;
+				}
+			);
+		};
+
+		function editStudent(courseCode, classCode, student){
+			var studentInfo = {
+				studentClassID: student._id,
+				firstName: student.firstName,
+				lastName: student.lastName,
+				gradebookID: student.gradebookID
+			}
+
+			return $http.put('/api/course/' + courseCode + '/classroom/' + classCode + '/student/edit', studentInfo).then(
+				function Success(res){
+					return res.data;
+				}
+			);
+		}
 
 		function deleteStudent(courseCode, classCode, studentID){
 			return $http.delete('/api/course/' + courseCode + '/classroom/' + classCode + '/student/delete/' + studentID).then(
@@ -62,6 +84,6 @@
 					console.log(res)
 				}
 			)
-		}
+		};
 	})
 })();

@@ -1,37 +1,70 @@
 <div class="container">
-	<div class="well">
-		{{ classroomCtrl.classroom }}
+	<div class="row">
+		<h2 class="text-center">{{ classroomCtrl.classroom.name }}</h2>
+		<p class="text-center">Registration Code: {{ classroomCtrl.courseCode }}-{{ classroomCtrl.classroom.classCode}}</p>
 	</div>
-	<div ng-repeat="student in classroomCtrl.classroom.students">
-		{{ student }}
-		<btn ng-click="classroomCtrl.deleteStudent(student._id)" class="btn btn-primary">X</btn>
+
+	<div class="row small-spacer">
+		<h5 class="text-center">{{ classroomCtrl.classroom.students.length }} students</h5>
 	</div>
-	<div class="form-horizontal">
-		<div class="form-group">
-			<label class="col-md-2 col-md-offset-1 control-label">New User</label>
-			<div class="col-md-2">
-				<input type="text" ng-model="classroomCtrl.newStudent.firstName" placeholder="First Name" class="form-control" autocomplete="off">
+
+	<div class="row med-spacer">
+		<ng-form name="studentForm" class="form-horizontal" ng-repeat="student in classroomCtrl.classroom.students track by $index">
+			<div class="form-group">
+				<label class="col-md-2 col-md-offset-1 control-label">{{ studentForm.$dirty }}</label>
+				<div class="col-md-2">
+					<input type="text" ng-model="student.firstName" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-2">
+					<input type="text" ng-model="student.lastName" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-2">
+					<input type="text" ng-model="student.gradebookID" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-1">
+					<btn ng-click="classroomCtrl.editStudent(student, studentForm)" ng-show="studentForm.$dirty" class="btn btn-success btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i></btn>
+
+					<btn ng-click="classroomCtrl.deleteStudent(student._id)" class="btn btn-warning btn-sm" ng-class="classroomCtrl.deleteStudentID === student._id ? 'btn-danger' : 'btn-warning'"><i class="fa fa-times" aria-hidden="true"></i></btn>
+
+				</div>
 			</div>
-			<div class="col-md-2">
-				<input type="text" ng-model="classroomCtrl.newStudent.lastName" placeholder="Last Name" class="form-control" autocomplete="off">
-			</div>
-			<div class="col-md-2">
-				<input type="text" ng-model="classroomCtrl.newStudent.gradebookID" placeholder="Gradebook ID" class="form-control" autocomplete="off">
-			</div>
-			<div class="col-md-1">
-				<btn ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm">+</btn>
+		</ng-form>
+	</div>
+
+	<div class="row med-spacer">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-md-2 col-md-offset-1 control-label">Add New User</label>
+				<div class="col-md-2">
+					<input type="text" ng-model="classroomCtrl.newStudent.firstName" placeholder="First Name" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-2">
+					<input type="text" ng-model="classroomCtrl.newStudent.lastName" placeholder="Last Name" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-2">
+					<input type="text" ng-model="classroomCtrl.newStudent.gradebookID" placeholder="Gradebook ID" class="form-control" autocomplete="off">
+				</div>
+				<div class="col-md-1">
+					<btn ng-click="classroomCtrl.createStudent()" class="btn btn-success btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></btn>
+				</div>
 			</div>
 		</div>
 	</div>
-	<div class="form-horizontal">
+
+	<div class="form-horizontal spacer">
 		<div class="form-group">
 			<label class="col-md-4 col-md-offset-1 control-label">Import from CSV</label>
 			<div class="col-md-4">
 				<input type="file" placeholder="First Name" class="form-control" autocomplete="off">
 			</div>
 			<div class="col-md-2">
-				<btn ng-click="classroomCtrl.importStudents()" class="btn btn-primary btn-sm">+</btn>
+				<btn ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></btn>
 			</div>
 		</div>
 	</div>
+
+	<div class="well">
+		{{ classroomCtrl.classroom }}
+	</div>
+
 </div>

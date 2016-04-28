@@ -62,11 +62,9 @@
 		this.registerForCourse = function(){
 			UserFactory.registerForCourse(vm.regInfo).then(
 				function Success(res){
-					console.log(res);
 					$state.go('root.course', { courseCode: res.courseCode });
 				},
 				function Failure(res){
-					console.log(res);
 					vm.userMessage = res.data.userMessage;
 				}
 			)

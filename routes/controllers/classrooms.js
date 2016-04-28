@@ -12,8 +12,14 @@ module.exports.getClassroom = function(req, res){
 }
 
 module.exports.getClassrooms = function(req, res){
-	Course.getCourse(req.params.courseCode, { classrooms: 1 }, function(err, course){
-		return helper.sendSuccess(res, course.classrooms);
+	const projection = { 
+		name: '$classrooms.name', 
+		classCode: '$classrooms.classCode',
+		studentNum: { $size: '$classrooms.students' } 
+	}
+
+	Course.getClassrooms(req.params.courseCode, projection, function(err, classrooms){
+		return helper.sendSuccess(res, classrooms);
 	});
 }
 
@@ -74,7 +80,7 @@ module.exports.addStudent = function(req, res){
 }
 
 module.exports.editStudent = function(req, res){
-	//REQUIRES classroom.student._id
+	//REQUIRES classroom.student._id as studentClassID
 	req.checkBody('studentClassID', 'Please include the student\'s first name').isMongoId();
 	req.checkBody('firstName', 'Please include the student\'s first name').notEmpty();
 	req.checkBody('lastName', 'Please include your student\'s last name.').notEmpty();
@@ -99,9 +105,19 @@ module.exports.deleteStudent = function(req, res){
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
 	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.deleteStudent(course, classroom, req.params.studentClassID, function(err){
+		Classroom.deleteStudent(course, classroom, req.params.studentClassID, function(err, studentUserID){
 			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res);
+
+			//delete the user from the course
+			if (typeof studentUserID !== 'undefined'){
+				User.removeCourse(null, studentUserID, course._id, function(err){
+					if (err){ return helper.sendError(res, 400, err) };
+
+					return helper.sendSuccess(res);
+				})
+			}else{
+				return helper.sendSuccess(res);
+			}
 		})
 	});
 }

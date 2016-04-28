@@ -24,7 +24,7 @@
 		</div>
 	</div>
 
-	<div class="row small-spacer">
+	<div class="row small-spacer-bottom">
 		<div class="well assignment-search-well col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1">
 			<div class="list-group" ng-show="assignmentsCtrl.currentFindType === 'search'">
 
@@ -73,7 +73,7 @@
 		</div>
 
 		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-			<ul class="pager" ng-show="assignmentsCtrl.currentFindType === 'all'">
+			<ul class="pager" ng-class="{ 'hidden-space': assignmentsCtrl.currentFindType !== 'all' }">
 				<li class="previous" ng-class="{ 'disabled' : assignmentsCtrl.listPage === 0 }">
 					<a href="#" ng-click="assignmentsCtrl.changePageNum(false)">
 						&larr; A

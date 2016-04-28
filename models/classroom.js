@@ -6,7 +6,7 @@ var mongoose = require('mongoose'),
 
 var classroomSchema = new Schema({
 	name: { type: String, required: true },
-	classCode: { type: String, required: true},
+	classCode: { type: String, required: true },
 	//use this to make API calls to teachers' online gradebooks
 	gradebookProvider: String,
 	gradebookID: String,

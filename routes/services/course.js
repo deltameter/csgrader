@@ -1,7 +1,6 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	User = mongoose.model('User'),
 	Course = mongoose.model('Course'),
 	Assignment = mongoose.model('Assignment'),
 	Classroom = mongoose.model('Classroom'),
@@ -41,6 +40,20 @@ module.exports.getCourseList = function(user, callback){
 	})
 }
 
+module.exports.getClassrooms = function(courseCode, projection, callback){
+	Course.aggregate(
+		{ $match: { courseCode: courseCode } },
+		{ $project: { _id: 0, classrooms: 1 } },
+		{ $unwind: '$classrooms' },
+		{ $project: projection },
+		{ $sort: { name: 1 } },
+		function(err, classrooms){
+			if (err){ return callback(new DescError('An error occured while getting these classrooms.', 400), null) };
+			return callback(null, classrooms);
+		}
+	);
+}	
+
 module.exports.create = function(user, courseInfo, callback){
 	if (user.courses.length >= 10){
 		return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
@@ -57,13 +70,7 @@ module.exports.create = function(user, courseInfo, callback){
 	newCourse.save(function(err, course){
 		if (err) return callback(err, null);
 
-		//Enroll the user in the course
-		user.courses.push(course._id);
-
-		user.save(function(err, user){
-			if (err) return callback(err, null);
-			return callback(null, course._id);
-		});
+		return callback(null, course._id);
 	});
 }
 
@@ -107,8 +114,7 @@ module.exports.register = function(user, course, classCode, regInfo, callback){
 		return callback(new DescError('Invalid password'), 400);
 	}
 
-	if (
-		user.courses.indexOf(course._id) !== -1){
+	if (user.courses.indexOf(course._id) !== -1){
 		return callback(new DescError('Already enrolled'), 400);
 	}
 
@@ -143,22 +149,9 @@ module.exports.register = function(user, course, classCode, regInfo, callback){
 		return callback(new DescError('Already registered'), 400);
 	}
 
-	async.parallel({
-		user: function(callback){
-			user.courses.push(course._id);
-			user.courseCodes.push(course.courseCode);
-			user.save(function(err){
-				callback(err);
-			});
-		},
-		course: function(callback){
-			course.save(function(err){
-				callback(err);
-			});
-		}
-	}, function(err, results){
+	course.save(function(err){
 		if (err) return callback(err);
 
-		return callback(null, { courseCode: course.courseCode });
+		return callback(null, null);
 	});
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose'),
+	User = require(__base + 'routes/services/user'),
 	Course = require(__base + 'routes/services/course'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper');
@@ -34,7 +35,11 @@ module.exports.create = function(req, res){
 	Course.create(req.user, req.body, function(err, courseID){
 		if (err) { return helper.sendError(res, 400, err) };
 
-		return helper.sendSuccess(res, { courseID: courseID });
+		User.addCourse(req.user, null, courseID, function(err){
+			if (err) { return helper.sendError(res, 400, err) };
+
+			return helper.sendSuccess(res, { courseID: courseID });
+		})
 	});
 }
 
@@ -95,7 +100,11 @@ module.exports.register = function(req, res){
 		Course.register(req.user, course, classCode, req.body, function(err){
 			if (err) { return helper.sendError(res, 400, err) };
 
-			return helper.sendSuccess(res);
+			User.addCourse(req.user, null, course._id, function(err){
+				if (err) { return helper.sendError(res, 400, err) };
+
+				return helper.sendSuccess(res);
+			})
 		});
 	})
 }

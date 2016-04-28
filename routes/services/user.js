@@ -33,6 +33,43 @@ module.exports.create = function(req, userInfo, callback){
 	});
 }
 
+module.exports.addCourse = function(user, userID, courseID, callback){
+	function addCourse(user, courseID, callback){
+		user.courses.push(courseID);
+		user.save(function(err, user){
+			if (err) return callback(err, null);
+			return callback(null, courseID);
+		});
+	}
+
+	if (typeof user != 'null'){
+		addCourse(user, courseID, callback);
+	}else{
+		User.findOne({ _id: userID }, function(err, user){
+			addCourse(user, courseID, callback);
+		});
+	}
+}
+
+module.exports.removeCourse = function(user, userID, courseID, callback){
+	function removeCourse(user, courseID, callback){
+		var courseIndex = user.courses.indexOf(course._id);
+		user.courses.splice(courseIndex, 1);
+		user.markModified('courses');
+		user.save();
+
+		return callback(err);
+	}
+
+	if (typeof user != 'null'){
+		removeCourse(user, courseID, callback);
+	}else{
+		User.findOne({ _id: userID }, function(err, user){
+			removeCourse(user, courseID, callback);
+		});
+	}
+}
+
 module.exports.activate = function(user, activationCode, callback){
 	if (typeof user === 'undefined'){
 		return callback(new DescError('You are not logged in!', 401));

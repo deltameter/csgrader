@@ -173,19 +173,7 @@ module.exports.deleteStudent = function(course, classroom, studentClassID, callb
 	course.save(function(err){
 		if (err) return helper.sendError(res, 400, err);
 
-		//remove course from student's courses array
-		if (typeof studentUserID !== 'undefined'){
-			User.findOne({ _id: studentUserID }, function(err, user){
-				var courseIndex = user.courses.indexOf(course._id);
-				user.courses.splice(courseIndex, 1);
-				user.markModified('courses');
-				user.save();
-
-				return callback(err);
-			});
-		}else{
-			return callback(err);
-		}
+		return callback(err, studentUserID);
 	});
 }
 
