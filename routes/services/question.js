@@ -57,7 +57,7 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 			if (edit.fillAnswers[i].length === 0){
 				edit.fillAnswers.splice(i, 1);
 			}else{
-				edit.fillAnswers[i] = edit.fillAnswers[i].toLowerCase().trim();
+				edit.fillAnswers[i] = edit.fillAnswers[i].trim();
 			}
 		}
 	}else if (edit.questionType === 'mc'){

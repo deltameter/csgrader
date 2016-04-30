@@ -3,7 +3,7 @@
 		[
 			'ui.ace',
 			'ui.router',
-			'textAngular',
+			'ui.tinymce',
 			'general',
 			'courses',
 			'classrooms',

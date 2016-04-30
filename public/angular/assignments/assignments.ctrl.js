@@ -192,6 +192,8 @@
 		
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
+		//use to compare and check if the thing has been changed
+		vm.questionSnapshot = {};
 
 		$scope.$on('QUESTION_DELETE', function(event, questionIndex){
 			if (vm.question.questionIndex > questionIndex){
@@ -199,8 +201,16 @@
 			}
 		});
 
+		$scope.$watch('editing', function(editing){
+			//create a snapshot to compare with on save.
+			//this lets us not hammer the server if user hasn't actually made a change
+			if (editing === true){
+				vm.questionSnapshot = JSON.parse(JSON.stringify(vm.question));
+			}
+		});
+
 		this.editQuestion = function(){
-			if ($scope.editForm.$dirty){
+			if (!angular.equals(vm.question, vm.questionSnapshot)){
 				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
 					function Success(res){
 						$scope.editing = false;

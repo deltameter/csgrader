@@ -75,6 +75,22 @@ img.scale-to-fit{
 	padding-right: 35px;
 }
 
+/* Questions */
+.question-edit .config .form-group{
+	margin-left: 50px;
+	margin-right: 50px;
+}
+
+.question-edit .config label{
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+
+.question-edit .config input[type="text"]{
+	width: 30px;
+}
+
 /* Exercises */
 .exercise-button-container{
 	display: inline-block;

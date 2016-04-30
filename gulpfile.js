@@ -13,6 +13,10 @@ gulp.task('js', function () {
 		//Load ui-ace
 		gulp.src('./bower_components/angular-ui-ace/ui-ace.min.js'),
 
+		//load ui-tinymc
+
+		gulp.src('./bower_components/angular-ui-tinymce/dist/tinymce.min.js'),
+		
 		gulp.src('./public/angular/**/*.module.js'),
 		//include everything but the module js
 		gulp.src(['!./public/angular/**/main.min.js', '!./public/angular/**/*.module.js', 

@@ -1,100 +1,108 @@
-<div class="question well">
-	<form class="form-horizontal" name="editForm">
-		<text-angular ng-model="questionEditCtrl.question.question"></text-angular>
-
-		<div class="form-group small-spacer">
-			<label class="col-md-2 control-label">Type of Question</label>
-			<div class="col-md-8">
-				<select class="form-control" ng-model="questionEditCtrl.question.questionType">
-					<option value="fillblank">Fill in the Blank</option>
-					<option value="mc">Multiple Choice</option>
-					<option value="frq">Free Response</option>
-    			</select>
-			</div>
-		</div>
-
+<div class="question-edit panel panel-default">
+	<div class="panel-heading config">
 		<div class="row">
-			<div class="form-group small-spacer col-md-5 col-md-offset-1">
-				<label class="col-md-6 control-label">Points</label>
-				<div class="col-md-6">
-					<input type="text" class="form-control" ng-model="questionEditCtrl.question.pointsWorth"/>
-				</div>
-			</div>
-
-			<div class="form-group small-spacer col-md-5">
-				<label class="col-md-6 control-label">Tries allowed</label>
-				<div class="col-md-6">
-					<input type="text" class="form-control" ng-model="questionEditCtrl.question.triesAllowed"/>
-				</div>
-			</div>
-		</div>
-
-
-		<div class="row" ng-show="questionEditCtrl.question.questionType === 'fillblank'">
-			<div class="form-group small-spacer">
-				<div class="form-group small-spacer" ng-repeat="answer in questionEditCtrl.question.fillAnswers track by $index">
-					<label class="col-md-2 control-label">Acceptable Answer {{ $index + 1 }}</label>
-					<div class="col-xs-8">
-						<input type="text" class="form-control" ng-model="questionEditCtrl.question.fillAnswers[$index]"/>
-					</div>
-					<div class="col-md-1 col-xs-3">
-						<btn class="btn btn-danger btn-block" ng-click="questionEditCtrl.deleteFillAnswer($index)">X</btn>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 small-spacer">
-				<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.addFillAnswer()">Add Answer</btn>
-			</div>
-		</div>
-
-		<div class="row" ng-show="questionEditCtrl.question.questionType === 'mc'">
-			<div class="form-group small-spacer" ng-repeat="answer in questionEditCtrl.question.answerOptions track by $index">
-				<label class="col-md-2 control-label">Choice {{ $index + 1 }}</label>
-				<div class="col-md-8">
-					<input type="text" class="form-control" ng-model="questionEditCtrl.question.answerOptions[$index]"/>
-				</div>
-				<div class="col-md-1 col-xs-3">
-					<btn class="btn btn-danger btn-block" ng-click="questionEditCtrl.deleteMCOption($index)">X</btn>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 small-spacer">
-					<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.addMCOption()">Add Answer</btn>
-				</div>
-			</div>
-			
-			<div class="form-group small-spacer">
-				<label class="col-md-2 control-label">Multiple Choice Answer</label>
-				<div class="col-xs-8">
-					<select class="form-control" 
-						ng-model="questionEditCtrl.question.mcAnswer" 
-						ng-options="questionEditCtrl.question.answerOptions.indexOf(option) as option for option in questionEditCtrl.question.answerOptions">
+			<form class="form-inline">
+				<div class="form-group">
+					<label class="control-label">Question Type</label>
+					<select class="form-control" ng-model="questionEditCtrl.question.questionType">
+						<option value="mc">Multiple Choice</option>
+						<option value="fillblank">Fill in the Blank</option>
+						<option value="frq">Free Response</option>
 					</select>
 				</div>
-			</div>
-		</div>
 
-		<div class="row" ng-show="questionEditCtrl.question.questionType === 'frq'">
-			<div class="form-group small-spacer">
-				<div class=" col-md-4 col-md-offset-4 col-xs-6 col-xs-3">
+				<div class="form-group">
+					<label class="control-label">Attempts Allowed</label>
+
+					<input type="text" class="form-control" ng-model="questionEditCtrl.question.triesAllowed" ng-disabled="questionEditCtrl.question.triesAllowed === -1"/>
+
+					<label class="control-label">or</label>
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" ng-model="questionEditCtrl.question.bIsHomework"/> Grade as Homework
+							<input type="checkbox" ng-model="questionEditCtrl.question.triesAllowed" ng-true-value="-1" ng-false-value=""> unlimited
 						</label>
 					</div>
 				</div>
-			</div>
+
+				<div class="form-group">
+					<label class="control-label">Points</label>
+					<input type="text" class="form-control" ng-model="questionEditCtrl.question.pointsWorth"/>
+				</div>
+
+			</form>
 		</div>
-		<div class="row">
-			<div class="col-md-3 col-md-offset-3 col-xs-6 col-xs-offset-3">
-				<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.editQuestion()">Save</btn>
+	</div>
+
+	<div class="panel-body">
+		<form class="form-horizontal" name="editForm">
+			<textarea ui-tinymce ng-model="questionEditCtrl.question.question"></textarea>
+
+			<div class="row" ng-show="questionEditCtrl.question.questionType === 'fillblank'">
+				<div class="form-group small-spacer">
+					<div class="form-group small-spacer" ng-repeat="answer in questionEditCtrl.question.fillAnswers track by $index">
+						<label class="col-md-2 control-label">Acceptable Answer {{ $index + 1 }}</label>
+						<div class="col-xs-8">
+							<input type="text" class="form-control" ng-model="questionEditCtrl.question.fillAnswers[$index]"/>
+						</div>
+						<div class="col-md-1 col-xs-3">
+							<btn class="btn btn-block" double-click="questionEditCtrl.deleteFillAnswer($index)" double-click-class="btn-warning btn-danger">X</btn>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 small-spacer">
+					<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.addFillAnswer()">Add Answer</btn>
+				</div>
 			</div>
 
-			<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
-				<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteQuestion($index, questionEditCtrl.question.questionIndex, questionEditCtrl.question._id)">Delete</btn>
+			<div class="row" ng-show="questionEditCtrl.question.questionType === 'mc'">
+				<div class="form-group small-spacer" ng-repeat="answer in questionEditCtrl.question.answerOptions track by $index">
+					<label class="col-md-2 control-label">Choice {{ $index + 1 }}</label>
+					<div class="col-md-8">
+						<input type="text" class="form-control" ng-model="questionEditCtrl.question.answerOptions[$index]"/>
+					</div>
+					<div class="col-md-1 col-xs-3">
+						<btn class="btn btn-block" double-click="questionEditCtrl.deleteMCOption($index)" double-click-class="btn-warning btn-danger">X</btn>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 small-spacer">
+						<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.addMCOption()">Add Answer</btn>
+					</div>
+				</div>
+				
+				<div class="form-group small-spacer">
+					<label class="col-md-2 control-label">Multiple Choice Answer</label>
+					<div class="col-xs-8">
+						<select class="form-control" 
+							ng-model="questionEditCtrl.question.mcAnswer" 
+							ng-options="questionEditCtrl.question.answerOptions.indexOf(option) as option for option in questionEditCtrl.question.answerOptions">
+						</select>
+					</div>
+				</div>
 			</div>
-		</div>
-	</form>
+
+			<div class="row" ng-show="questionEditCtrl.question.questionType === 'frq'">
+				<div class="form-group small-spacer">
+					<div class=" col-md-4 col-md-offset-4 col-xs-6 col-xs-3">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" ng-model="questionEditCtrl.question.bIsHomework"/> Grade as Homework
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3 col-md-offset-3 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-primary btn-block" ng-click="questionEditCtrl.editQuestion()">Save</btn>
+				</div>
+
+				<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-block" double-click="assignmentCtrl.deleteQuestion($index, questionEditCtrl.question.questionIndex, questionEditCtrl.question._id)" double-click-class="btn-warning btn-danger">Delete</btn>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
