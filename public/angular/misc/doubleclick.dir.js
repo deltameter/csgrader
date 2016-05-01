@@ -8,6 +8,9 @@
     function doubleClick($document) {
         return {
             restrict: 'A',
+            scope: {
+                doubleClick: '&'
+            },
             link: function($scope, elem, attr) {
                 var classes = attr.doubleClickClass.split(' ');
                 var warningClass = classes[0], dangerClass = classes[1];
@@ -25,14 +28,15 @@
                         }
                         bIsTargeted = false;
                     }else{
-                        if (bIsTargeted === true){
-                            $scope.$eval(attr.doubleClick);
-                        }else{
-                            elem.removeClass(warningClass);
-                            elem.addClass(dangerClass); 
+                        if (bIsTargeted){
+                            $scope.doubleClick();
+                            $scope.$apply();
                         }
 
                         bIsTargeted = !bIsTargeted;
+
+                        elem.removeClass(bIsTargeted ? warningClass : dangerClass);
+                        elem.addClass(bIsTargeted ? dangerClass : warningClass); 
                     }
                 }
 

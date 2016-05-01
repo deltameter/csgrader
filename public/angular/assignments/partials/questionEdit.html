@@ -38,6 +38,7 @@
 			<textarea ui-tinymce ng-model="questionEditCtrl.question.question"></textarea>
 
 			<div class="row" ng-show="questionEditCtrl.question.questionType === 'fillblank'">
+				{{ questionEditCtrl.question.fillAnswers }}
 				<div class="form-group small-spacer">
 					<div class="form-group small-spacer" ng-repeat="answer in questionEditCtrl.question.fillAnswers track by $index">
 						<label class="col-md-2 control-label">Acceptable Answer {{ $index + 1 }}</label>
@@ -45,7 +46,7 @@
 							<input type="text" class="form-control" ng-model="questionEditCtrl.question.fillAnswers[$index]"/>
 						</div>
 						<div class="col-md-1 col-xs-3">
-							<btn class="btn btn-block" double-click="questionEditCtrl.deleteFillAnswer($index)" double-click-class="btn-warning btn-danger">X</btn>
+							<btn class="btn btn-block" double-click="questionEditCtrl.deleteFillAnswer($index)" double-click-class="btn-warning btn-danger"><i class="fa fa-times" aria-hidden="true"></i></btn>
 						</div>
 					</div>
 				</div>
@@ -100,7 +101,7 @@
 				</div>
 
 				<div class="col-md-3 col-md-offset-0 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-block" double-click="assignmentCtrl.deleteQuestion($index, questionEditCtrl.question.questionIndex, questionEditCtrl.question._id)" double-click-class="btn-warning btn-danger">Delete</btn>
+					<btn class="btn btn-block">Delete</btn>
 				</div>
 			</div>
 		</form>
