@@ -145,7 +145,7 @@ describe('Assignment', function(){
 				question: 'Programming is ___',
 				questionType: 'fillblank',
 				pointsWorth: 5,
-				fillAnswers: ['DANK', ' memes '],
+				answers: ['DANK', ' memes '],
 				triesAllowed: 3
 			}
 
@@ -164,7 +164,7 @@ describe('Assignment', function(){
 				question: 'How dank are memes?',
 				questionType: 'mc',
 				pointsWorth: 5,
-				answerOptions: [
+				answers: [
 						'Extremely',
 						'Quite',
 						'Very',
@@ -189,7 +189,7 @@ describe('Assignment', function(){
 				question: 'What\'s the dankest letter?',
 				questionType: 'mc',
 				pointsWorth: 5,
-				answerOptions: [
+				answers: [
 						'A',
 						'B',
 						'C',

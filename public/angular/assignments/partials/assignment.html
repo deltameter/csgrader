@@ -1,7 +1,5 @@
 <div class="container" ng-cloak>
-	{{ assignmentCtrl.assignment.questions[0] }}
 	<div ng-repeat="content in assignmentCtrl.assignment.content">
-		Finished: {{ content.bIsFinished }}
 		<div ng-if="content.type === 'question'">
 			<question ng-show="editing !== true"></question>
 			<question-edit ng-show="editing === true"></question-edit>
@@ -17,7 +15,7 @@
 				<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addQuestion()">Add Question</btn>
 			</div>
 			<div class="col-md-3 col-md-offset-0 col-xs-8 col-xs-offset-2">
-				<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addExercise()">Add Exercise</btn>
+				<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addExercise()"><i class="fa fa-terminal" aria-hidden="true"></i> add exercise</btn>
 			</div>
 		</div>
 		<div class="row med-spacer">

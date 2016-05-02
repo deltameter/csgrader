@@ -42,28 +42,23 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 	var question = assignment.questions[questionIndex];
 
 	//Parse the answers
-	if (edit.questionType === 'fillblank'){
+	if (edit.questionType === 'fillblank' || edit.questionType === 'mc'){
 		//ensure data integrity. answers must be an array
-		if (!Array.isArray(edit.fillAnswers)){
-			return callback(new DescError('Something went wrong with the multiple choice selection.', 400), null);
+		if (!Array.isArray(edit.answers)){
+			return callback(new DescError('Something went wrong with creating answers.', 400), null);
 		}
 
-		if (edit.fillAnswers.length >= 10){
+		if (edit.answers.length >= 10){
 			return callback(new DescError('Must have less than 10 possible answers', 400), null);
 		}
 
 		//Delete empty entries and make other ones more palatable
-		for (var i = edit.fillAnswers.length - 1; i >= 0; i--){
-			if (edit.fillAnswers[i].length === 0){
-				edit.fillAnswers.splice(i, 1);
+		for (var i = edit.answers.length - 1; i >= 0; i--){
+			if (edit.answers[i].length === 0){
+				edit.answers.splice(i, 1);
 			}else{
-				edit.fillAnswers[i] = edit.fillAnswers[i].trim();
+				edit.answers[i] = edit.answers[i].trim();
 			}
-		}
-	}else if (edit.questionType === 'mc'){
-		//ensure data integrity. answers must be an array
-		if (!Array.isArray(edit.answerOptions)){
-			return callback(new DescError('Something went wrong with the multiple choice selection.', 400), null);
 		}
 	}
 
@@ -72,9 +67,8 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 	question.questionType = edit.questionType;
 	question.bIsHomework = edit.bIsHomework;
 	question.pointsWorth = edit.pointsWorth;
-	question.answerOptions = edit.answerOptions;
+	question.answers = edit.answers;
 	question.mcAnswer = edit.mcAnswer;
-	question.fillAnswers = edit.fillAnswers;
 	question.triesAllowed = (edit.triesAllowed === 'unlimited' ? -1 : edit.triesAllowed);
 	
 	assignment.save(function(err, assignment){

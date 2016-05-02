@@ -76,6 +76,29 @@ img.scale-to-fit{
 }
 
 /* Questions */
+.question .panel-heading{
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+.question .panel-title{
+	font-size: 24px
+}
+
+.question .panel-heading .btn{
+	float: right;
+}
+
+.question .panel-body{
+	padding-top: 30px;
+	padding-right: 40px;
+	padding-left: 40px;
+}
+
+.question .question-content p{
+	font-size: 18px;
+}
+
 .question-edit .config .form-group{
 	margin-left: 50px;
 	margin-right: 50px;

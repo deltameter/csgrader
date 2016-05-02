@@ -94,8 +94,8 @@ module.exports.submitQuestionAnswer = function(assignment, submission, questionI
 		}
 	}else if (assignment.questions[i].questionType === 'fillblank'){
 		//if it's in the list of possible answers, it's correct
-		for (var ans = 0; ans < assignment.questions[i].fillAnswers.length; ans++){
-			if (assignment.questions[i].fillAnswers[ans].toLowerCase() === answer.toString().trim().toLowerCase()){
+		for (var ans = 0; ans < assignment.questions[i].answers.length; ans++){
+			if (assignment.questions[i].answers[ans].toLowerCase() === answer.toString().trim().toLowerCase()){
 				bIsCorrect = true;
 				break;
 			}

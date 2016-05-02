@@ -14,12 +14,11 @@ var questionSchema = new Schema({
 
 	bIsHomework: { type: Boolean, default: false }, //automatically grade as correct
 
-	//For MC, this is a list of possible answers.
-	answerOptions: [String],
-	mcAnswer: Number,
+	//For MC or Fillblank, this is a list of possible answers.
+	answers: [String],
 
-	//For fill in the blank, this is a list of correct answers
-	fillAnswers: [String],
+	//the answer index
+	mcAnswer: Number,
 
 	triesAllowed: Number
 });
@@ -41,11 +40,11 @@ questionSchema.pre('save', function(next){
 	 		question.bIsFinished = true;
 
 	 		//fill in the blank requires a list of correct answers
-	 	}else if (question.questionType === 'fillblank' && typeof question.fillAnswers !== undefined){
+	 	}else if (question.questionType === 'fillblank' && typeof question.answers !== undefined){
 	 		question.bIsFinished = true;
 
 	 		//mc requires a list of options, as well as an answer
-	 	}else if (question.questionType === 'mc' && typeof question.answerOptions !== undefined 
+	 	}else if (question.questionType === 'mc' && typeof question.answers !== undefined 
  			&& typeof question.mcAnswer !== 'undefined'){
  			question.bIsFinished = true;
  		}

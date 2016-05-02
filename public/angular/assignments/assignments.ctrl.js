@@ -100,6 +100,28 @@
 			);
 		}
 
+		var chooseClass = function(bIsFinished, bIsCorrect, success, warning, normal){
+			if (bIsFinished && vm.user.role === 'teacher'){
+				return success;
+			}else if (bIsCorrect && vm.user.role === 'student'){
+				return success;
+			}else if (!bIsCorrect && vm.user.role === 'student'){
+				return warning;
+			}else{
+				return normal;
+			}
+
+			return 'jew'
+		}
+
+		this.getPanelClass = function(bIsFinished, bIsCorrect){
+			return chooseClass(bIsFinished, bIsCorrect, 'panel-success', 'panel-warning', 'panel-default');
+		}
+
+		this.getPanelButtonClass = function(bIsFinished, bIsCorrect){
+			return chooseClass(bIsFinished, bIsCorrect, 'btn-default', 'btn-default', 'btn-info');
+		}
+
 		this.openAssignment = function(){
 			AssignmentFactory.openAssignment(vm.courseCode, vm.assignmentID, vm.openInfo).then(
 				function Success(res){
@@ -195,6 +217,14 @@
 		//use to compare and check if the thing has been changed
 		vm.questionSnapshot = {};
 
+		$scope.tinymceOptions = {
+		  	inline: false,
+		    plugins: 'autolink link image code',
+    		toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | image link code',
+		  	skin: 'lightgray',
+		  	theme : 'modern'
+		};
+
 		$scope.$on('QUESTION_DELETE', function(event, questionIndex){
 			if (vm.question.questionIndex > questionIndex){
 				vm.question.questionIndex--;
@@ -222,20 +252,12 @@
 			}
 		}
 
-		this.addFillAnswer = function(){
-			vm.question.fillAnswers.push('');
+		this.addAnswer = function(){
+			vm.question.answers.push('');
 		}
 
-		this.deleteFillAnswer = function(index){
-			vm.question.fillAnswers.splice(index, 1);
-		}
-
-		this.addMCOption = function(){
-			vm.question.answerOptions.push('');
-		}
-
-		this.deleteMCOption = function(index){
-			vm.question.answerOptions.splice(index, 1);
+		this.deleteAnswer = function(index){
+			vm.question.answers.splice(index, 1);
 		}
 	})
 

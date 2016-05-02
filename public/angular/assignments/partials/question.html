@@ -1,42 +1,61 @@
-<div class="question well" ng-click="questionCtrl.focus = true" ng-mouseleave="questionCtrl.focus = false">
-	<div ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
-
-	<div class="row med-spacer">
-		{{ questionCtrl.question }}
-		<h3>Points: {{ questionCtrl.question.pointsWorth }}</h3>
-		
-		<div ng-show="assignmentCtrl.user.role !== 'teacher'">
-			<p>{{ questionCtrl.question.tries }}/{{ questionCtrl.question.triesAllowed }}</p>
-			<p>Correct: {{ questionCtrl.question.bIsCorrect }}</p>
-			<p>Points Earned: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}</p>
+{{ questionCtrl.question }}
+<div class="question panel" ng-class="assignmentCtrl.getPanelClass(questionCtrl.question.bIsFinished, questionCtrl.question.bIsCorrect)">
+	<div class="panel-heading">
+		<div class="row">
+			<div class="col-xs-8">
+				<h3 class="panel-title">
+					Question {{ questionCtrl.question.questionIndex + 1 }}{{ questionCtrl.question.questionType === 'frq' ? ': Free Response' : '' }}{{ questionCtrl.question.questionType === 'mc' ? ': Multiple Choice' : '' }}{{ questionCtrl.question.questionType === 'fillblank' ? ': Fill in the Blank' : '' }}
+				</h3>
+			</div>
+			<div class="col-xs-4">
+				<button class="btn btn-sm" ng-class="assignmentCtrl.getPanelButtonClass(questionCtrl.question.bIsFinished, questionCtrl.question.bIsCorrect)" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="editing = true;">Edit</button>
+			</div>
 		</div>
+	</div>
+	<div class="panel-body">
+		<div class="row question-content">
+			<p class="pull-right">
+				Points: {{ questionCtrl.questions.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
+			</p>
+			<div ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
+		</div>
+		<div class="row med-spacer-bottom">
+		
+			<div ng-show="assignmentCtrl.user.role !== 'teacher'">
+				<p>{{ questionCtrl.question.tries }}/{{ questionCtrl.question.triesAllowed }}</p>
+				<p>Correct: {{ questionCtrl.question.bIsCorrect }}</p>
+				<p>Points Earned: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}</p>
+			</div>
 
-		<div class="form-horizontal">
-			<div ng-show="questionCtrl.question.questionType ==='fillblank'">
-				<div class="form-group">
-					<label for="textArea" class="col-md-2 control-label">Your answer</label>
-					<div class="col-md-8">
-						<input type="text" class="form-control" ng-model="questionCtrl.question.studentAnswer"/>
+			<div class="form-horizontal">
+				<div ng-show="questionCtrl.question.questionType ==='fillblank'">
+					<div class="form-group">
+						<label for="textArea" class="col-md-2 control-label">Your answer</label>
+						<div class="col-md-8">
+							<input type="text" class="form-control" ng-model="questionCtrl.question.studentAnswer"/>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div ng-show="questionCtrl.question.questionType ==='mc'">
-				<div ng-repeat="answer in questionCtrl.question.answerOptions track by $index">
-					<btn class="btn" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-success' : 'btn-primary'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
-				</div>
-			</div>
-			<div ng-show="questionCtrl.question.questionType ==='frq'">
-				<div class="form-group">
-					<label for="textArea" class="col-md-2 control-label">Your answer</label>
-					<div class="col-md-8">
-						<textarea class="form-control" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
+
+				<div ng-show="questionCtrl.question.questionType ==='mc'">
+					<div ng-repeat="answer in questionCtrl.question.answerOptions track by $index">
+						<btn class="btn" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-success' : 'btn-primary'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
 					</div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="questionCtrl.focus">
-					<btn class="btn btn-primary btn-block" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="editing = true;">Edit</btn>
-					<btn class="btn btn-success btn-block" ng-show="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();">Submit</btn>
+
+				<div ng-show="questionCtrl.question.questionType ==='frq'">
+					<div class="form-group">
+						<label for="textArea" class="col-md-2 control-label">Your answer</label>
+						<div class="col-md-8">
+							<textarea class="form-control" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+						<btn class="btn btn-success btn-block" ng-show="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();">Submit</btn>
+					</div>
 				</div>
 			</div>
 		</div>
