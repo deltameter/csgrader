@@ -289,14 +289,33 @@ describe('Assignment', function(){
 
 		it('should accept an edit that finishes the exercise', function(done){
 			var edit = {
+				title: 'Dank Exercise',
 				exerciseIndex: 0,
 				pointsWorth: 10,
 				triesAllowed: 'unlimited',
 				context: 'Create a class called Kang that prints out with a public void speak that returns "WE WUZ KANGZ"',
-				code: { 
-					Main: 'import org.junit.*; public class Main{ public static void main(String[] args){ Kang kang = new Kang();' + 
-					'Assert.assertEquals("JEMAILE", "WE WUZ KANGZ", kang.speak()); }}'
-				}
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang { }'
+					}
+				],
+				tests: [
+					{
+						name: 'SpeakTest',
+						points: 5,
+						description: 'kang.speak() returns correct value',
+						code: 'import org.junit.*; public class SpeakTest{ public static void main(String[] args){ Kang kang = new Kang();' + 
+						'Assert.assertEquals("WE WUZ KANGZ", kang.speak()); }}'
+					},
+					{
+						name: 'HistoryTest',
+						points: 5,
+						description: 'kang.getHistory() returns correct value',
+						code: 'import org.junit.*; public class HistoryTest{ public static void main(String[] args){ Kang kang = new Kang();' + 
+						'Assert.assertEquals("WE WUZ EGYPTIANS AND SHIET", kang.getHistory()); }}'
+					}
+				]
 			}
 
 			testTeacher
@@ -308,15 +327,18 @@ describe('Assignment', function(){
 			});
 		})
 
-		it('should test the assignment', function(done){
+		it('should test the exercise', function(done){
 			this.timeout(5000);
 
 			var test = {
 				exerciseIndex: 0,
 				//hello world in java
-				code: {
-					Kang: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
-				}
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
+					}
+				],
 			}
 
 			testTeacher
@@ -324,6 +346,7 @@ describe('Assignment', function(){
 			.send(test)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
+				expect(res.body.bIsCorrect).to.equal(true);
 				done();
 			});
 		});

@@ -159,14 +159,13 @@ module.exports.submitExerciseAnswer = function(assignment, submission, exerciseI
 		return callback(new DescError('It\'s past the due date!', 400), null);
 	}
 
-	code.Main = assignment.exercises[i].code.Main;
-
 	var options = {
 		uri: config.gradingMachineURL + '/compile',
 		method: 'POST',
 		json: {
 			language: assignment.exercises[i].language.langID,
-			code: code
+			code: code,
+			tests: assignment.exercises[i].tests
 		}
 	};
 

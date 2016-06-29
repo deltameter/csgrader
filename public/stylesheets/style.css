@@ -75,28 +75,32 @@ img.scale-to-fit{
 	padding-right: 35px;
 }
 
-/* Questions */
-.question .panel-heading{
+.assignment .panel-heading{
 	padding-left: 30px;
 	padding-right: 30px;
 }
 
-.question .panel-title{
+.assignment .panel-title{
 	font-size: 24px
 }
 
-.question .panel-heading .btn{
+.assignment .panel-heading .btn{
 	float: right;
 }
 
-.question .panel-body{
+.assignment .panel-body{
 	padding-top: 30px;
 	padding-right: 40px;
 	padding-left: 40px;
 }
 
+/* Questions */
 .question .question-content p{
 	font-size: 18px;
+}
+
+.question textarea{
+	background-color: #fafafa;
 }
 
 .question-edit .config .form-group{
@@ -109,7 +113,6 @@ img.scale-to-fit{
 	margin-right: 20px;
 }
 
-
 .question-edit .config input[type="text"]{
 	width: 30px;
 }
@@ -118,6 +121,40 @@ img.scale-to-fit{
 .exercise-button-container{
 	display: inline-block;
 	margin-right: 5px;
+}
+
+.exercise-edit{
+	min-height: 500px;
+}
+
+.exercise-edit .config .form-inline{
+	padding-left: 70px;
+}
+
+.exercise-edit .config .form-group{
+	margin-left: 50px;
+	margin-right: 50px;
+}
+
+.exercise-edit .config label{
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.exercise-edit .config .small-input{
+	width: 30px;
+}
+
+.btn-file{
+	text-transform: none;
+}
+
+.form-inline .form-control.full-input{
+    width: 100%;
+}
+
+.form-inline .form-control.medium-input{
+	width: 60px;
 }
 
 /* ACE Editor */

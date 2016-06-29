@@ -58,7 +58,7 @@ module.exports.deleteExercise = function(req, res){
 
 module.exports.testExercise = function(req, res){
 	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
-	req.checkBody('code', 'Please include the code').notEmpty();
+	req.checkBody('code', 'Please include the code').isArray();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }

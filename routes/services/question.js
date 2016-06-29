@@ -18,6 +18,30 @@ var verifyAssignmentClosed = function(assignment){
 	}
 }
 
+var checkForCompleteness = function(question){
+	//Mark the question as complete if everything is done.
+	//Assignments can only be opened if all questions are completed.
+	if (typeof question.question !== 'undefined' && typeof question.questionType !== 'undefined'
+	 && typeof question.pointsWorth !== 'undefined' && typeof question.triesAllowed !== 'undefined'){
+
+	 	//FRQ doesn't require anything
+	 	if (question.questionType === 'frq'){
+	 		return true;
+
+	 		//fill in the blank requires a list of correct answers
+	 	}else if (question.questionType === 'fillblank' && typeof question.answers !== undefined){
+	 		return true;
+
+	 		//mc requires a list of options, as well as an answer
+	 	}else if (question.questionType === 'mc' && typeof question.answers !== undefined 
+ 			&& typeof question.mcAnswer !== 'undefined'){
+ 			return true;
+ 		}
+	}
+
+	return false;
+}
+
 module.exports.addQuestion = function(assignment, callback){
 	var authErr = verifyAssignmentClosed(assignment);
 	if (authErr){ return callback(authErr) };
@@ -70,6 +94,7 @@ module.exports.editQuestion = function(assignment, questionIndex, edit, callback
 	question.answers = edit.answers;
 	question.mcAnswer = edit.mcAnswer;
 	question.triesAllowed = (edit.triesAllowed === 'unlimited' ? -1 : edit.triesAllowed);
+	question.bIsFinished = checkForCompleteness(question);
 	
 	assignment.save(function(err, assignment){
 		if (err){ return callback(err, null) }

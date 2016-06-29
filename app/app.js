@@ -31,7 +31,13 @@ module.exports = function(app, passport){
 	
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
-	app.use(expressValidator());
+	app.use(expressValidator({
+		customValidators: {
+			isArray: function(value) {
+				return Array.isArray(value);
+			}
+		}
+	}));
 
 	app.use(express.static(path.join(__base, '/public')));
 	app.use(sessionMiddleware);

@@ -6,9 +6,7 @@ var languages = [
         	langID: 0,
         	language: 'Java',
         	fileExt: '.java'
-        },
-
-        defaultCode: { Main: '//write your unit testing code here\nimport org.junit.*;\n\npublic class Main{\n\tpublic static void main(String[] args){\n\t\t\n\t}\n}' }
+        }
     }
 ]
 

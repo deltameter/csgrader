@@ -33,7 +33,7 @@ module.exports.submitQuestionAnswer = function(req, res){
 
 module.exports.submitExerciseAnswer = function(req, res){
 	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
-	req.checkBody('code', 'Please include the exercise answer').notEmpty();
+	req.checkBody('code', 'Please include the code').isArray();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
@@ -58,7 +58,7 @@ module.exports.submitExerciseAnswer = function(req, res){
 
 module.exports.saveExerciseAnswer = function(req, res){
 	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
-	req.checkBody('code', 'Please include the exercise answer').notEmpty();
+	req.checkBody('code', 'Please include the exercise answer').isArray();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }

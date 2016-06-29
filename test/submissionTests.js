@@ -125,15 +125,38 @@ describe('Submission', function(){
 
 	describe('exercise submission', function(){
 
+		it('should save an exercise answer', function(done){
+
+			var info = {
+				exerciseIndex: 0,
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang{ public String speak(){ return "I AM UNCERTAIN AS TO THE STATUS OF OUR KANGNESS"; } }'
+					}
+				]
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/save')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				done();
+			});
+		});
+
 		it('should not accept an incorrect submission', function(done){
 			//takes a while for the grading machine to get back to us
 			this.timeout(5000);
 			var info = {
 				exerciseIndex: 0,
-				//hello world in java
-				code: {
-					Kang: 'public class Kang{ public String speak(){ return "WE WUZ NOT KANGZ"; } }'
-				}
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ NOT KANGZ"; } }'
+					}
+				]
 			}
 
 			testStudent
@@ -146,34 +169,40 @@ describe('Submission', function(){
 			});
 		});
 
-		it('should save an exercise answer', function(done){
-
-			var info = {
-				exerciseIndex: 0,
-				//hello world in java
-				code: {
-					Kang: 'public class Kang{ public String speak(){ return "I AM UNCERTAIN AS TO THE STATUS OF OUR KANGNESS"; } }'
-				}
-			}
-
-			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/save')
-			.send(info)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				done();
-			});
-		});
-
-		it('should accept a correct submission', function(done){
+		it('should not accept an submission that only passes one test', function(done){
 			//takes a while for the grading machine to get back to us
 			this.timeout(5000);
 			var info = {
 				exerciseIndex: 0,
-				//hello world in java
-				code: {
-					Kang: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
-				}
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
+					}
+				]
+			}
+
+			testStudent
+			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.errors).to.not.equal('');
+				done();
+			});
+		});
+
+		it('should accept a correct submission that satisfies multiple tests', function(done){
+			//takes a while for the grading machine to get back to us
+			this.timeout(5000);
+			var info = {
+				exerciseIndex: 0,
+				code: [
+					{ 
+						name: 'Kang',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
+					}
+				],
 			}
 
 			testStudent

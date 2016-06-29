@@ -1,11 +1,12 @@
 <div class="container" ng-cloak>
-	<div ng-repeat="content in assignmentCtrl.assignment.content">
-		<div ng-if="content.type === 'question'">
-			<question ng-show="editing !== true"></question>
-			<question-edit ng-show="editing === true"></question-edit>
+	<div class="assignment" ng-repeat="content in assignmentCtrl.assignment.content">
+		<div ng-if="content.type === 'question'" ng-init="bIsNormal=true ; bShowNormal=true">
+			<question ng-if="bIsNormal === true" ng-show="bShowNormal === true"></question>
+			<question-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></question-edit>
 		</div>
-		<div ng-if="content.type === 'exercise'">
-			<exercise></exercise>
+		<div ng-if="content.type === 'exercise'" ng-init="bIsNormal=true ; bShowNormal=true">
+			<exercise ng-if="bIsNormal === true" ng-show="bShowNormal === true"></exercise>
+			<exercise-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></exercise-edit>
 		</div>
 	</div>
 

@@ -145,7 +145,9 @@
 			editExercise: editExercise, 
 			testExercise: testExercise,
 			submitExercise: submitExercise,
-			deleteExercise: deleteExercise
+			deleteExercise: deleteExercise,
+			createNewFile: createNewFile,
+			deleteFile: deleteFile
 		};
 
 		function addExercise(courseCode, assignmentID){
@@ -165,30 +167,32 @@
 
 		function editExercise(courseCode, assignmentID, exercise){
 			var exerciseEdit = { 
+				title: exercise.title,
 				exerciseIndex: exercise.exerciseIndex, 
 				context: exercise.context,
 				code: exercise.code,
+				tests: exercise.tests,
 				triesAllowed: exercise.triesAllowed,
 				pointsWorth: exercise.pointsWorth
 			}
 
-			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/edit', exercise);
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/edit', exerciseEdit);
 		}
 
-		function testExercise(courseCode, assignmentID, exercise){
+		function testExercise(courseCode, assignmentID, exerciseIndex, code){
 			var exerciseTest = {
-				exerciseIndex: exercise.exerciseIndex,
-				code: exercise.code
+				exerciseIndex: exerciseIndex,
+				code: code
 			}
 
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/test', exerciseTest);
 
 		}
 
-		function submitExercise(courseCode, assignmentID, exercise){
+		function submitExercise(courseCode, assignmentID, exerciseIndex, code){
 			var submission = {
-				exerciseIndex: exercise.exerciseIndex,
-				code: exercise.code
+				exerciseIndex: exerciseIndex,
+				code: code
 			}
 
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/submit', submission);
@@ -197,6 +201,33 @@
 		function deleteExercise(courseCode, assignmentID, exerciseIndex, exerciseID){
 			var exercise = { exerciseID: exerciseID, exerciseIndex: exerciseIndex };
 			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/delete', exercise);
+		}
+
+		function createNewFile(filename, exercise){
+			//if there is no other file with the same name
+			if (exercise.code.map(function(code){ return code.name }).indexOf(filename) === -1 
+				&& exercise.tests.map(function(test){ return test.name }).indexOf(filename) === -1){
+				return {
+					name: filename,
+					code: '//' + filename
+				}
+			}
+
+			return false;
+		}
+
+		function deleteFile(files, filename){
+			var index = -1;
+			for (var i = 0; i < files.length; i++){
+				if (files[i].name === filename){
+					index = i;
+					break;
+				}
+			}
+
+			files.splice(index, 1);
+
+			return index;
 		}
 	})
 })();

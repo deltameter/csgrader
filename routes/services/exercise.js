@@ -26,8 +26,7 @@ module.exports.addExercise = function(assignment, language, title, callback){
 
 	var newExercise = new Exercise({
 		title: title,
-		language: language.definition,
-		code: language.defaultCode
+		language: language.definition
 	});
 
 	assignment.exercises.push(newExercise);
@@ -45,18 +44,38 @@ module.exports.editExercise = function(assignment, exerciseIndex, edit, callback
 	var authErr = verifyExerciseExists(assignment, exerciseIndex);
 	if (authErr){ return callback(authErr) };
 
-	const i = exerciseIndex;
-	var exercise = assignment.exercises[i];
+	var exercise = assignment.exercises[exerciseIndex];
 
+	exercise.title = edit.title;
 	exercise.context = edit.context;
 	exercise.code = edit.code;
+	exercise.tests = edit.tests;
 	exercise.triesAllowed = edit.triesAllowed === 'unlimited' ? -1 : edit.triesAllowed;
 	exercise.pointsWorth = edit.pointsWorth;
 
+	//If it's not finished, check if it is now finished
+	if (!exercise.bIsFinished){
+		if (exercise.tests.length > 0 && typeof exercise.context !== 'undefined'
+		 && typeof exercise.pointsWorth !== 'undefined' && typeof exercise.triesAllowed !== 'undefined'){
+
+			var bTestsComplete = true;
+
+			for (var i = 0; i < exercise.tests.length; i++){
+				if (typeof exercise.tests[i].description === 'undefined' || typeof exercise.tests[i].pointsWorth !== 'number'){
+					bTestsComplete = false;
+					break;
+				}
+			}
+
+			exercise.bIsFinished = bTestsComplete;
+		}
+	}
+
 	assignment.save(function(err, assignment){
+		console.log(err);
 		if (err){ return callback(err, null) }
 		
-		return callback(null, { bIsFinished: assignment.exercises[i].bIsFinished });
+		return callback(null, { bIsFinished: assignment.exercises[exerciseIndex].bIsFinished });
 	});
 }
 
@@ -82,16 +101,15 @@ module.exports.testExercise = function(assignment, exerciseIndex, code, callback
 	var authErr = verifyExerciseExists(assignment, exerciseIndex);
 	if (authErr){ return callback(authErr) };
 
-	const i = exerciseIndex;
-
-	code.Main = assignment.exercises[i].code.Main;
+	assignment.exercises[exerciseIndex].solutionCode = code;
 
 	var options = {
 		uri: config.gradingMachineURL + '/compile',
 		method: 'POST',
 		json: {
-			language: assignment.exercises[i].language.langID,
-			code: code
+			language: assignment.exercises[exerciseIndex].language.langID,
+			code: code,
+			tests: assignment.exercises[exerciseIndex].tests
 		}
 	};
 
@@ -102,14 +120,10 @@ module.exports.testExercise = function(assignment, exerciseIndex, code, callback
 
 		var bIsCorrect = compilationInfo.errors.length === 0;
 
+		assignment.exercises[exerciseIndex].bIsTested = bIsCorrect;
 		compilationInfo.bIsCorrect = bIsCorrect;
 
-		if (bIsCorrect){
-			assignment.exercises[i].bIsTested = true;
-		}
-
 		assignment.save(function(err, assignment){
-			compilationInfo.bIsFinished = assignment.exercises[i].bIsFinished;
 			return callback(null, compilationInfo);
 		});
 	});

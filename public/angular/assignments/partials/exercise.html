@@ -1,79 +1,60 @@
-<div class="exercise well">
-	{{ exerciseCtrl.exercise }}
-	<div ng-show="assignmentCtrl.user.role !== 'teacher'">
-		<p>{{ exerciseCtrl.exercise.tries }}/{{ exerciseCtrl.exercise.triesAllowed }}</p>
-		<p>Correct: {{ exerciseCtrl.exercise.bIsCorrect }}</p>
-		<p>Points Earned: {{ exerciseCtrl.exercise.pointsEarned }}/{{ exerciseCtrl.exercise.pointsWorth }}</p>
-	</div>
+<div class="exercise panel" ng-class="exerciseCtrl.getPanelClass('panel')">
 
-	<div class="row" ng-show="!exerciseCtrl.editing">
-		<div ta-bind ng-model="exerciseCtrl.exercise.context"></div>
-	</div>
-
-	<form class="form-horizontal" name="editForm" ng-show="exerciseCtrl.editing">
-		<text-angular ng-model="exerciseCtrl.exercise.context"></text-angular>
-
+	<div class="panel-heading">
 		<div class="row">
-			<div class="form-group small-spacer col-md-5 col-md-offset-1">
-				<label class="col-md-6 control-label">Points</label>
-				<div class="col-md-6">
-					<input type="text" class="form-control" ng-model="exerciseCtrl.exercise.pointsWorth"/>
-				</div>
+			<div class="col-xs-8">
+				<h3 class="panel-title">
+					Exercise {{ exerciseCtrl.exercise.exerciseIndex + 1 }}: {{ exerciseCtrl.exercise.title }}
+				</h3>
 			</div>
-
-			<div class="form-group small-spacer col-md-5">
-				<label class="col-md-6 control-label">Tries allowed</label>
-				<div class="col-md-6">
-					<input type="text" class="form-control" ng-model="exerciseCtrl.exercise.triesAllowed"/>
-				</div>
-			</div>
-		</div>
-	</form>
-
-	<pre ng-show="exerciseCtrl.compilationInfo.output.length > 0">Output: {{ exerciseCtrl.compilationInfo.output }}</pre>
-	<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
-
-	<div class="row small-spacer">
-		<div class="col-xs-10 col-xs-offset-1">
-			<div class="col-md-9 col-xs-12">
-				<div class="exercise-button-container" ng-repeat="(file, value) in exerciseCtrl.exercise.code">
-					<btn ng-click="exerciseCtrl.setCurrentFile(file)" class="btn btn-primary">{{ file + exerciseCtrl.exercise.language.fileExt }}</btn>
-					<btn ng-show="exerciseCtrl.editing && exerciseCtrl.currentFile === file" ng-class="exerciseCtrl.startDeleteFile ? 'btn-danger' : 'btn-warning'" ng-click="exerciseCtrl.deleteFile()" class="btn btn-sm">X</btn>
-				</div>
-			</div>
-			<div class="col-md-3 col-xs-6 col-md-offset-0 col-xs-offset-6" ng-show="exerciseCtrl.editing === true">
-				<div class="col-xs-9">
-					<input type="text" ng-model="exerciseCtrl.newFileName" placeholder="New File Name" class="form-control" autocomplete="off">
-				</div>
-				<btn class="btn btn-success" ng-click="exerciseCtrl.addFile()">+</btn>
+			<div class="col-xs-4">
+				<button class="btn btn-sm" ng-class="exerciseCtrl.getPanelClass('button')" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="exerciseCtrl.toggleEdit()">Edit</button>
 			</div>
 		</div>
 	</div>
 
-	<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise.code[exerciseCtrl.currentFile]"></div>
+	<div class="panel-body">
+		<div class="row">
+			<div ng-bind-html="exerciseCtrl.exercise.context | trustAsHTML"></div>
+		</div>
 
-	<div class="row">
-		<div ng-show="assignmentCtrl.user.role === 'teacher'">
-			<div ng-show="exerciseCtrl.editing === false">
-				<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.toggleEdit()">Edit</btn>
+		<pre ng-show="exerciseCtrl.compilationInfo.output.length > 0">Output: {{ exerciseCtrl.compilationInfo.output }}</pre>
+		<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
+
+		<div class="row small-spacer-top">
+			<div class="col-xs-10 col-xs-offset-1">
+				<div class="col-md-9 col-xs-12">
+					<div class="exercise-button-container" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
+
+						<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name + exerciseCtrl.exercise.language.fileExt }}</btn>
+
+						<btn class="btn btn-sm" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-warning btn-danger "ng-show="exerciseCtrl.focusedFileIndex === $index" >X</btn>
+
+					</div>
 				</div>
-				<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()">Test</btn>
+
+				<div class="col-md-3 col-xs-6 col-md-offset-0 col-xs-offset-6">
+					<div class="col-xs-9">
+						<input type="text" ng-model="exerciseCtrl.newFileName" placeholder="New File Name" class="form-control" autocomplete="off">
+					</div>
+					<btn class="btn btn-success" ng-click="exerciseCtrl.addFile()">+</btn>
 				</div>
-			</div>
-			<div ng-show="exerciseCtrl.editing === true">
-				<div class="col-md-4 col-md-offset-2 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-primary btn-block" ng-click="exerciseCtrl.editExercise()">Save</btn>
-				</div>
-				<div class="col-md-4 col-md-offset-0 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-danger btn-block" ng-click="assignmentCtrl.deleteExercise($index, exerciseCtrl.exercise.exerciseIndex, exerciseCtrl.exercise._id)">Delete</btn>
-				</div>
+
 			</div>
 		</div>
 
-		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.user.role !== 'teacher'">
-			<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.submitExercise()">Submit</btn>
+		<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise[exerciseCtrl.focusFileType][exerciseCtrl.focusedFileIndex].code"></div>
+
+		<div class="row small-spacer-bottom">
+			<div ng-show="assignmentCtrl.user.role === 'teacher'">
+				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+					<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()">Test & Save Solution</btn>
+				</div>
+			</div>
+
+			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.user.role !== 'teacher'">
+				<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.submitExercise()">Submit</btn>
+			</div>
 		</div>
 	</div>
 </div>

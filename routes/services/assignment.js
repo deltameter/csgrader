@@ -81,30 +81,30 @@ module.exports.open = function(course, assignment, openInfo, callback){
        return callback(new DescError('Due date must be in the future', 400), null)
     }
 
-	var bIsFinished = true;
+	var bIsComplete = true;
 	var pointsWorth = 0;
 
 	for (var i = 0; i < assignment.questions.length; i++){
 		pointsWorth += assignment.questions[i].pointsWorth;
 		if (!assignment.questions[i].bIsFinished) { 
-			bIsFinished = false;
+			bIsComplete = false;
 			break;
 		}
 	}
 
-	if (!bIsFinished){
+	if (!bIsComplete){
 		return callback(new DescError('Not all questions are finished.', 400), null)
 	}
 
 	for (var i = 0; i < assignment.exercises.length; i++){
 		pointsWorth += assignment.exercises[i].pointsWorth;
-		if (!assignment.exercises[i].bIsFinished) { 
-			bIsFinished = false;
+		if (!assignment.exercises[i].bIsFinished || !assignment.exercises[i].bIsTested) { 
+			bIsComplete = false;
 			break;
 		}
 	}
 
-	if (!bIsFinished){
+	if (!bIsComplete){
 		return callback(new DescError('Not all exercises are finished.', 400), null)
 	}
 

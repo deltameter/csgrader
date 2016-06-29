@@ -1,4 +1,17 @@
 (function(){
+
+	function choosePanelClass(role, bIsFinished, bIsCorrect, classes){
+		if (bIsFinished && role === 'teacher'){
+			return classes.success;
+		}else if (bIsCorrect && role === 'student'){
+			return classes.success;
+		}else if (!bIsCorrect && role === 'student'){
+			return classes.warning;
+		}else{
+			return classes.normal;
+		}
+	}
+
 	angular.module('assignments')
 
 	.controller('AssignmentsController', function($scope, $stateParams, $state, AssignmentFactory){
@@ -100,28 +113,6 @@
 			);
 		}
 
-		var chooseClass = function(bIsFinished, bIsCorrect, success, warning, normal){
-			if (bIsFinished && vm.user.role === 'teacher'){
-				return success;
-			}else if (bIsCorrect && vm.user.role === 'student'){
-				return success;
-			}else if (!bIsCorrect && vm.user.role === 'student'){
-				return warning;
-			}else{
-				return normal;
-			}
-
-			return 'jew'
-		}
-
-		this.getPanelClass = function(bIsFinished, bIsCorrect){
-			return chooseClass(bIsFinished, bIsCorrect, 'panel-success', 'panel-warning', 'panel-default');
-		}
-
-		this.getPanelButtonClass = function(bIsFinished, bIsCorrect){
-			return chooseClass(bIsFinished, bIsCorrect, 'btn-default', 'btn-default', 'btn-info');
-		}
-
 		this.openAssignment = function(){
 			AssignmentFactory.openAssignment(vm.courseCode, vm.assignmentID, vm.openInfo).then(
 				function Success(res){
@@ -176,7 +167,7 @@
 		init();
 	})
 
-	.controller('QuestionController', function($scope, $stateParams, QuestionFactory){
+	.controller('QuestionController', function($scope, $stateParams, $timeout, UserInfo, QuestionFactory){
 		var vm = this;
 
 		vm.courseCode = $stateParams.courseCode;
@@ -184,6 +175,26 @@
 
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
+
+		this.getPanelClass = function(){
+			var classes = {
+				success: 'panel-success',
+				warning: 'panel-warning',
+				normal: 'panel-default'
+			}
+
+			return choosePanelClass(UserInfo.getUser().role, vm.question.bIsFinished, vm.question.bIsCorrect, classes);
+		}
+
+		this.getPanelButtonClass = function(){
+			var classes = {
+				success: 'btn-default',
+				warning: 'btn-default',
+				normal: 'btn-info'
+			}
+
+			return choosePanelClass(UserInfo.getUser().role, vm.question.bIsFinished, vm.question.bIsCorrect, classes);
+		}
 
 		this.submitQuestion = function(){
 			var answer = {
@@ -205,9 +216,21 @@
 				}
 			)
 		}
+
+		this.toggleEdit = function(){
+			$scope.$parent.bIsEditing = true;
+
+			//$scope.$parent becomes null for some reason inside timeout. 
+			var scopeParent = $scope.$parent;
+			$timeout(function(){
+				scopeParent.bShowEdit = true;
+				scopeParent.bIsNormal = false;
+				scopeParent.bShowNormal = false;
+			}, 250);
+		}
 	})
 
-	.controller('QuestionEditController', function($scope, $stateParams, QuestionFactory){
+	.controller('QuestionEditController', function($scope, $stateParams, $timeout, QuestionFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -215,7 +238,7 @@
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
 		//use to compare and check if the thing has been changed
-		vm.questionSnapshot = {};
+		vm.questionSnapshot = JSON.parse(JSON.stringify(vm.question));
 
 		$scope.tinymceOptions = {
 		  	inline: false,
@@ -231,27 +254,6 @@
 			}
 		});
 
-		$scope.$watch('editing', function(editing){
-			//create a snapshot to compare with on save.
-			//this lets us not hammer the server if user hasn't actually made a change
-			if (editing === true){
-				vm.questionSnapshot = JSON.parse(JSON.stringify(vm.question));
-			}
-		});
-
-		this.editQuestion = function(){
-			if (!angular.equals(vm.question, vm.questionSnapshot)){
-				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
-					function Success(res){
-						$scope.editing = false;
-						vm.question.bIsFinished = res.data.bIsFinished;
-					}
-				)
-			}else{
-				$scope.editing = false;
-			}
-		}
-
 		this.addAnswer = function(){
 			vm.question.answers.push('');
 		}
@@ -259,9 +261,36 @@
 		this.deleteAnswer = function(index){
 			vm.question.answers.splice(index, 1);
 		}
+
+		var toggleEdit = function(){
+			$scope.$parent.bIsNormal = true;
+
+			//$scope.$parent becomes null for some reason inside timeout. 
+			var scopeParent = $scope.$parent;
+
+			$timeout(function(){
+				scopeParent.bIsEditing = false;
+				scopeParent.bShowEdit = false;
+				scopeParent.bShowNormal = true;
+			}, 250);
+		}
+
+		this.editQuestion = function(){
+			if (!angular.equals(vm.question, vm.questionSnapshot)){
+				QuestionFactory.editQuestion(vm.courseCode, vm.assignmentID, vm.question).then(
+					function Success(res){
+						vm.question.bIsFinished = res.data.bIsFinished;
+						toggleEdit();
+					}
+				)
+			}else{
+				toggleEdit();
+			}
+		}
+
 	})
 
-	.controller('ExerciseController', function($scope, $stateParams, Config, UserInfo, ExerciseFactory){
+	.controller('ExerciseBaseController', function($scope, $stateParams, Config, UserInfo, ExerciseFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -270,36 +299,20 @@
 		vm.exercise = $scope.$parent.content;
 
 		vm.editing = false;
-		//this object is resolved in the onload option
-		vm.aceEditor = {};
+
 		//info we get after every compilation (output/errors)
 		vm.compilationInfo = {};
 
-		//user has to double click to delete a file
-		vm.startDeleteFile = false;
+		vm.focusFileType = 'tests';
 
-		//select which file to run. Defaults at the file with the unit tests for teachers. 
-		if (UserInfo.getUser().role === 'teacher'){
-			vm.currentFile = 'Main';
-		}else{
-			vm.currentFile = Object.keys(vm.exercise.code)[0];
-		}
-		
-		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
-			if (vm.exercise.exerciseIndex > exerciseIndex){
-				vm.exercise.exerciseIndex--;
-			}
-		});
+		//the index of the currently focused file
+		vm.focusedFileIndex = 0;
 
 		//configure ace
 		vm.aceOptions = {
 			//workerPath: '/bower_components/ace-builds/src-min-noconflict/',
 			//mode: 'java',
 			onLoad: function(aceEditor) {
-				if (UserInfo.getUser().role === 'teacher'){
-			    	aceEditor.setReadOnly(true);
-				}
-
 			    aceEditor.$blockScrolling = Infinity;
 
 			    //Get the ace editor in our controller
@@ -307,66 +320,85 @@
 			}
 		}
 
-		this.toggleEdit = function(){
-			vm.editing = !vm.editing;
-			vm.aceEditor.setReadOnly(!vm.aceEditor.$readOnly);
-		}
+		$scope.$on('EXERCISE_DELETE', function(event, exerciseIndex){
+			if (vm.exercise.exerciseIndex > exerciseIndex){
+				vm.exercise.exerciseIndex--;
+			}
+		});
 
 		this.resetExercise = function(){
-			vm.compilationInfo = {};
+			this.compilationInfo = {};
+		}
+
+		this.swapFocusFileType = function(){
+			//the focus can either be on the tests or the starter code
+			this.focusFileType = this.focusFileType === 'tests' ? 'code' : 'tests';
+			this.focusedFileIndex = 0;
+		}
+
+		this.focusFile = function(index){
+			this.focusedFileIndex = index;
 		}
 
 		this.addFile = function(){
-			if (typeof vm.newFileName === 'undefined' || vm.newFileName.length === 0){
+			if (typeof this.newFileName === 'undefined' || this.newFileName.length === 0){
 				return;
 			}
-			vm.newFileName = vm.newFileName.split('.')[0];
-			vm.exercise.code[vm.newFileName] = '';
-			vm.newFileName = '';
+
+			//remove the extension and create a newfile
+			var newFile = ExerciseFactory.createNewFile(this.newFileName.split('.')[0], this.exercise);
+
+			if (newFile !== false){
+				console.log(this.exercise);
+				this.exercise[this.focusFileType].push(newFile);
+				this.newFileName = '';
+			}
+
 		}
 
-		this.setCurrentFile = function(file){
-			vm.currentFile = file;
-			vm.startDeleteFile = false;
+		this.deleteFile = function(index){
+			//var index = Exercise.deleteFile(this.exercise.code, deleteFile)
+			this.exercise[this.focusFileType].splice(index, 1);
 		}
 
-		this.deleteFile = function(){
-			//Click twice to delete
-			if (!vm.startDeleteFile){
-				vm.startDeleteFile = true;
-				return;
-			}
+	})
 
-			if (vm.currentFile === Config.graderTestFile){
-				return;
-			}
-			
-			var files = Object.keys(vm.exercise.code);
-			var nextFile;
+	.controller('ExerciseController', function($scope, $controller, $timeout, UserInfo, ExerciseFactory){
+		var vm = this;
 
-			for (var i = 0; i < files.length; i++){
-				if (files[i] === vm.currentFile){
-					nextFile = files[Math.max(0, i - 1)];
+		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
+
+		if (UserInfo.getUser().role === 'teacher'){
+			vm.focusFileType = 'solutionCode';
+		}else{
+			console.log(UserInfo)
+			vm.focusFileType = 'code';
+		}
+
+		this.getPanelClass = function(type){
+			var classes;
+			if (type === 'panel'){
+				classes	= {
+					success: 'panel-success',
+					warning: 'panel-warning',
+					normal: 'panel-default'
+				}
+			}else if (type === 'button'){
+				classes = {
+					success: 'btn-default',
+					warning: 'btn-default',
+					normal: 'btn-info'
 				}
 			}
-
-			delete vm.exercise.code[vm.currentFile];
-			vm.currentFile = nextFile;
+	
+			return choosePanelClass(UserInfo.getUser().role, (vm.exercise.bIsFinished && vm.exercise.bIsTested), vm.exercise.bIsCorrect, classes);
 		}
 
-		this.editExercise = function(){
-			ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
-				function Success(res){
-					vm.exercise.bIsFinished = res.data.bIsFinished;
-					vm.toggleEdit();
-				}
-			)
-		}
 
 		this.testExercise = function(){
-			ExerciseFactory.testExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.solutionCode).then(
 				function Success(res){
-					vm.exercise.bIsFinished = res.data.bIsFinished;
+					vm.exercise.bIsTested = res.data.bIsCorrect;
 					vm.compilationInfo.output = res.data.output;
 					vm.compilationInfo.errors = res.data.errors;
 				}
@@ -374,7 +406,7 @@
 		}
 
 		this.submitExercise = function(){
-			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.code).then(
 				function Success(res){
 					var compilationInfo = res.data;
 					vm.compilationInfo.output = compilationInfo.output;
@@ -388,5 +420,53 @@
 				}
 			)
 		}
+
+		this.toggleEdit = function(){
+			$scope.$parent.bIsEditing = true;
+
+			//$scope.$parent becomes null for some reason inside timeout. 
+			var scopeParent = $scope.$parent;
+			$timeout(function(){
+				scopeParent.bShowEdit = true;
+				scopeParent.bIsNormal = false;
+				scopeParent.bShowNormal = false;
+			}, 250);
+		}
+
+	})
+
+	.controller('ExerciseEditController', function($scope, $controller, $timeout, ExerciseFactory){
+		var vm = this;
+
+		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
+
+		vm.exerciseSnapshot = JSON.parse(JSON.stringify(vm.exercise));
+
+		this.editExercise = function(){
+			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
+				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
+					function Success(res){
+						vm.exercise.bIsFinished = res.data.bIsFinished;
+						vm.toggleEdit();
+					}
+				)
+			}else{
+				vm.toggleEdit();
+			}
+		}
+
+		this.toggleEdit = function(){
+			$scope.$parent.bIsNormal = true;
+
+			//$scope.$parent becomes null for some reason inside timeout. 
+			var scopeParent = $scope.$parent;
+
+			$timeout(function(){
+				scopeParent.bIsEditing = false;
+				scopeParent.bShowEdit = false;
+				scopeParent.bShowNormal = true;
+			}, 250);
+		}
+
 	})
 })();
