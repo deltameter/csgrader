@@ -94,6 +94,9 @@ img.scale-to-fit{
 	padding-left: 40px;
 }
 
+.context{
+	font-size: 14px;
+}
 /* Questions */
 .question .question-content p{
 	font-size: 18px;
@@ -118,9 +121,12 @@ img.scale-to-fit{
 }
 
 /* Exercises */
-.exercise-button-container{
-	display: inline-block;
-	margin-right: 5px;
+.exercise-check{
+	color: #4caf50;
+}
+
+.exercise-times{
+	color: #e51c23;
 }
 
 .exercise-edit{
@@ -145,17 +151,26 @@ img.scale-to-fit{
 	width: 30px;
 }
 
+.exercise-button-container{
+	display: inline-block;
+	margin-right: 10px;
+}
+
 .btn-file{
+	min-width: 130px;
 	text-transform: none;
 }
 
-.form-inline .form-control.full-input{
+.exercise-edit .panel-body .form-inline .form-control.full-input{
     width: 100%;
 }
 
-.form-inline .form-control.medium-input{
-	width: 60px;
+.exercise-edit .panel-body label.inline-label {
+	font-size: 16px;
+    line-height: 37px;
+    text-align: right;
 }
+
 
 /* ACE Editor */
 

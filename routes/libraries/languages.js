@@ -1,4 +1,3 @@
-const testFileName = 'Main';
 var languages = [
     {
         //this is saved to the exercise document. 
@@ -19,7 +18,6 @@ var findByString = function(langString){
 }
 
 module.exports = {
-    testFileName: testFileName,
 	languages: languages,
 	findByString: findByString
 }

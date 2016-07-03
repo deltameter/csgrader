@@ -1,24 +1,25 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	Exercise = mongoose.model('Exercise'),
 	httpClient = require('request'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	config = require(__base + 'app/config'),
-	helper = require(__base + 'routes/libraries/helper'),
-	DescError = require(__base + 'routes/libraries/errors').DescError;
+	DescError = require(__base + 'routes/libraries/errors').DescError,
+	helper = require(__base + 'routes/libraries/helper');
 
-var verifyExerciseExists = function(assignment, exerciseIndex){
+function verifyExerciseExists(assignment, exerciseIndex){
 	if (exerciseIndex >= assignment.exercises.length){
 		return new DescError('That exercise does not exist', 404);
 	}
 }
 
-var verifyAssignmentClosed = function(assignment){
+function verifyAssignmentClosed(assignment){
 	if (assignment.bIsOpen){
 		return new DescError('You cannot do this while the assignment is open.', 400);
 	}
 }
+
 
 module.exports.addExercise = function(assignment, language, title, callback){
 	var authErr = verifyAssignmentClosed(assignment);
@@ -96,35 +97,4 @@ module.exports.deleteExercise = function(assignment, exerciseIndex, exerciseID, 
 		return callback(null);
 	});
 }
-
-module.exports.testExercise = function(assignment, exerciseIndex, code, callback){
-	var authErr = verifyExerciseExists(assignment, exerciseIndex);
-	if (authErr){ return callback(authErr) };
-
-	assignment.exercises[exerciseIndex].solutionCode = code;
-
-	var options = {
-		uri: config.gradingMachineURL + '/compile',
-		method: 'POST',
-		json: {
-			language: assignment.exercises[exerciseIndex].language.langID,
-			code: code,
-			tests: assignment.exercises[exerciseIndex].tests
-		}
-	};
-
-	httpClient(options, function(err, httpRes, compilationInfo){
-		if (err){
-			return callback(new DescError('Could not connect to the server. Please try again.', 500), null);
-		}
-
-		var bIsCorrect = compilationInfo.errors.length === 0;
-
-		assignment.exercises[exerciseIndex].bIsTested = bIsCorrect;
-		compilationInfo.bIsCorrect = bIsCorrect;
-
-		assignment.save(function(err, assignment){
-			return callback(null, compilationInfo);
-		});
-	});
-}
+*/

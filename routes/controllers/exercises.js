@@ -1,7 +1,8 @@
 var mongoose = require('mongoose'),
 	Assignment = require(__base + 'routes/services/assignment'),
-	Exercise = require(__base + 'routes/services/exercise'),
+	Exercise = mongoose.model('Exercise'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.addExercise = function(req, res){
@@ -11,12 +12,19 @@ module.exports.addExercise = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
+	const title = req.body.title;
+	const language = languageHelper.findByString(req.body.language);
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		const language = languageHelper.findByString(req.body.language);
+		if (assignment.isAssignmentOpen()){ return helper.sendError(res, 400, new DescError('Can\'t add exercise while the assignment is open')) };
+		
+		var exercise = Exercise.create(language, title);
 
-		Exercise.addExercise(assignment, language, req.body.title, function(err, exercise){
+		assignment.addContent('exercise', exercise);
+
+		assignment.save(function(err){
 			if (err){ return helper.sendError(res, 400, err); }
 			return helper.sendSuccess(res, exercise);
 		});
@@ -29,12 +37,28 @@ module.exports.editExercise = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
+	const exerciseIndex = req.body.exerciseIndex;
+	const editInfo = {
+		title: req.body.title,
+		context: req.body.context,
+		code: req.body.code,
+		tests: req.body.tests,
+		triesAllowed: req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed,
+		pointsWorth: req.body.pointsWorth
+	}
+
 	Assignment.get(req.params.assignmentID, { exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Exercise.editExercise(assignment, req.body.exerciseIndex, req.body, function(err, editInfo){
+		var exercise = assignment.exercises[exerciseIndex];
+
+		exercise.edit(editInfo);
+
+		const bIsFinished = exercise.isFinished()
+
+		assignment.save(function(err){
 			if (err){ return helper.sendError(res, 400, err); }
-			return helper.sendSuccess(res, editInfo);
+			return helper.sendSuccess(res, { bIsFinished: bIsFinished });
 		});
 	});
 }
@@ -46,10 +70,19 @@ module.exports.deleteExercise = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
+	const exerciseIndex = req.body.exerciseIndex;
+	const exerciseID = req.body.exerciseID;
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Exercise.deleteExercise(assignment, req.body.exerciseIndex, req.body.exerciseID, function(err){
+		if (!assignment.doesExerciseExist(exerciseIndex) || assignment.isAssignmentOpen()){
+			return helper.sendError(res, 400, new DescError('That exercise does not exist or the assignment is open and cannot be edited.', 404));
+		}
+
+		assignment.deleteContent('exercise', exerciseIndex, exerciseID);
+
+		assignment.save(function(err){
 			if (err) return helper.sendError(res, 400, err);
 			return helper.sendSuccess(res);
 		})
@@ -63,12 +96,23 @@ module.exports.testExercise = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
+	const exerciseIndex = req.body.exerciseIndex;
+	const code = req.body.code;
+
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Exercise.testExercise(assignment, req.body.exerciseIndex, req.body.code, function(err, compilationInfo){
+		if (!assignment.doesExerciseExist(exerciseIndex)){
+			return helper.sendError(res, 400, new DescError('That exercise does not exist', 404));
+		}
+
+		assignment.exercises[exerciseIndex].runTests(code, function(err, results){
 			if (err){ return helper.sendError(res, 400, err); }
-			return helper.sendSuccess(res, compilationInfo);
-		});
+
+			assignment.exercises[exerciseIndex].saveTeacherSolution(results.bIsCorrect, code);
+			assignment.save();
+			
+			return helper.sendSuccess(res, results);
+		})
 	});
 }

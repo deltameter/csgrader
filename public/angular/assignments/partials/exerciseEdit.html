@@ -62,13 +62,17 @@
 		<div class="row med-spacer-top" ng-show="exerciseEditCtrl.focusFileType === 'tests'">
 			<form class="form-inline">
 				<div class="form-group col-md-8 col-md-offset-1">
-					<label class="control-label">Test Description</label>
-					<input type="text" class="form-control full-input" ng-model="exerciseEditCtrl.exercise.tests[exerciseEditCtrl.focusedFileIndex].description" placeholder="description of the test's behaviour, e.g. calculator.add(3, 2) returns 5"/>
+					<label class="control-label inline-label col-xs-3">Test Description</label>
+					<div class="col-xs-9">
+						<input type="text" class="form-control full-input" ng-model="exerciseEditCtrl.exercise.tests[exerciseEditCtrl.focusedFileIndex].description" placeholder="description of the test's behaviour, e.g. calculator.add(3, 2) returns 5"/>
+					</div>
 				</div>
 
 				<div class="form-group col-md-2 col-md-offset-0">
-					<label class="control-label">Points</label>
-					<input type="text" class="form-control medium-input" ng-model="exerciseEditCtrl.exercise.tests[exerciseEditCtrl.focusedFileIndex].pointsWorth" />
+					<label class="control-label inline-label col-xs-6">Points</label>
+					<div class="col-md-5 col-xs-6">
+						<input type="text" class="form-control full-input" ng-model="exerciseEditCtrl.exercise.tests[exerciseEditCtrl.focusedFileIndex].pointsWorth" />
+					</div>
 				</div>
 			</form>
 		</div>

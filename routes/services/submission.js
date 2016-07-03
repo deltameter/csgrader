@@ -36,7 +36,13 @@ module.exports.create = function(userID, assignment, callback){
 	for (var i = 0; i < assignment.exercises.length; i++){
 		exerciseAnswers[i] = assignment.exercises[i].code;
 
-		delete exerciseAnswers[i][languageHelper.testFileName];
+		//if the file is hidden, don't include when creating the submission
+		for (var j = 0; j < exerciseAnswers.length; j++){
+			if (exerciseAnswers[j].bIsHidden){
+				exerciseAnswers.splice(j, 1);
+				j--;
+			}
+		}
 
 		exerciseTries[i] = 0;
 		exercisesCorrect[i] = false;

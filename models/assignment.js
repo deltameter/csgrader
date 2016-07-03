@@ -10,6 +10,7 @@ const deadlineTypes = 'strict pointloss lenient'.split(' ');
 function contentValidator(val){
 	return (val.indexOf('exercise') === 0 || val.indexOf('question') === 0);
 }
+
 const contentValidation = [contentValidator, '{PATH} must be exercise or question'];
 
 var assignmentSchema = new Schema({
@@ -40,7 +41,7 @@ var assignmentSchema = new Schema({
 	studentSubmissions: [Schema.Types.ObjectId]
 });
 
-assignmentSchema.statics = {
+assignmentSchema.methods = {
 	safeSendStudent: function(assignment){
 		for (var i = 0; i < assignment.questions.length; i++){
 			assignment.questions[i] = Question.safeSendStudent(assignment.questions[i]);
@@ -61,7 +62,38 @@ assignmentSchema.statics = {
 			exercises: assignment.exercises,
 			contentOrder: assignment.contentOrder
 		}
+	},
+
+	addContent: function(contentType, content){
+		var assignment = this;
+
+		assignment[contentType + 's'].push(content);
+		assignment.contentOrder.push(contentType + content._id)
+	},
+
+	deleteContent: function(contentType, contentIndex, contentID){
+		var assignment = this;
+		assignment[contentType + 's'].splice(contentIndex, 1);
+
+		//Splice it out of the content order
+		var contentIndex = assignment.contentOrder.indexOf(contentType + contentID);
+		assignment.contentOrder.splice(contentIndex, 1);
+
+		assignment.markModified('contentOrder');
+	},
+
+	doesQuestionExist: function(questionIndex){
+		return questionIndex < this.questions.length;
+	},
+
+	doesExerciseExist: function(exerciseIndex){
+		return exerciseIndex < this.exercises.length;
+	},
+
+	isAssignmentOpen: function(){
+		return this.bIsOpen;
 	}
+
 }
 
 assignmentSchema.path('pointLoss').validate(function(pointLoss){

@@ -303,14 +303,14 @@ describe('Assignment', function(){
 				tests: [
 					{
 						name: 'SpeakTest',
-						points: 5,
+						pointsWorth: 5,
 						description: 'kang.speak() returns correct value',
 						code: 'import org.junit.*; public class SpeakTest{ public static void main(String[] args){ Kang kang = new Kang();' + 
 						'Assert.assertEquals("WE WUZ KANGZ", kang.speak()); }}'
 					},
 					{
 						name: 'HistoryTest',
-						points: 5,
+						pointsWorth: 5,
 						description: 'kang.getHistory() returns correct value',
 						code: 'import org.junit.*; public class HistoryTest{ public static void main(String[] args){ Kang kang = new Kang();' + 
 						'Assert.assertEquals("WE WUZ EGYPTIANS AND SHIET", kang.getHistory()); }}'

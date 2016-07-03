@@ -36,6 +36,81 @@ questionSchema.statics = {
 			answerOptions: question.answerOptions,
 			triesAllowed: question.triesAllowed
 		}
+	},
+
+	/*
+		@description: returns a new question
+		@return Question: returns a question
+	*/
+
+	create: function(){
+		var newQuestion = new this();
+		return newQuestion;
+	}
+
+}
+
+questionSchema.methods = {
+
+	/*
+		@description: takes an object literal and set's the exercise's keys equal to it's keys
+		@param {Object Literal} editInfo: an object literal containing the changes the user wishes to make
+	*/
+
+	edit: function(editInfo){
+		var question = this;
+
+		//Parse the answers
+		if (editInfo.questionType === 'fillblank' || editInfo.questionType === 'mc'){
+			//ensure data integrity. answers must be an array
+			if (!Array.isArray(editInfo.answers)){
+				return callback(new DescError('Something went wrong with creating answers.', 400), null);
+			}
+
+			if (editInfo.answers.length >= 10){
+				return callback(new DescError('Must have less than 10 possible answers', 400), null);
+			}
+
+			//Delete empty entries and make other ones more palatable
+			for (var i = editInfo.answers.length - 1; i >= 0; i--){
+				if (editInfo.answers[i].length === 0){
+					editInfo.answers.splice(i, 1);
+				}else{
+					editInfo.answers[i] = editInfo.answers[i].trim();
+				}
+			}
+		}
+
+		for(var key in editInfo){
+			question[key] = editInfo[key];
+		}
+	},
+
+	isFinished: function(){
+		var question = this;
+		var bIsFinished = false;
+		//Mark the question as complete if everything is done.
+		//Assignments can only be opened if all questions are completed.
+		if (typeof question.question !== 'undefined' && typeof question.questionType !== 'undefined'
+		 && typeof question.pointsWorth !== 'undefined' && typeof question.triesAllowed !== 'undefined'){
+
+		 	//FRQ doesn't require anything
+		 	if (question.questionType === 'frq'){
+		 		bIsFinished = true;
+
+		 		//fill in the blank requires a list of correct answers
+		 	}else if (question.questionType === 'fillblank' && typeof question.answers !== undefined){
+		 		bIsFinished =  true;
+
+		 		//mc requires a list of options, as well as an answer
+		 	}else if (question.questionType === 'mc' && typeof question.answers !== undefined 
+	 			&& typeof question.mcAnswer !== 'undefined'){
+	 			bIsFinished =  true;
+	 		}
+		}
+
+		question.bIsFinished = bIsFinished;
+		return bIsFinished;
 	}
 }
 

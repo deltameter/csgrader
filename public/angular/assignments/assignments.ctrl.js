@@ -12,6 +12,18 @@
 		}
 	}
 
+	function scrollToElement(element, offset) {
+		var el = angular.element(element)[0]
+	    var top = 0;
+	    do {
+	        top += el.offsetTop  || 0;
+	        el = el.offsetParent;
+	    } while(el)
+
+		window.scrollTo(0, top - offset);
+	}
+
+
 	angular.module('assignments')
 
 	.controller('AssignmentsController', function($scope, $stateParams, $state, AssignmentFactory){
@@ -217,6 +229,14 @@
 			)
 		}
 
+		$scope.$watch('bShowNormal', function(bShowNormal, old){
+			if (bShowNormal && !old) {
+				$timeout(function(){
+					scrollToElement($element, 70);
+				}, 50);
+			}
+		});
+
 		this.toggleEdit = function(){
 			$scope.$parent.bIsEditing = true;
 
@@ -262,6 +282,14 @@
 			vm.question.answers.splice(index, 1);
 		}
 
+		$scope.$watch('bShowEdit', function(bShowEdit, old){
+			if (bShowEdit && !old) {
+				$timeout(function(){
+					scrollToElement($element, 70);
+				}, 50);
+			}
+		});
+		
 		var toggleEdit = function(){
 			$scope.$parent.bIsNormal = true;
 
@@ -363,7 +391,7 @@
 
 	})
 
-	.controller('ExerciseController', function($scope, $controller, $timeout, UserInfo, ExerciseFactory){
+	.controller('ExerciseController', function($scope, $controller, $timeout, UserInfo, $element, ExerciseFactory){
 		var vm = this;
 
 		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
@@ -399,7 +427,7 @@
 			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.solutionCode).then(
 				function Success(res){
 					vm.exercise.bIsTested = res.data.bIsCorrect;
-					vm.compilationInfo.output = res.data.output;
+					vm.compilationInfo.testResults = res.data.testResults;
 					vm.compilationInfo.errors = res.data.errors;
 				}
 			)
@@ -409,7 +437,7 @@
 			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.code).then(
 				function Success(res){
 					var compilationInfo = res.data;
-					vm.compilationInfo.output = compilationInfo.output;
+					vm.compilationInfo.testResults = compilationInfo.testResults;
 					vm.compilationInfo.errors = compilationInfo.errors;
 
 					vm.exercise.tries++;
@@ -420,6 +448,14 @@
 				}
 			)
 		}
+
+		$scope.$watch('bShowNormal', function(bShowNormal, old){
+			if (bShowNormal && !old) {
+				$timeout(function(){
+					scrollToElement($element, 70);
+				}, 50);
+			}
+		});
 
 		this.toggleEdit = function(){
 			$scope.$parent.bIsEditing = true;
@@ -435,7 +471,7 @@
 
 	})
 
-	.controller('ExerciseEditController', function($scope, $controller, $timeout, ExerciseFactory){
+	.controller('ExerciseEditController', function($scope, $controller, $timeout, $element, ExerciseFactory){
 		var vm = this;
 
 		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
@@ -455,6 +491,14 @@
 			}
 		}
 
+		$scope.$watch('bShowEdit', function(bShowEdit, old){
+			if (bShowEdit && !old) {
+				$timeout(function(){
+					scrollToElement($element, 70);
+				}, 50);
+			}
+		});
+
 		this.toggleEdit = function(){
 			$scope.$parent.bIsNormal = true;
 
@@ -467,6 +511,5 @@
 				scopeParent.bShowNormal = true;
 			}, 250);
 		}
-
 	})
 })();

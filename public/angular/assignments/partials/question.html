@@ -12,11 +12,11 @@
 		</div>
 	</div>
 	<div class="panel-body">
-		<div class="row question-content">
+		<div class="row small-spacer col-xs-12 question-content">
 			<p class="pull-right">
 				Points: {{ questionCtrl.questions.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
 			</p>
-			<div ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
+			<div class="context" ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
 		</div>
 
 		<div class="row med-spacer-bottom">

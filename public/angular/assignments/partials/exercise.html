@@ -14,22 +14,19 @@
 	</div>
 
 	<div class="panel-body">
-		<div class="row">
-			<div ng-bind-html="exerciseCtrl.exercise.context | trustAsHTML"></div>
+		<div class="row col-xs-12 small-spacer">
+			<div class="context" ng-bind-html="exerciseCtrl.exercise.context | trustAsHTML"></div>
 		</div>
-
-		<pre ng-show="exerciseCtrl.compilationInfo.output.length > 0">Output: {{ exerciseCtrl.compilationInfo.output }}</pre>
-		<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
 
 		<div class="row small-spacer-top">
 			<div class="col-xs-10 col-xs-offset-1">
 				<div class="col-md-9 col-xs-12">
 					<div class="exercise-button-container" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
+						<div class="btn-group">
+							<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name + exerciseCtrl.exercise.language.fileExt }}</btn>
 
-						<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name + exerciseCtrl.exercise.language.fileExt }}</btn>
-
-						<btn class="btn btn-sm" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-warning btn-danger "ng-show="exerciseCtrl.focusedFileIndex === $index" >X</btn>
-
+							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-default btn-danger "ng-show="exerciseCtrl.focusedFileIndex === $index" >X</btn>
+						</div>
 					</div>
 				</div>
 
@@ -44,6 +41,17 @@
 		</div>
 
 		<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise[exerciseCtrl.focusFileType][exerciseCtrl.focusedFileIndex].code"></div>
+
+		<div class="row col-xs-12 med-spacer-bottom">
+			<div class="well" ng-show="exerciseCtrl.compilationInfo.testResults.length > 0">
+				<div ng-repeat="test in exerciseCtrl.compilationInfo.testResults">
+					<i class="fa fa-check exercise-check" aria-hidden="true" ng-show="test.passed"></i>
+					<i class="fa fa-times exercise-times" aria-hidden="true" ng-hide="test.passed"></i>
+					{{ test.description }}
+				</div>
+			</div>
+			<pre ng-show="exerciseCtrl.compilationInfo.errors.length > 0">Errors: {{ exerciseCtrl.compilationInfo.errors }}</pre>
+		</div>
 
 		<div class="row small-spacer-bottom">
 			<div ng-show="assignmentCtrl.user.role === 'teacher'">
