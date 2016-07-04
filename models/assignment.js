@@ -41,6 +41,93 @@ var assignmentSchema = new Schema({
 	studentSubmissions: [Schema.Types.ObjectId]
 });
 
+assignmentSchema.statics = {
+	/*
+		@description: takes an assignmentID and a projection and returns an assignment
+		@param {MongoID} assignmentID: an object literal containing the changes the user wishes to make
+		@param {Object Literal}: the fields the instigator wants
+		@param {Function Pointer} callback
+		@return (err, assignment)
+	*/
+
+	get: function(assignmentID, projection, callback){
+		var Assignment = this;
+		Assignment.findOne({ _id: assignmentID }, projection, function(err, assignment){
+			if (err || !assignment){ return callback(new DescError('That assignment was not found', 400), null) };
+
+			return callback(null, assignment);
+		});
+	},
+
+	/*
+		@description: aggregates a list of assignments for a certain course
+		@param {Array of MongoIDs} assignments: the list of assignments to aggregate from
+		@param {Object Literal} projection: the fields the instigator wants
+		@param {Function Pointer} callback
+		@return (err, assignments)
+	*/
+
+	getList:  function(assignments, projection, callback){
+		var Assignment = this;
+		Assignment.aggregate(
+			{ $match: { _id: { $in : assignments } } },
+			{ $project: projection },
+			{ $sort: { name : 1 }},
+			function(err, assignments){
+				if (err){ return callback(new DescError('An error occured while searching for assignments.', 400), null) };
+				return callback(null, assignments);
+			}
+		);
+	},
+
+	/*
+		@description: searches for assignments in a course and returns a projection
+		@param {Array of MongoIDs} assignments: the list of assignments to aggregate from
+		@param {String} searchTerms: the keywords the user searched with
+		@param {Number} searchLimit: how many assignments to return
+		@param {Object Literal} projection: the fields the instigator wants
+		@param {Function Pointer} callback
+		@return (err, assignments)
+	*/
+
+	search: function(assignments, searchTerms, searchLimit, projection, callback){
+		var Assignment = this;
+		Assignment.aggregate(
+			{ $match: { _id: { $in : assignments }, $text : { $search: searchTerms } } },
+			{ $limit: searchLimit },
+			{ $project: projection },
+			{ $sort: { name : 1 } },
+			function(err, assignments){
+				if (err){ return callback(new DescError('An error occured while searching for assignments.', 400), null) };
+				return callback(null, assignments);
+			}
+		);
+	},
+
+	/*
+		@description: returns a new 
+		@param {Course} course: the course this assignment belongs to
+		@param {String} name: the name of the assignment
+		@param {String} description: the description of the assignment
+		@return newAssignment
+	*/
+
+	create: function(course, name, description){
+		var Assignment = this;
+		var newAssignment = new Assignment({
+			courseID: course._id,
+			courseCode: course.courseCode,
+			name: name,
+			description: description
+		});
+
+		return newAssignment;
+	}
+
+
+
+}
+
 assignmentSchema.methods = {
 	safeSendStudent: function(assignment){
 		for (var i = 0; i < assignment.questions.length; i++){
@@ -62,6 +149,77 @@ assignmentSchema.methods = {
 			exercises: assignment.exercises,
 			contentOrder: assignment.contentOrder
 		}
+	},
+
+	/*
+		@description: returns a new 
+		@param {String} newName: self explanatory 
+		@param {String} newDescription: self explanatory
+	*/
+
+	edit: function(newName, newDescription){
+		var assignment = this;
+		assignment.name = newName;
+		assignment.description = newDescription;
+	},
+
+	open: function(dueDate, deadlineType, pointLoss, callback){
+		var assignment = this;
+	   	if (assignment.dueDate < Date.now()){
+	       return callback(new DescError('Due date must be in the future', 400), null)
+	    }
+
+		var err = assignment.isContentIncomplete();
+		if (err){ return callback(err, null) }
+
+		assignment.bIsOpen = true;
+		assignment.dueDate = dueDate;
+		assignment.deadlineType = deadlineType.toLowerCase();
+		assignment.pointLoss = pointLoss;
+		assignment.pointsWorth = assignment.calculateTotalPoints();
+
+		assignment.save(function(err, assignment){
+			if (err){ return callback(err, null) };
+			return callback(err, assignment);
+		});
+	},
+
+	isContentIncomplete: function(){
+		var assignment = this;
+		var bIsComplete = true;
+
+		bIsComplete = assignment.questions.every(function(question){
+			return question.bIsFinished;
+		});
+
+		if (!bIsComplete){
+			return callback(new DescError('Not all questions are finished.', 400), null)
+		}
+
+		bIsComplete = assignment.exercises.every(function(question){
+			return question.bIsFinished;
+		});
+
+		if (!bIsComplete){
+			return callback(new DescError('Not all exercises are finished.', 400), null)
+		}
+
+		return false;
+	},
+
+	calculateTotalPoints: function(){
+		var assignment = this;
+		var totalPoints = 0;
+
+		assignment.exercises.forEach(function(exercise){
+			totalPoints += exercise.pointsWorth;
+		});
+
+		assignment.questions.forEach(function(question){
+			totalPoints += question.pointsWorth;
+		});
+
+		return totalPoints;
 	},
 
 	addContent: function(contentType, content){

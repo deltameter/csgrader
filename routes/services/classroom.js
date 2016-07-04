@@ -111,9 +111,7 @@ module.exports.importStudents = function(course, classroom, csvFile, callback){
 			classroom.students.push(newStudent);
 		}
 
-		course.save(function(err, course){
-			return callback(err);
-		});
+		return callback(null);
 	});
 }
 
@@ -178,11 +176,7 @@ module.exports.deleteStudent = function(course, classroom, studentClassID, callb
 }
 
 module.exports.exportGrades = function(course, classroom, assignmentID, callback){
-	var studentIDs = new Array(classroom.students.length);
-
-	for(var i = 0; i < studentIDs.length; i++){
-		studentIDs[i] = classroom.students[i].userID;
-	}
+	const studentIDs = classroom.students.map(function(s){ return s._id });
 
  	async.parallel({
  		submissions: function(callback){

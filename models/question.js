@@ -47,7 +47,6 @@ questionSchema.statics = {
 		var newQuestion = new this();
 		return newQuestion;
 	}
-
 }
 
 questionSchema.methods = {

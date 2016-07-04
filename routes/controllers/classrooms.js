@@ -1,12 +1,15 @@
 'use strict';
 
 const mongoose = require('mongoose'),
-	Classroom = require(__base + 'routes/services/classroom'),
-	Course = require(__base + 'routes/services/course'),
+	Course = mongoose.model('Course'),
+	Classroom = mongoose.model('Classroom'),
+	async = require('async'),
+	User = require(__base + 'routes/services/user'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getClassroom = function(req, res){
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
 		return helper.sendSuccess(res, classroom);
 	});
 }
@@ -18,7 +21,7 @@ module.exports.getClassrooms = function(req, res){
 		studentNum: { $size: '$classrooms.students' } 
 	}
 
-	Course.getClassrooms(req.params.courseCode, projection, function(err, classrooms){
+	Course.getClassroomsList(req.params.courseCode, projection, function(err, classrooms){
 		return helper.sendSuccess(res, classrooms);
 	});
 }
@@ -29,11 +32,17 @@ module.exports.create = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { classrooms: 1 }, function(err, course){
-		Classroom.create(req.user, course, req.body, function(err, newClassroom){
+	const name = req.body.name;
+
+	Course.get(req.params.courseCode, { classrooms: 1 }, function(err, course){
+		var classroom = Classroom.create(req.user, name, course.classrooms)
+
+		course.addClassroom(classroom);
+
+		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res, newClassroom);
-		})
+			return helper.sendSuccess(res, classroom);
+		});
 	});
 }
 
@@ -43,27 +52,34 @@ module.exports.deleteClassroom = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.delete(course, classroom, function(err){
+	const classCode = req.body.classCode;
+
+	Course.get(req.params.courseCode, { classrooms: 1 }, function(err, course){
+		course.deleteClassroom(classCode);
+
+		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) };
 			return helper.sendSuccess(res);
-		})
+		});
 	});
 }
 
 module.exports.importStudents = function(req, res){
 	//REQUIRES classroom.classCode, csv file
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.importStudents(course, classroom, req.file.buffer, function(err){
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+		classroom.addStudentsByCSV(req.file.buffer, function(err){
 			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res);
+
+			course.save(function(err){
+				if (err){ return helper.sendError(res, 400, err) };
+				return helper.sendSuccess(res);
+			})
 		})
 	});
 }
 
 module.exports.addStudent = function(req, res){
 	//REQUIRES classroom._id, student.firstname, student.lastname, student.gradebook
-
 	req.checkBody('firstName', 'Please include the student\'s first name').notEmpty();
 	req.checkBody('lastName', 'Please include your student\'s last name.').notEmpty();
 	req.checkBody('gradebookID', 'Please include your student\'s gradebookID.').notEmpty();
@@ -71,11 +87,16 @@ module.exports.addStudent = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.addStudent(course, classroom, req.body, function(err, newStudent){
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+		if (err){ return helper.sendError(res, 400, err) };
+		if (!course || !classroom){ return helper.sendError(res, 400, new DescError('Course or classroom not found'), 400) }
+
+		var student = classroom.addStudent(req.body);
+
+		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res, newStudent);
-		})
+			return helper.sendSuccess(res, student);
+		});
 	});
 }
 
@@ -89,8 +110,20 @@ module.exports.editStudent = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.editStudent(course, classroom, req.body, function(err){
+	const studentClassID = req.body.studentClassID;
+	const editInfo = {
+		firstName: req.body.firstName,
+		lastName: req.body.lastName,
+		gradebookID: req.body.gradebookID
+	}
+
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+		if (err){ return helper.sendError(res, 400, err) };
+
+		err = classroom.editStudent(studentClassID, editInfo);
+		if (err){ return helper.sendError(res, 400, err) };
+
+		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) };
 			return helper.sendSuccess(res);
 		})
@@ -104,21 +137,37 @@ module.exports.deleteStudent = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.deleteStudent(course, classroom, req.params.studentClassID, function(err, studentUserID){
-			if (err){ return helper.sendError(res, 400, err) };
+	const studentClassID = req.params.studentClassID;
 
-			//delete the user from the course
-			if (typeof studentUserID !== 'undefined'){
-				User.removeCourse(null, studentUserID, course._id, function(err){
-					if (err){ return helper.sendError(res, 400, err) };
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+		if (err){ return helper.sendError(res, 400, err) };
 
-					return helper.sendSuccess(res);
-				})
-			}else{
-				return helper.sendSuccess(res);
+		async.waterfall([
+			//delete user from course
+			function(callback){
+				var deleteUserID = classroom.deleteStudent(studentClassID);
+
+				if (typeof deleteUserID !== 'undefined' && deleteUserID instanceof DescError){
+					return callback(deleteUserID, null)
+				}
+
+				course.save(function(err){
+					return callback(null, deleteUserID)
+				});
+			},
+			//then delete course from user's list
+			function(deleteUserID, callback){
+				if (typeof deleteUserID === 'undefined'){ return callback(null) }
+
+				User.removeCourse(null, deleteUserID, course._id, function(err){
+					return callback(err)
+				});
 			}
-		})
+		], function(err){
+			if (err){ return helper.sendError(res, 400, err) };
+			return helper.sendSuccess(res);
+		});
+
 	});
 }
 
@@ -130,10 +179,41 @@ module.exports.exportGrades = function(req, res){
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
 	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		Classroom.editStudent(course, classroom, req.body.assignmentID, function(err){
-			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res);
-		})
+	 	async.parallel({
+	 		submissions: function(callback){
+				Submission
+				.find({assignmentID: assignmentID, studentID: { $in : studentIDs }},
+				{ studentID: 1, pointsEarned: 1 }, 
+				function(err, submissions){
+					callback(err, submissions);
+				});
+	 		},
+	 		assignment: function(callback){
+	 			Assignment.findOne({_id: assignmentID}, { pointsWorth: 1 }, function(err, assignment){
+	 				callback(err, assignment);
+	 			});
+	 		}
+	 	}, function(err, results){
+	 		var assignment = results.assignment;
+	 		var submissions = results.submissions;
+
+			if (err){
+				return helper.sendError(res, 400, err)
+			}
+
+			if (submissions.length === 0){
+				return helper.sendError(res, 400, new DescError('No submissions for that assignment.', 400));
+			}
+
+			if (!assignment){
+				return helper.sendError(res, 400, new DescError('Assignment does not exist', 400));
+			}
+
+			classroom.exportGrades(assignment, submissions, function(err, completedCSV){
+				if (err){ return helper.sendError(res, 400, err) };
+				return helper.sendSuccess(res, { csv: completedCSV });
+			});
+	 	});
 	});
 }
 

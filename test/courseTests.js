@@ -41,7 +41,7 @@ describe('Course', function(){
 			});
 		});
 
-		it('asdf', function(done){
+		it('should get a user\'s courses', function(done){
 			testTeacher
 			.get('/api/course')
 			.end(function(err, res){
@@ -75,10 +75,11 @@ describe('Course', function(){
 			.send(newClass)
 			.end(function(err, res){
 				if (err) throw err;
-				classroom = res.body;
-				newStudent.classCode = res.body.classCode;
 				expect(res.status).to.equal(200);
 
+				classroom = res.body;
+				newStudent.classCode = res.body.classCode;
+				
 				testTeacher
 				.get('/api/course/smushdapcs/classroom/' + res.body.classCode)
 				.end(function(err, res){

@@ -51,7 +51,7 @@ module.exports.changeInfo = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { name: 1, password: 1 }, function(course, err){
+	Course.get(req.params.courseCode, { name: 1, password: 1 }, function(course, err){
 		if (err) { return helper.sendError(res, 400, err) };
 
 		Course.changeInfo(user, course, req.body, function(err){
@@ -68,7 +68,7 @@ module.exports.delete = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { _id: 1 }, function(course, err){
+	Course.get(req.params.courseCode, { _id: 1 }, function(course, err){
 		if (err) { return helper.sendError(res, 400, err) };
 		
 		Course.changeInfo(user, course, req.body, function(err){
@@ -94,7 +94,7 @@ module.exports.register = function(req, res){
 	const courseCode = identifier.substring(0, identifier.indexOf('-'));
 	const classCode = identifier.substring(identifier.indexOf('-') + 1, identifier.length);
 
-	Course.getCourse(courseCode, { classrooms: 1, password: 1, courseCode: 1 }, function(err, course){
+	Course.get(courseCode, { classrooms: 1, password: 1, courseCode: 1 }, function(err, course){
 		if (err) { return helper.sendError(res, 400, err) };
 
 		Course.register(req.user, course, classCode, req.body, function(err){

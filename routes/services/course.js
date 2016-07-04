@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
 	helper = require(__base + 'routes/libraries/helper'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
-module.exports.getCourse = function(courseCode, projection, callback){
+module.exports.get = function(courseCode, projection, callback){
 	Course.findOne({ courseCode: courseCode }, projection, function(err, course){
 		if (err){ return callback(err) }
 		if (!course){ return callback(new DescError('That course was not found'), 400); }

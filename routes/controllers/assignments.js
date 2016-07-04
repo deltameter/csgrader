@@ -1,8 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	Assignment = require(__base + 'routes/services/assignment'),
-	Course = require(__base + 'routes/services/course'),
+	Assignment = mongoose.model('Assignment'),
+	Course = mongoose.model('Course'),
 	Submission = require(__base + 'routes/services/submission'),
 	helper = require(__base + 'routes/libraries/helper');
 
@@ -11,7 +11,7 @@ module.exports.getAssignment = function(req, res){
 		if (err){ return helper.sendError(res, 400, err); }
 
 		if (req.user.role !== 'teacher'){
-			var studentAssignment = Assignment.safeSendStudent(assignment);
+			var studentAssignment = assignment.safeSendStudent(assignment);
 
 			Submission.get(req.user._id, assignment._id, {}, function(err, submission){
 				if (err){
@@ -36,7 +36,7 @@ module.exports.getAssignment = function(req, res){
 
 module.exports.find = function(req, res){
 	//Want full list, no search terms
-	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+	Course.get(req.params.courseCode, { assignments: 1 }, function(err, course){
 		if (err) return helper.sendError(res, 400, err);
 
 		var searchTerms = req.query.searchTerms;
@@ -50,13 +50,13 @@ module.exports.find = function(req, res){
 		}
 
 		if (typeof searchTerms === 'undefined'){
-			Assignment.getAll(course, searchProjection, function(err, assignments){
+			Assignment.getList(course.assignments, searchProjection, function(err, assignments){
 				if (err) return helper.sendError(res, 400, err);
 
 				return helper.sendSuccess(res, { assignments: assignments });
 			});
 		}else{
-			Assignment.search(course, searchTerms, 5, searchProjection, function(err, assignments){
+			Assignment.search(course.assignments, searchTerms, 5, searchProjection, function(err, assignments){
 				if (err) return helper.sendError(res, 400, err);
 				return helper.sendSuccess(res, { assignments: assignments });
 			});
@@ -71,12 +71,21 @@ module.exports.create = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { courseCode: 1, assignments: 1 }, function(err, course){
+	const name = req.body.name;
+	const description = req.body.description;
+
+	Course.get(req.params.courseCode, { courseCode: 1, assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Assignment.create(course, req.body, function(err, assignmentID){
+		var newAssignment = Assignment.create(course, name, description);
+		
+		newAssignment.save();
+
+		course.addAssignment(newAssignment);
+
+		course.save(function(err){
 			if (err) return helper.sendError(res, 400, err);
-			return helper.sendSuccess(res, { assignmentID: assignmentID });
+			return helper.sendSuccess(res, { assignmentID: newAssignment._id });
 		})
 	}) 
 }
@@ -88,12 +97,16 @@ module.exports.edit = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
+	const name = req.body.name;
+	const description = req.body.description;
+
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Assignment.edit(assignment, req.body, function(err, assignment){
-			if (err){ return helper.sendError(res, 400, err); }
+		assignment.edit(name, description);
 
+		assignment.save(function(err, assignment){
+			if (err){ return helper.sendError(res, 400, err); }
 			return helper.sendSuccess(res, assignment);
 		})
 	});
@@ -110,15 +123,18 @@ module.exports.open = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.getCourse(req.params.courseCode, { openAssignments: 1 }, function(err, course){
+	const dueDate = req.body.dueDate;
+	const deadlineType = req.body.deadlineType;
+	const pointLoss = req.body.pointLoss;
+
+	Course.get(req.params.courseCode, { openAssignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 
 		Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 			if (err){ return helper.sendError(res, 400, err); }
 
-			Assignment.open(course, assignment, req.body, function(err, assignment){
+			assignment.open(dueDate, deadlineType, pointLoss, function(err, assignment){
 				if (err){ return helper.sendError(res, 400, err); }
-
 				return helper.sendSuccess(res, assignment)
 			})
 		});
@@ -126,16 +142,21 @@ module.exports.open = function(req, res){
 }
 
 module.exports.delete = function(req, res){
-	Course.getCourse(req.params.courseCode, { assignments: 1 }, function(err, course){
+	req.checkParams('assignmentID', 'Please include the assignmentID').isMongoId();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const assignmentID = req.params.assignmentID;
+
+	Course.get(req.params.courseCode, { assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 		
-		Assignment.get(req.params.assignmentID, { _id: 1 }, function(err, assignment){
-			if (err){ return helper.sendError(res, 400, err); }
+		course.deleteAssignment(assignmentID);
 
-			Assignment.delete(course, assignment, function(err, newAssignment){
-				if (err) return helper.sendError(res, 400, err);
-				return helper.sendSuccess(res, newAssignment);
-			});
+		course.save(function(err, newAssignment){
+			if (err) return helper.sendError(res, 400, err);
+			return helper.sendSuccess(res);
 		});
 	});
 }

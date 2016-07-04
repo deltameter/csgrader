@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	Question = mongoose.model('Question'),
@@ -119,4 +119,4 @@ module.exports.deleteQuestion = function(assignment, questionIndex, questionID, 
 		return callback(null);
 	});
 
-}
+}*/

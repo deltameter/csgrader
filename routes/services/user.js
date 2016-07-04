@@ -61,7 +61,7 @@ module.exports.removeCourse = function(user, userID, courseID, callback){
 		return callback(err);
 	}
 
-	if (typeof user != 'null'){
+	if (user !== null){
 		removeCourse(user, courseID, callback);
 	}else{
 		User.findOne({ _id: userID }, function(err, user){

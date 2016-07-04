@@ -72,7 +72,7 @@ module.exports.requiresAssignment = function(req, res, next){
 				return helper.sendError(res, 401, 2002, 'You must be enrolled in this course to access it.');
 			}
 
-			if (!assignment.bIsOpen && req.user.role !== 'teacher'){
+			if (!assignment.isAssignmentOpen() && req.user.role !== 'teacher'){
 				return helper.sendError(res, 404, 1001, 'That assignment does not exist or is not available.');
 			}
 
