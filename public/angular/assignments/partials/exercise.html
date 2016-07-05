@@ -25,7 +25,7 @@
 						<div class="btn-group">
 							<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name + exerciseCtrl.exercise.language.fileExt }}</btn>
 
-							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-default btn-danger "ng-show="exerciseCtrl.focusedFileIndex === $index" >X</btn>
+							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger"ng-show="exerciseCtrl.focusedFileIndex === $index"><i class="fa fa-times" aria-hidden="true"></i></btn>
 						</div>
 					</div>
 				</div>

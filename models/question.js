@@ -85,6 +85,29 @@ questionSchema.methods = {
 		}
 	},
 
+	gradeAnswer: function(answer){
+		var question = this;
+		var bIsCorrect = false;
+
+		if (question.bIsHomework){
+			bIsCorrect = true;
+		}else if (question.questionType === 'mc'){
+			if (answer === question.mcAnswer){
+				bIsCorrect = true;
+			}
+		}else if (question.questionType === 'fillblank'){
+			//if it's in the list of possible answers, it's correct
+			for (var ans = 0; ans < question.answers.length; ans++){
+				if (question.answers[ans].toLowerCase() === answer.toString().trim().toLowerCase()){
+					bIsCorrect = true;
+					break;
+				}
+			}
+		}
+
+		return bIsCorrect;
+	},
+
 	isFinished: function(){
 		var question = this;
 		var bIsFinished = false;

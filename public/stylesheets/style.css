@@ -161,6 +161,10 @@ img.scale-to-fit{
 	text-transform: none;
 }
 
+.btn-file-close{
+	background-color: #e6e6e6;
+}
+
 .exercise-edit .panel-body .form-inline .form-control.full-input{
     width: 100%;
 }

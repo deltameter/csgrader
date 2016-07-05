@@ -120,6 +120,24 @@ classroomSchema.methods = {
 		});
 	},
 
+	linkStudentToUser: function(user, gradebookID){
+		//Find the user by their name. 
+		var newStudent = classroom.students.find(function(student){
+			return student.lastName.toLowerCase() === user.lastName.toLowerCase() 
+			&& student.gradebookID === gradebookID;
+		});
+
+		if (!newStudent){
+			return new DescError('Not part of this class', 400);
+		}
+
+		if (typeof newStudent.userID === 'undefined'){
+			newStudent.userID = user._id;
+		}else{
+			return new DescError('Already registered', 400);
+		}
+	},
+
 	editStudent: function(studentID, studentInfo){
 		var classroom = this;
 

@@ -53,7 +53,7 @@ module.exports.addCourse = function(user, userID, courseID, callback){
 
 module.exports.removeCourse = function(user, userID, courseID, callback){
 	function removeCourse(user, courseID, callback){
-		var courseIndex = user.courses.indexOf(course._id);
+		var courseIndex = user.courses.indexOf(courseID);
 		user.courses.splice(courseIndex, 1);
 		user.markModified('courses');
 		user.save();

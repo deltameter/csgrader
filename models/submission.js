@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var submissionSchema = new Schema({
 	studentID: { type: Schema.Types.ObjectId, required: true },
@@ -30,6 +31,7 @@ submissionSchema.index({ studentID: 1, assignmentID: 1 }, { unique: true });
 
 submissionSchema.statics = {
 	get: function(userID, assignmentID, projection, callback){
+		var Submission = this;
 		Submission.findOne({ studentID: userID, assignmentID: assignmentID }, projection, function(err, submission){
 			if (err) { return callback(err, null); }
 			if (!submission) { return callback(new DescError('There is no submission for that user', 404), null); }
@@ -91,11 +93,95 @@ submissionSchema.statics = {
 }
 
 submissionSchema.methods = {
-	recordExerciseAnswer: function(code, exerciseIndex){
-		var submission = this;
-		submission.exerciseAnswers[i] = code;
-	}
 
+	isExerciseLocked: function(exercise, exerciseIndex){
+		var submission = this;
+
+		if (typeof exercise === 'undefined'){
+			return new DescError('Invalid exercise.', 400);
+		}
+
+		//-1 = unlimited
+		if (exercise.triesAllowed !== -1 && submission.exerciseTries[exerciseIndex] >= exercise.triesAllowed){
+			return new DescError('You can\'t try this exercise any more', 400);
+		}
+
+		return false;
+	},
+
+	isQuestionLocked: function(question, questionIndex){
+		var submission = this;
+
+		if (typeof question === 'undefined'){
+			return new DescError('Invalid question.', 400);
+		}
+
+		if (submission.questionsCorrect[questionIndex]){
+			return new DescError('You\'ve already gotten this question correct!', 400);
+		}
+
+		//-1 = unlimited tries
+		if (question.triesAllowed !== -1 && submission.questionTries[questionIndex] >= question.triesAllowed){
+			return new DescError('You can\'t try this question any more', 400);
+		}
+
+		return false;
+	},
+
+	recordQuestionAnswer: function(answer, questionIndex){
+		var submission = this;
+
+		submission.questionAnswers[questionIndex] = answer.toString();
+		submission.questionTries[questionIndex]++;
+		
+		submission.markModified('questionAnswers');
+		submission.markModified('questionTries');
+	},
+
+	recordExerciseAnswer: function(bIsSubmitting, code, exerciseIndex){
+		var submission = this;
+
+		submission.exerciseAnswers[exerciseIndex] = code;
+		submission.markModified('exerciseAnswers');
+
+		//if the user is just saving, don't increase their tries
+		if (bIsSubmitting){
+			submission.exerciseTries[exerciseIndex]++;
+			submission.markModified('exerciseTries');
+		}
+	},
+
+	rewardCorrectQuestion: function(assignment, questionIndex){
+		var submission = this;
+
+		var points = submission.addPoints(assignment, assignment.questions[questionIndex].pointsWorth);
+
+		submission.questionPoints[questionIndex] = points;
+		submission.questionsCorrect[questionIndex] = true;
+		submission.markModified('questionPoints');
+		submission.markModified('questionsCorrect');
+	},
+
+	rewardCorrectExercise: function(assignment, exerciseIndex){
+		var submission = this;
+
+		var points = submission.addPoints(assignment, assignment.exercises[exerciseIndex].pointsWorth);
+
+		submission.exercisePoints[exerciseIndex] = points;
+		submission.exercisesCorrect[exerciseIndex] = true;
+		submission.markModified('exercisePoints');
+		submission.markModified('exercisesCorrect');
+	},
+
+	addPoints: function(assignment, points){
+		//remove points if it's late
+		if (assignment.deadlineType === 'pointloss' && assignment.dueDate < Date.now()){
+			points = points * (assignment.pointLoss / 100);
+		}
+
+		this.pointsEarned += points;
+		return points;
+	}
 }
 
 mongoose.model('Submission', submissionSchema);

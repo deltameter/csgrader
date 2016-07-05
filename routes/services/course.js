@@ -19,7 +19,7 @@ module.exports.get = function(courseCode, projection, callback){
 }
 
 module.exports.getUserCourse = function(user, courseCode, projection, callback){
-	var assignmentFilter = { bIsOpen: true };
+	const assignmentFilter = { bIsOpen: true };
 
 	Course
 	.findOne({ courseCode: courseCode })

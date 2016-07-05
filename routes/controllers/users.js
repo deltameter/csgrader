@@ -1,13 +1,14 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	User = require(__base + 'routes/services/user'),
+	User = mongoose.model('User'),
 	Email = require(__base + 'routes/services/email'),
 	config = require(__base + 'app/config'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getSelf = function(req, res){
-	return res.json(User.safeSend(req.user));
+	return res.json(req.user.safeSend(req.user));
 }
 
 module.exports.logout = function(req, res){
@@ -30,29 +31,35 @@ module.exports.create = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	User.create(req, req.body, function(err){
+	User.create(req.body, function(err, user){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		Email.sendActivationEmail(req.user, function(err, activationCode){
-			if (err){ return helper.sendError(res, 500, err); }
+		req.logIn(user, function(err){
+			Email.sendActivationEmail(req.user, function(err, activationCode){
+				if (err){ return helper.sendError(res, 500, err); }
 
-			//do this so we can easily test if the email activation works.
-			if (config.env === 'test'){
-				return helper.sendSuccess(res, { activationCode: activationCode });
-			}
+				//do this so we can easily test if the email activation works.
+				if (config.env === 'test'){
+					return helper.sendSuccess(res, { activationCode: activationCode });
+				}
 
-			return helper.sendSuccess(res, User.safeSend(req.user));
+				return helper.sendSuccess(res, user.safeSend(req.user));
+			});
 		});
 	})
 }
 
 module.exports.emailActivation = function(req, res){
+	if (!req.isAuthenticated()){
+		return helper.sendError(res, 400, new DescError('You must be logged in to activate your account.', 401));
+	}
+
 	req.checkBody('activationCode', 'Activation code must be included.').notEmpty();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	User.activate(req.user, req.body.activationCode, function(err){
+	req.user.activate(req.body.activationCode, function(err){
 		if (err) { helper.sendError(res, 400, err); }
 		return helper.sendSuccess(res);
 	});

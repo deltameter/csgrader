@@ -4,7 +4,8 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 	bcrypt = require('bcrypt'),
 	async = require('async'),
-	validator = require('validator');
+	validator = require('validator'),
+	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var SALT_LEVELS = 10;
 
@@ -12,7 +13,7 @@ const roles = 'student teacher aide'.split(' ');
 
 var userSchema = new Schema({
 	//Meta info
-	role: { type: String, enum: roles},
+	role: { type: String, enum: roles },
 	bHasActivatedAccount: { type: Boolean, default: false },
 	emailAccessCode: String,
 	bIsBanned: { type: Boolean, default: false },
@@ -95,6 +96,45 @@ userSchema.pre('save', function(next){
 	});
 });
 
+userSchema.statics = {
+	validPassword: function(password){
+		return password.length >= 8 && password.length <= 50;
+	},
+
+	properties: function(user){
+		maxCourses: 10
+	},
+
+	create: function(userInfo, callback){
+		var User = this;
+
+		var newUser = new User({
+			firstName: userInfo.firstName,
+			lastName: userInfo.lastName,
+			password: userInfo.password,
+			email: userInfo.email.toLowerCase(),
+			role: userInfo.role
+		});
+
+		if (userInfo.password !== userInfo.retypePassword || !User.validPassword(userInfo.password)){
+			return callback(new DescError('Passwords must match.'), 400);
+		}
+
+		newUser.save(function(err, user){
+			return callback(err, user);
+		});
+	},
+
+	findByID: function(userID, callback){
+		var User = this;
+		User.findOne({ _id: userID }, function(err, user){
+			if (err){ return callback(err) }
+			if (!user){ return callback(new DescError('That user was not found'), 400); }
+			return callback(null, user);
+		})
+	}
+}
+
 //Used to authenticate users
 userSchema.methods = {
 	checkPassword: function(passwordToCheck, cb){
@@ -102,26 +142,44 @@ userSchema.methods = {
 			if (err) return cb(err);
 			cb(null, bIsPassword)
 		})
-	}
-}
+	},
 
-userSchema.statics = {
 	safeSend: function(user){
 		return {
-			role: user.role,
-			bHasActivatedAccount: user.bHasActivatedAccount,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			courses: user.courses
+			role: this.role,
+			bHasActivatedAccount: this.bHasActivatedAccount,
+			email: this.email,
+			firstName: this.firstName,
+			lastName: this.lastName,
+			courses: this.courses
 		}
 	},
 
-	validPassword: function(password){
-		return password.length >= 8 && password.length <= 50;
+	activate: function(activationCode, callback){
+		var user = this;
+
+		if (user.emailAccessCode == activationCode){
+			user.bHasActivatedAccount = true;
+			user.save(function(err){
+				return callback(null);
+			});
+		}else{
+			return callback(new DescError('Invalid activation code'), 400);
+		}
 	},
-	properties: function(user){
-		maxCourses: 10
+
+	addCourse: function(courseID){
+		var user = this;
+		user.courses.push(courseID);
+	},
+
+	removeCourse: function(courseID){
+		var user = this;
+		var courseIndex = user.courses.indexOf(courseID);
+		user.courses.splice(courseIndex, 1);
+		user.markModified('courses');
 	}
 }
+
 
 mongoose.model('User', userSchema);

@@ -3,6 +3,7 @@
 var mongoose = require('mongoose'),
 	Question = mongoose.model('Question'),
 	Exercise = mongoose.model('Exercise'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	Schema = mongoose.Schema;
 
 const deadlineTypes = 'strict pointloss lenient'.split(' ');
@@ -250,6 +251,14 @@ assignmentSchema.methods = {
 
 	isAssignmentOpen: function(){
 		return this.bIsOpen;
+	},
+
+	isLocked: function(){
+		if(!this.bIsOpen || (this.deadlineType === 'strict'  && this.dueDate < Date.now())){
+			return new DescError('This assignment is currently locked', 400);
+		}
+
+		return false;
 	}
 
 }

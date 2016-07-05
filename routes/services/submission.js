@@ -72,24 +72,6 @@ module.exports.create = function(userID, assignment, callback){
 module.exports.submitQuestionAnswer = function(assignment, submission, questionIndex, answer, callback){
 	const i = questionIndex;
 
-	if (typeof assignment.questions[i] === 'undefined'){
-		return callback(new DescError('Invalid question.', 400), null);
-	}
-
-	if (submission.questionsCorrect[i]){
-		return callback(Error('You\'ve already gotten this question correct!'), null);
-	}
-
-	//-1 = unlimited tries
-	if (assignment.questions[i].triesAllowed !== -1 && 
-		submission.questionTries[i] >= assignment.questions[i].triesAllowed){
-		return callback(Error('You can\'t try this question any more'), null);
-	}
-
-	if (assignment.deadlineType !== 'strict'  && assignment.dueDate < Date.now()){
-		return callback(new DescError('It\'s past the due date!', 400), null);
-	}
-	
 	var bIsCorrect = false;
 
 	if (assignment.questions[i].bIsHomework){
@@ -117,7 +99,7 @@ module.exports.submitQuestionAnswer = function(assignment, submission, questionI
 		}
 
 		submission.pointsEarned += points;
-		submission.questionPoints[i] += points;
+		submission.questionPoints[i] = points;
 		submission.questionsCorrect[i] = true;
 		submission.markModified('questionPoints');
 		submission.markModified('questionsCorrect');
@@ -150,20 +132,6 @@ module.exports.saveExerciseAnswer = function(submission, code, exerciseIndex, ca
 
 module.exports.submitExerciseAnswer = function(assignment, submission, exerciseIndex, code, callback){
 	const i = exerciseIndex;
-
-	if (typeof assignment.exercises[i] === 'undefined'){
-		return callback(new DescError('Invalid exercise.', 400), null);
-	}
-
-	//-1 = unlimited
-	if (assignment.exercises[i].triesAllowed !== -1 && 
-		submission.exerciseTries[i] >= assignment.exercises[i].triesAllowed){
-		return callback(new DescError('You can\'t try this exercise any more', 400), null);
-	}
-
-	if (assignment.deadlineType !== 'strict'  && assignment.dueDate < Date.now()){
-		return callback(new DescError('It\'s past the due date!', 400), null);
-	}
 
 	var options = {
 		uri: config.gradingMachineURL + '/compile',

@@ -45,6 +45,8 @@ describe('User', function(){
 			.end(function(err, res){
 				if (err) throw err;
 				emailActivations.teacher = res.body.activationCode;
+				
+
 				testTeacher.post('/auth/local')
 				.send({ email: 'johndoe@gmail.com', password: 'password1' })
 				.expect(200)
@@ -86,7 +88,8 @@ describe('User', function(){
 	
 	describe('email activation', function(){
 		it('should deny unauthenticated users', function(done){
-			supertest.agent(app)
+			supertest
+			.agent(app)
 			.put('/api/user/emailActivation')
 			.send({ activationCode: 'topkek' })
 			.end(function(err, res){

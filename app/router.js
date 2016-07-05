@@ -45,11 +45,11 @@ module.exports = function(app, passport){
 				if (err){ 
 					return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
 				}
+
 				return users.getSelf(req, res);
 			});
 		})(req, res, next);
 	});
-
 
 	app.get('/api/user', auth.requiresLogin, users.getSelf);
 

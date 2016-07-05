@@ -159,9 +159,11 @@ module.exports.deleteStudent = function(req, res){
 			function(deleteUserID, callback){
 				if (typeof deleteUserID === 'undefined'){ return callback(null) }
 
-				User.removeCourse(null, deleteUserID, course._id, function(err){
-					return callback(err)
-				});
+				User.findByID(deleteUserID, function(err, user){
+					user.removeCourse(course._id);
+					user.save();
+					callback(err);
+				})
 			}
 		], function(err){
 			if (err){ return helper.sendError(res, 400, err) };

@@ -3,6 +3,7 @@
 var mongoose = require('mongoose'),
 	validator = require('validator'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
+	languageHelper = require(__base + 'routes/libraries/languages'),
 	Schema = mongoose.Schema;
 
 var courseSchema = new Schema({
@@ -48,7 +49,30 @@ courseSchema.path('classrooms').validate(function(classrooms){
 }, 'You can only have up to 10 classrooms');
 
 courseSchema.statics = {
-	maxClassrooms: 10,
+	properties: {
+		maxClassrooms: 10
+	},
+	
+	create: function(teacher, courseInfo, callback){
+		var Course = this;
+		if (teacher.courses.length >= Course.properties.maxClassrooms){
+			return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
+		}
+
+		var newCourse = new Course({
+			owner: teacher._id,
+			name: courseInfo.name,
+			courseCode: courseInfo.courseCode.replace(/\s/g, ''),
+			password: courseInfo.password,
+			defaultLanguage: languageHelper.findByString(courseInfo.defaultLanguage).definition.langID
+		});
+
+		newCourse.save(function(err, course){
+			if (err) return callback(err, null);
+
+			return callback(null, course._id);
+		});
+	},
 
 	get: function(courseCode, projection, callback){
 		var Course = this;
@@ -57,6 +81,29 @@ courseSchema.statics = {
 			if (!course){ return callback(new DescError('That course was not found'), 400); }
 			return callback(null, course);
 		})
+	},
+
+	getCourseList: function(courseIDs, projection, callback){
+		var Course = this;
+		Course.find({ _id : { $in : courseIDs }}, projection, function(err, courses){
+			return callback(null, courses);
+		})
+	},
+
+	getWithOpenAssignments: function(courseCode, projection, callback){
+		var Course = this;
+		const assignmentFilter = { bIsOpen: true };
+
+		Course
+		.findOne({ courseCode: courseCode })
+		.select(projection)
+		.populate('owner', 'firstName lastName')
+		.populate('assignments', 'courseID name description', assignmentFilter)
+		.exec(function(err, course){
+			if (err) { return callback(err) }
+			if (!course){ return callback(new DescError('That course was not found'), 400); }
+			return callback(null, course);
+		});
 	},
 
 	getWithClassroom: function(courseCode, classCode, projection, callback){
@@ -95,6 +142,39 @@ courseSchema.statics = {
 }
 
 courseSchema.methods = {
+	edit: function(teacher, editInfo){
+		var course = this;
+		if (course.owner === teacher._id){
+			for(var key in editInfo){
+				course[key] = editInfo[key];
+			}
+		}else{
+			return new DescError('Must be the course owner to do this.', 400);
+		}
+	},
+
+	parseRegistrationCode: function(user, classCode, password){
+		var course = this;
+
+		if (course.password !== password){
+			return new DescError('Invalid password', 400);
+		}
+
+		if (user.courses.indexOf(course._id) !== -1){
+			return new DescError('Already enrolled', 400);
+		}
+
+		var classroom = course.classrooms.find(function(classroom){
+			return classroom.classCode === classCode;
+		})
+
+		if (!classroom){
+			return new DescError('Wrong registration code.', 400);
+		}
+
+		return classroom;
+	},
+
 	addAssignment: function(assignment){
 		var course = this;
 		course.assignments.push(assignment._id);
