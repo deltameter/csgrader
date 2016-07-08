@@ -5,7 +5,28 @@ var mongoose = require('mongoose'),
 	Email = require(__base + 'routes/services/email'),
 	config = require(__base + 'app/config'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
+	passport = require('passport'),
 	helper = require(__base + 'routes/libraries/helper');
+
+module.exports.authenticate = function(req, res, next){
+	passport.authenticate('local', function(err, user, info) {
+		if (err){ 
+			return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
+		}
+
+		if (!user){
+			return helper.sendError(res, 401, 'That user does not exist or you did not enter the correct password.');
+		}
+
+		req.logIn(user, function(err) {
+			if (err){ 
+				return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
+			}
+
+			return module.exports.getSelf(req, res);
+		});
+	})(req, res, next);
+}
 
 module.exports.getSelf = function(req, res){
 	return res.json(req.user.safeSend(req.user));

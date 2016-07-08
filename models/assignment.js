@@ -130,13 +130,15 @@ assignmentSchema.statics = {
 }
 
 assignmentSchema.methods = {
-	safeSendStudent: function(assignment){
+	stripAnswers: function(assignment){
+		var assignment = this;
+
 		for (var i = 0; i < assignment.questions.length; i++){
-			assignment.questions[i] = Question.safeSendStudent(assignment.questions[i]);
+			assignment.questions[i] = assignment.questions[i].stripAnswers();
 		}
 
 		for (var i = 0; i < assignment.exercises.length; i++){
-			assignment.exercises[i] = Exercise.safeSendStudent(assignment.exercises[i]);
+			assignment.exercises[i] = assignment.exercises[i].stripAnswers();
 		}
 
 		return {

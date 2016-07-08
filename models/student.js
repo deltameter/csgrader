@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var studentSchema = new Schema({
 	userID: Schema.Types.ObjectId,

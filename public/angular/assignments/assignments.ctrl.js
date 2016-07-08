@@ -104,7 +104,7 @@
 	})
 
 	.controller('AssignmentController', 
-		function($scope, $stateParams, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
+		function($scope, $stateParams, ModalService, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
 
 		var vm = this;
 		vm.user = UserInfo.getUser();
@@ -125,15 +125,19 @@
 			);
 		}
 
-		this.openAssignment = function(){
-			AssignmentFactory.openAssignment(vm.courseCode, vm.assignmentID, vm.openInfo).then(
-				function Success(res){
-					vm.assignment.bIsOpen = true;
-					vm.assignment.dueDate = vm.openInfo.dueDate;
-					vm.assignment.deadlineType = vm.openInfo.deadlineType;
-					vm.assignment.pointLoss = vm.openInfo.pointLoss;
-				}
-			)
+		this.showOpenModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/assignments/partials/openModal.html',
+				controller: 'OpenModalController',
+				controllerAs: 'openModalCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(result) {
+					vm.assignment.dueDate = result.dueDate;
+					vm.assignment.deadlineType = result.deadlineType;
+					vm.assignment.pointLoss = result.pointLoss;
+				});
+			});
 		}
 
 		this.addQuestion = function(){
@@ -178,8 +182,32 @@
 
 		init();
 	})
+	
+	.controller('OpenModalController', function($scope, $stateParams, close, AssignmentFactory){
+		var vm = this;
+		this.openAssignment = function(){
+			console.log('close')
+			console.log(vm.openInfo)
+			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
+				function Success(data){
+					console.log(data);
+					if (typeof data.userMessage !== 'undefined'){
+						vm.userMessage = data.userMessage;
+					}else{
+						//success so close
+						close(data, 500);
+					}
+				}
+			)
+		}
 
-	.controller('QuestionController', function($scope, $stateParams, $timeout, UserInfo, QuestionFactory){
+		this.cancel = function(){
+			console.log('cancel')
+			console.log(vm.openInfo);
+		}
+	})
+
+	.controller('QuestionController', function($scope, $stateParams, $timeout, $element, UserInfo, QuestionFactory){
 		var vm = this;
 
 		vm.courseCode = $stateParams.courseCode;
@@ -250,7 +278,7 @@
 		}
 	})
 
-	.controller('QuestionEditController', function($scope, $stateParams, $timeout, QuestionFactory){
+	.controller('QuestionEditController', function($scope, $stateParams, $timeout, $element, QuestionFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
@@ -478,6 +506,9 @@
 
 		vm.exerciseSnapshot = JSON.parse(JSON.stringify(vm.exercise));
 
+		//used for ngPattern
+		$scope.onlyNumbers = /^\d+$/;
+
 		this.editExercise = function(){
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
 				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
@@ -510,6 +541,16 @@
 				scopeParent.bShowEdit = false;
 				scopeParent.bShowNormal = true;
 			}, 250);
+		}
+
+		this.recalculateTotalPoints = function(){
+			var totalPoints = 0;
+			vm.exercise.tests.forEach(function(test){
+				if (typeof test.pointsWorth !== 'undefined' && typeof parseInt(test.pointsWorth) === 'number'){
+					totalPoints += parseInt(test.pointsWorth);
+				}
+			})
+			vm.exercise.pointsWorth = totalPoints;
 		}
 	})
 })();

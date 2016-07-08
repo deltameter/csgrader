@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var questionTypes = 'frq fillblank mc'.split(' ');
 
@@ -14,7 +15,7 @@ var questionSchema = new Schema({
 
 	bIsHomework: { type: Boolean, default: false }, //automatically grade as correct
 
-	//For MC or Fillblank, this is a list of possible answers.
+	//For MC or fill in the blank, this is a list of possible answers.
 	answers: [String],
 
 	//the answer index
@@ -28,16 +29,6 @@ questionSchema.path('pointsWorth').validate(function(pointsWorth){
 }, 'The amount of points the question is worth must be >= 0');
 
 questionSchema.statics = {
-	safeSendStudent: function(question){
-		return {
-			question: question.question, //top kek
-			questionType: question.questionType,
-			pointsWorth: question.pointsWorth,
-			answerOptions: question.answerOptions,
-			triesAllowed: question.triesAllowed
-		}
-	},
-
 	/*
 		@description: returns a new question
 		@return Question: returns a question
@@ -50,6 +41,16 @@ questionSchema.statics = {
 }
 
 questionSchema.methods = {
+	stripAnswers: function(){
+		var question = this;
+		return {
+			question: question.question, //top kek
+			questionType: question.questionType,
+			pointsWorth: question.pointsWorth,
+			answers: question.answers,
+			triesAllowed: question.triesAllowed
+		}
+	},
 
 	/*
 		@description: takes an object literal and set's the exercise's keys equal to it's keys

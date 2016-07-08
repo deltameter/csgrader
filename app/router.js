@@ -23,33 +23,13 @@ var multer = require('multer')();
 
 var intervals = require(__base + 'routes/services/intervals');
 
-module.exports = function(app, passport){
-
-
+module.exports = function(app){
 	//******************************
 	//******** USER ROUTES *********
 	//******************************
 	
 	//seperate this out into own function?
-	app.post('/auth/local', function(req, res, next) {
-		passport.authenticate('local', function(err, user, info) {
-			if (err){ 
-				return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
-			}
-
-			if (!user){
-				return helper.sendError(res, 401, 'That user does not exist or you did not enter the correct password.');
-			}
-
-			req.logIn(user, function(err) {
-				if (err){ 
-					return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
-				}
-
-				return users.getSelf(req, res);
-			});
-		})(req, res, next);
-	});
+	app.post('/auth/local', users.authenticate);
 
 	app.get('/api/user', auth.requiresLogin, users.getSelf);
 

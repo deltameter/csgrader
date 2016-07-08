@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-	Assignment = require(__base + 'routes/services/assignment'),
+	Assignment = mongoose.model('Assignment'),
 	Question = mongoose.model('Question'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,

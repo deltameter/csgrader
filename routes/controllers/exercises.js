@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-	Assignment = require(__base + 'routes/services/assignment'),
+	Assignment = mongoose.model('Assignment'),
 	Exercise = mongoose.model('Exercise'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
@@ -43,8 +43,7 @@ module.exports.editExercise = function(req, res){
 		context: req.body.context,
 		code: req.body.code,
 		tests: req.body.tests,
-		triesAllowed: req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed,
-		pointsWorth: req.body.pointsWorth
+		triesAllowed: req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed
 	}
 
 	Assignment.get(req.params.assignmentID, { exercises: 1 }, function(err, assignment){

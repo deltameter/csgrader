@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
@@ -154,4 +154,4 @@ module.exports.register = function(user, course, classCode, regInfo, callback){
 
 		return callback(null, null);
 	});
-}
+}*/

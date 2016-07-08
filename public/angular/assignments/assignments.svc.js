@@ -45,7 +45,7 @@
 					}
 
 					//if a submission is included, load it. This means either a student is loading this,
-					//or a teacher is viewing a student submission
+					//or a teacher/aide is viewing a student submission
 					if (res.data.submission){
 						var submission = res.data.submission;
 
@@ -99,6 +99,9 @@
 		function openAssignment(courseCode, assignmentID, openInfo){
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/open', openInfo).then(
 				function Success(res){
+					return res.data;
+				},
+				function Failure(res){
 					return res.data;
 				}
 			);

@@ -12,11 +12,15 @@
 		</div>
 	</div>
 	<div class="panel-body">
-		<div class="row small-spacer col-xs-12 question-content">
-			<p class="pull-right">
-				Points: {{ questionCtrl.questions.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
-			</p>
-			<div class="context" ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
+		<div class="row small-spacer col-xs-12 question-context">
+			<div class="col-md-9 col-xs-10 col-xs-offset-1">
+				<div class="context" ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
+			</div>
+			<div class="col-md-2 col-md-offset-0 col-xs-6 col-xs-offset-3">
+				<p class="pull-right information">
+					Points: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
+				</p>
+			</div>
 		</div>
 
 		<div class="row med-spacer-bottom">
@@ -24,7 +28,7 @@
 
 				<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-show="questionCtrl.question.questionType ==='mc'">
 					<div class="tiny-spacer" ng-repeat="answer in questionCtrl.question.answers track by $index">
-						<btn class="btn btn-block" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
+						<btn class="btn btn-block btn-normalcase" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
 					</div>
 				</div>
 

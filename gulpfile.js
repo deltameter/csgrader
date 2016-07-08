@@ -8,6 +8,7 @@ var gulp = require('gulp'),
 
 gulp.task('js', function () {
 	streamqueue({ objectMode: true },
+		//DEPENDENCIES
 		//Load Ace
 		gulp.src('./bower_components/ace-builds/src-min-noconflict/ace.js'),
 		//Load ui-ace
@@ -17,6 +18,13 @@ gulp.task('js', function () {
 
 		gulp.src('./bower_components/angular-ui-tinymce/dist/tinymce.min.js'),
 		
+		//load the datepicker
+		gulp.src('./bower_components/moment/moment.js'),
+		gulp.src('./bower_components/angular-datepicker/dist/angular-datepicker.min.js'),
+		//load modal service
+		gulp.src('./bower_components/angular-modal-service/dst/angular-modal-service.min.js'),
+
+		//our code
 		gulp.src('./public/angular/**/*.module.js'),
 		//include everything but the module js
 		gulp.src(['!./public/angular/**/main.min.js', '!./public/angular/**/*.module.js', 

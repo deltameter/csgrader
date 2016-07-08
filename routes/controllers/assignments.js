@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
 	Course = mongoose.model('Course'),
-	Submission = require(__base + 'routes/services/submission'),
+	Submission = mongoose.model('Submission'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getAssignment = function(req, res){
@@ -11,14 +12,13 @@ module.exports.getAssignment = function(req, res){
 		if (err){ return helper.sendError(res, 400, err); }
 
 		if (req.user.role !== 'teacher'){
-			var studentAssignment = assignment.safeSendStudent(assignment);
+			var studentAssignment = assignment.stripAnswers(assignment);
 
 			Submission.get(req.user._id, assignment._id, {}, function(err, submission){
 				if (err){
 					//Could not find a submission by this name. Make one.
-					if (err.name === 'DescError' && err.code === 404){
+					if (err instanceof DescError){
 						Submission.create(req.user._id, assignment, function(err, submission){
-							studentAssignment.submission = submission;
 							return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
 						});
 					}else{
@@ -117,7 +117,7 @@ module.exports.open = function(req, res){
 	req.checkBody('deadlineType', 'Please include the deadline type').notEmpty();
 	
 	if (req.body.deadlineType === 'pointloss'){
-		req.checkBody('pointLoss', 'Please include the % point loss').isInt();
+		req.checkBody('pointLoss', 'Point loss should be an integer from 0-100').isInt({min: 0, max: 100});
 	}
 	
 	var validationErrors = req.validationErrors();

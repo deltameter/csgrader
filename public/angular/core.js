@@ -1,9 +1,14 @@
 (function(){
 	var app = angular.module('grader', 
 		[
+			//dependencies
 			'ui.ace',
 			'ui.router',
 			'ui.tinymce',
+			'datePicker',
+			'angularModalService',
+
+			//our code
 			'general',
 			'courses',
 			'classrooms',

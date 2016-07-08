@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	httpClient = require('request'),
@@ -175,4 +175,4 @@ module.exports.submitExerciseAnswer = function(assignment, submission, exerciseI
 
 		return callback(null, compilationInfo);
 	});
-}
+}*/

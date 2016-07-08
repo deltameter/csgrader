@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
@@ -139,4 +139,4 @@ module.exports.delete = function(course, assignment, callback){
 
 module.exports.safeSendStudent = function(assignment){
 	return assignment;
-}
+}*/

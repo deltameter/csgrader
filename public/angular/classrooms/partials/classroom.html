@@ -8,9 +8,9 @@
 		<h5 class="text-center">{{ classroomCtrl.classroom.students.length }} students</h5>
 	</div>
 
-	<div class="row med-spacer">
+	<div class="row">
 		<ng-form name="studentForm" class="form-horizontal" ng-repeat="student in classroomCtrl.classroom.students track by $index">
-			<div class="form-group">
+			<div class="form-group small-spacer">
 				<label class="col-md-2 col-md-offset-1 control-label">{{ studentForm.$dirty }}</label>
 				<div class="col-md-2">
 					<input type="text" ng-model="student.firstName" class="form-control" autocomplete="off">
@@ -24,7 +24,7 @@
 				<div class="col-md-1">
 					<btn ng-click="classroomCtrl.editStudent(student, studentForm)" ng-show="studentForm.$dirty" class="btn btn-success btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i></btn>
 
-					<btn ng-click="classroomCtrl.deleteStudent(student._id)" class="btn btn-warning btn-sm" ng-class="classroomCtrl.deleteStudentID === student._id ? 'btn-danger' : 'btn-warning'"><i class="fa fa-times" aria-hidden="true"></i></btn>
+					<btn double-click="classroomCtrl.deleteStudent(student._id)" double-click-class="btn-warning btn-danger" class="btn btn-sm"><i class="fa fa-times" aria-hidden="true"></i></btn>
 
 				</div>
 			</div>

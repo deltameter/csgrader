@@ -4,6 +4,7 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 	config = require(__base + 'app/config'),
 	httpClient = require('request'),
+	DescError = require(__base + 'routes/libraries/errors').DescError,
 	languageHelper = require(__base + 'routes/libraries/languages');
 
 var exerciseSchema = new Schema({
@@ -56,22 +57,6 @@ exerciseSchema.pre('validate', function(next){
 });
 
 exerciseSchema.statics = {
-	safeSendStudent: function(exercise){
-		delete exercise.code[languageHelper.testFileName];
-
-		return {
-			title: exercise.title,
-			context: exercise.context,
-			language: {
-				langauge: exercise.language.langauge, 
-				fileExt: exercise.language.fileExt
-			},
-			pointsWorth: exercise.pointsWorth,
-			code: exercise.code,
-			triesAllowed: exercise.triesAllowed
-		}
-	},
-
 	/*
 		@description: takes an object literal and set's the exercise's keys equal to it's keys
 		@param {Object Literal} language: an object containing config info for the language. found in languagehelper.js
@@ -88,6 +73,28 @@ exerciseSchema.statics = {
 }
 
 exerciseSchema.methods = {
+	stripAnswers: function(exercise){
+		var exercise = this;
+
+		exercise.code.forEach(function(code){
+			if (code.bIsHidden){
+				code.code = 'Your teacher has hidden this file.'
+			}
+		});
+
+		return {
+			title: exercise.title,
+			context: exercise.context,
+			language: {
+				langauge: exercise.language.langauge, 
+				fileExt: exercise.language.fileExt
+			},
+			pointsWorth: exercise.pointsWorth,
+			code: exercise.code,
+			triesAllowed: exercise.triesAllowed
+		}
+	},
+
 	/*
 		@description: takes an object literal and set's the exercise's keys equal to it's keys
 		@param {Object Literal} editInfo: an object literal containing the changes the user wishes to make
@@ -99,6 +106,17 @@ exerciseSchema.methods = {
 		for(var key in editInfo){
 			exercise[key] = editInfo[key];
 		}
+
+		//the points the exercise is worth is the cumulative points of the tests
+		var totalPoints = 0;
+
+		exercise.tests.forEach(function(test){
+			if (typeof test.pointsWorth === 'number'){
+				totalPoints += test.pointsWorth;
+			}
+		})
+
+		exercise.pointsWorth = totalPoints;
 	},
 
 	/*

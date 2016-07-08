@@ -12,7 +12,7 @@ var passport = require('passport');
 require('./app/database');
 require('./app/passport')(passport);
 require('./app/app')(app, passport);
-require('./app/router')(app, passport);
+require('./app/router')(app);
 
 //Used for integration tests
 module.exports.app = app; 

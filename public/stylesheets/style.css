@@ -69,6 +69,12 @@ img.scale-to-fit{
 	width: 100%;
 }
 
+/* General */
+
+.btn-normalcase{
+	text-transform: none;
+}
+
 /* Assignments */
 .assignment-search-well{
 	padding-left: 35px;
@@ -94,12 +100,13 @@ img.scale-to-fit{
 	padding-left: 40px;
 }
 
-.context{
-	font-size: 14px;
-}
 /* Questions */
-.question .question-content p{
-	font-size: 18px;
+.question .question-context .context{
+	font-size: 15px;
+}
+
+.question .question-context .information{
+	font-size: 17px;
 }
 
 .question textarea{
@@ -121,6 +128,16 @@ img.scale-to-fit{
 }
 
 /* Exercises */
+
+.exercise .exercise-context .context{
+	font-size: 15px;
+}
+
+.exercise .exercise-tab-bar, .exercise-edit .exercise-tab-bar{
+	padding-left: 50px;
+	padding-right: 50px;
+}
+
 .exercise-check{
 	color: #4caf50;
 }
@@ -157,7 +174,7 @@ img.scale-to-fit{
 }
 
 .btn-file{
-	min-width: 130px;
+	min-width: 120px;
 	text-transform: none;
 }
 

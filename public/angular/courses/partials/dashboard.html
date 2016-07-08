@@ -58,7 +58,12 @@
 
 					<div class="form-group">
 						<div class="col-md-10 col-md-offset-1">
-							<input type="text" ng-model="dashboardCtrl.newCourse.defaultLanguage" ng-pattern="/^[a-zA-Z0-9]*$/" placeholder="Default Language" class="form-control" autocomplete="off">
+							<select class="form-control" ng-model="dashboardCtrl.newCourse.defaultLanguage">
+								<option value="">Select Language</option>
+								<option value="Java">Java</option>
+								<option value="Python2">Python 2</option>
+								<option value="Python3">Python 3</option>
+							</select>
 						</div>
 					</div>
 

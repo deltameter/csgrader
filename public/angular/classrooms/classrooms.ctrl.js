@@ -8,9 +8,6 @@
 		vm.classroom = {};
 		vm.newStudent = {};
 
-		//user clicks twice for this to happen
-		vm.deleteStudentID = '';
-
 		var getClassroom = function(){
 			ClassroomFactory.getClassroom($stateParams.courseCode, $stateParams.classCode).then(
 				function Success(res){
@@ -37,11 +34,6 @@
 		}
 
 		this.deleteStudent = function(studentID){
-			if (vm.deleteStudentID !== studentID){
-				vm.deleteStudentID = studentID;
-				return;
-			}
-
 			StudentFactory.deleteStudent($stateParams.courseCode, $stateParams.classCode, studentID).then(
 				function Success(res){
 					for(var i = 0; i < vm.classroom.students.length; i++){

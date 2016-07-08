@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
@@ -81,4 +81,4 @@ module.exports.activate = function(user, activationCode, callback){
 	}else{
 		return callback(new DescError('Invalid activation code'), 400);
 	}
-}
+}*/

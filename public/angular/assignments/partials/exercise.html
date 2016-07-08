@@ -2,30 +2,43 @@
 
 	<div class="panel-heading">
 		<div class="row">
-			<div class="col-xs-8">
+			<div class="col-xs-7">
 				<h3 class="panel-title">
 					Exercise {{ exerciseCtrl.exercise.exerciseIndex + 1 }}: {{ exerciseCtrl.exercise.title }}
 				</h3>
 			</div>
-			<div class="col-xs-4">
+
+			<div class="col-xs-2">
+			</div>
+			<div class="col-xs-2">
+			</div>
+
+			<div class="col-xs-1">
 				<button class="btn btn-sm" ng-class="exerciseCtrl.getPanelClass('button')" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="exerciseCtrl.toggleEdit()">Edit</button>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-body">
-		<div class="row col-xs-12 small-spacer">
-			<div class="context" ng-bind-html="exerciseCtrl.exercise.context | trustAsHTML"></div>
+		<div class="row small-spacer exercise-context">
+			<div class="col-md-10 col-xs-10 col-xs-offset-1">
+				<div class="context" ng-bind-html="exerciseCtrl.exercise.context | trustAsHTML"></div>
+			</div>
+			<div class="col-md-1 col-md-offset-0 col-xs-6 col-xs-offset-3">
+				<p class="pull-right information">
+					Points: {{ exerciseCtrl.exercise.pointsEarned }}/{{ exerciseCtrl.exercise.pointsWorth }}
+				</p>
+			</div>
 		</div>
 
 		<div class="row small-spacer-top">
-			<div class="col-xs-10 col-xs-offset-1">
+			<div class="col-xs-12 exercise-tab-bar">
 				<div class="col-md-9 col-xs-12">
 					<div class="exercise-button-container" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
 						<div class="btn-group">
 							<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name + exerciseCtrl.exercise.language.fileExt }}</btn>
 
-							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger"ng-show="exerciseCtrl.focusedFileIndex === $index"><i class="fa fa-times" aria-hidden="true"></i></btn>
+							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseCtrl.focusedFileIndex === $index"><i class="fa fa-times" aria-hidden="true"></i></btn>
 						</div>
 					</div>
 				</div>

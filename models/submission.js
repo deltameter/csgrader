@@ -39,7 +39,7 @@ submissionSchema.statics = {
 		})
 	},
 
-	create: function(userID, assignment){
+	create: function(userID, assignment, callback){
 		var Submission = this;
 
 		var questionAnswers = new Array(assignment.questions.length),
@@ -88,7 +88,9 @@ submissionSchema.statics = {
 			exercisePoints: exercisePoints
 		});
 
-		return newSubmission;
+		newSubmission.save(function(err, submission){
+			return callback(err, submission);
+		})
 	}
 }
 
