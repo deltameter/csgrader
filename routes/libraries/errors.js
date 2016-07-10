@@ -13,15 +13,19 @@ DescError.prototype.constructor = DescError;
 module.exports.DescError = DescError;
 
 module.exports.parseErr = function(err) {
+	var userMessage; 
 	//A validation err from express-validator
 	if (Array.isArray(err)){
-		var errorString = '';
 		for (var i = 0; i < err.length; i++){
-			errorString += err[i].msg;
-			errorString += '\n';
+			userMessage += err[i].msg;
+			userMessage += '\n';
 		}
-		err = errorString;
 	}
 
-	return err;
+	//a desc err
+	else if (err instanceof DescError){
+		userMessage = err.message;
+	}
+
+	return userMessage;
 }

@@ -21,20 +21,23 @@
                 elem.addClass(warningClass);
 
                 var checkClick = function(event){
-                    if(!elem[0].contains(event.target)){
+                    var clickedOnThis = elem[0].contains(event.target);
+                    var leftClicked = event.button == 0;
+
+                    if(!clickedOnThis || !leftClicked){
                         if (bIsTargeted){
                             elem.removeClass(dangerClass);
                             elem.addClass(warningClass); 
+                            bIsTargeted = false;
                         }
-                        bIsTargeted = false;
                     }else{
                         if (bIsTargeted){
                             $scope.doubleClick();
                             $scope.$apply();
                         }
 
-                        bIsTargeted = !bIsTargeted;
-
+                        bIsTargeted = true;
+                        
                         elem.removeClass(bIsTargeted ? warningClass : dangerClass);
                         elem.addClass(bIsTargeted ? dangerClass : warningClass); 
                     }

@@ -8,6 +8,9 @@
 			return $http.put('/api/course/register', regInfo).then(
 				function Success(res){
 					return res.data;
+				},
+				function Failure(res){
+					return res.data;
 				}
 			)
 		}

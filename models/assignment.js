@@ -196,7 +196,7 @@ assignmentSchema.methods = {
 		});
 
 		if (!bIsComplete){
-			return callback(new DescError('Not all questions are finished.', 400), null)
+			return new DescError('Not all questions are finished.', 400);
 		}
 
 		bIsComplete = assignment.exercises.every(function(question){
@@ -204,7 +204,7 @@ assignmentSchema.methods = {
 		});
 
 		if (!bIsComplete){
-			return callback(new DescError('Not all exercises are finished.', 400), null)
+			return new DescError('Not all exercises are finished.', 400);
 		}
 
 		return false;

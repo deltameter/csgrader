@@ -1,0 +1,59 @@
+<div class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">Create New Course</h4>
+			</div>
+			<form class="form-horizontal" name="createForm" ng-submit="createForm.$valid && courseCreationCtrl.create()" novalidate>
+				<div class="modal-body">
+					<div class="col-md-8 col-md-offset-2" ng-show="courseCreationCtrl.userMessage.length > 0">
+						<div class="alert alert-dismissible alert-warning">
+							<strong>Warning!</strong>
+							<p>{{ courseCreationCtrl.userMessage }}</p>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 col-md-offset-1 control-label">Name</label>
+						<div class="col-md-6">
+							<input type="text" ng-model="courseCreationCtrl.newCourse.name" placeholder="Michael's CS Class" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 col-md-offset-1 control-label">Identifier</label>
+						<div class="col-md-6">
+							<input type="text" ng-model="courseCreationCtrl.newCourse.courseCode" ng-pattern="/^[a-zA-Z0-9]*$/"placeholder="i.e. MikeCS" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 col-md-offset-1 control-label">Password</label>
+						<div class="col-md-6">
+							<input type="text" ng-model="courseCreationCtrl.newCourse.password" ng-pattern="/^[a-zA-Z0-9]*$/" placeholder="minimum 6 chars" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-md-3 col-md-offset-1 control-label">Default Language</label>
+						<div class="col-md-6">
+							<select class="form-control" ng-model="courseCreationCtrl.newCourse.defaultLanguage">
+								<option value="">Select Language</option>
+								<option value="Java">Java</option>
+								<option value="Python2">Python 2</option>
+								<option value="Python3">Python 3</option>
+							</select>
+						</div>
+					</div>
+
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-success">Create</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

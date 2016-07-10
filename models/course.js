@@ -36,10 +36,6 @@ courseSchema.path('name').validate(function(name){
 	return name.length >= 5 && name.length <= 100;
 }, 'The course name must be between 5 and 100 characters long.');
 
-courseSchema.path('courseCode').validate(function(courseCode){
-	return courseCode.length >= 1 && courseCode.length <= 10;
-}, 'The course code must be between 1 and 10 characters and be unique.');
-
 courseSchema.path('password').validate(function(password){
 	return password.length >= 6 && password.length <= 20;
 }, 'The course password must be between 6 and 20 characters long and contain only alphanumeric characters.');
@@ -57,6 +53,10 @@ courseSchema.statics = {
 		var Course = this;
 		if (teacher.courses.length >= Course.properties.maxClassrooms){
 			return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
+		}
+
+		if (courseInfo.courseCode.length >= 15){
+			return callback(new DescError('The Course Code is too long'));
 		}
 
 		var newCourse = new Course({
@@ -208,6 +208,16 @@ courseSchema.methods = {
 		var classIndex = course.classrooms.map(function(e) { return e.classCode; }).indexOf(classCode);
 		
 		course.classrooms.splice(classIndex, 1);
+	},
+
+	/*
+		@description: this just randomizes the courseCode. Used to "delete" courses.
+					  so if a teacher removes a course with a courseCode "abc", they can make another with the same courseCode "abc"
+	*/
+
+	randomizeCourseCode: function(){
+		var course = this;
+		course.courseCode = course._id + require('crypto').randomBytes(2).toString('hex');
 	}
 }
 

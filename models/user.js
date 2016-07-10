@@ -50,7 +50,7 @@ userSchema.path('lastName').validate(function(lastName){
 }, 'Last name must be between 1 and 25 characters long');
 
 userSchema.path('courses').validate(function(courses){
-	return courses.length <= 10;
+	return courses.length <= 20;
 }, 'The maximum amount of courses you can be affiliated with is 10.');
 
 userSchema.path('email').validate(function(email){
@@ -146,6 +146,7 @@ userSchema.methods = {
 
 	safeSend: function(user){
 		return {
+			_id: this._id,
 			role: this.role,
 			bHasActivatedAccount: this.bHasActivatedAccount,
 			email: this.email,

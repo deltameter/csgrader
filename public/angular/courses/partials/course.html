@@ -18,14 +18,14 @@
 						<p>{{ assignment.description }}</p>
 					</div>
 
-					<p class="pull-left">Due: {{ assignment.dueDate }}</p>
+					<p class="pull-left">Due: {{ assignment.dueDate | date:'MMM dd, hh:mm a' }}</p>
 					<p class="pull-right">Points: {{ assignment.pointsWorth }}</p>
 				</div>
 			</div>
 		</a>
 	</div>
 
-	<div class="row col-xs-12 med-spacer-top">
+	<div class="row med-spacer-top">
 		<h3 class="text-center">Course Management</h3>
 		<div class="row small-spacer">
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
@@ -37,6 +37,12 @@
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
 				<btn ui-sref="root.classrooms({ courseCode: courseCtrl.course.courseCode })" class="btn btn-block btn-primary">Classrooms</btn>
 			</div>
+		</div>
+	</div>
+
+	<div class="row col-xs-12 small-spacer" ng-show="courseCtrl.course.owner._id === courseCtrl.user._id">
+		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+			<btn class="btn btn-block btn-danger" ng-click="courseCtrl.showDeleteCourseModal()">Delete Course</btn>
 		</div>
 	</div>
 </div>

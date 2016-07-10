@@ -43,7 +43,7 @@ module.exports.create = function(req, res){
 		req.user.save(function(err){
 			if (err) { return helper.sendError(res, 400, err) };
 
-			return helper.sendSuccess(res, { courseID: courseID });
+			return helper.sendSuccess(res);
 		});
 	});
 }
@@ -86,18 +86,25 @@ module.exports.delete = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	req.user.checkPassword(req.body.password, function(err, bIsCorrect){
-		if (!bIsPassword){ return callback(new DescError('Invalid password'), 400); }
+	req.user.checkPassword(req.body.password, function(err, bIsPassword){
+		if (!bIsPassword){ return helper.sendError(res, 400, new DescError('Invalid password', 400)); }
 
-		Course.get(req.params.courseCode, { _id: 1}, function(err, course){
+		Course.get(req.params.courseCode, { _id: 1 } , function(err, course){
 			req.user.removeCourse(course._id);
 
-			course.remove(function(err){
+			//we don't want to actually delete the course
+			//just randomize it's coursecode to simulate it's deletion
+			course.randomizeCourseCode();
+
+			course.save(function(err){
+				console.log('couser')
+				console.log(err)
 				if (err) { return helper.sendError(res, 400, err) };
 
 				req.user.save(function(err){
+								console.log('user')
+				console.log(err)
 					if (err) { return helper.sendError(res, 400, err) };
-
 					return helper.sendSuccess(res);
 				})
 			})
@@ -141,7 +148,7 @@ module.exports.register = function(req, res){
 			req.user.save(function(err){
 				if (err) { return helper.sendError(res, 400, err) };
 
-				return helper.sendSuccess(res);
+				return helper.sendSuccess(res, { courseCode: course.courseCode });
 			});
 		});
 	})

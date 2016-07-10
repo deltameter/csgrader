@@ -50,8 +50,10 @@ module.exports = function(app){
 
 	app.put('/api/course/register', studentAuth, courses.register);
 
-	app.get('/api/course/:courseCode/', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);
+	app.get('/api/course/:courseCode', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);
 
+	app.delete('/api/course/:courseCode', teacherCourseAuth, courses.delete);
+	
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************

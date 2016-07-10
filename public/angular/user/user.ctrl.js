@@ -47,7 +47,6 @@
 					$state.go('root.main');
 				},
 				function Failure(res){
-					console.log(res.data.userMessage);
 					vm.authMessage = res.data.userMessage;
 				}
 			);

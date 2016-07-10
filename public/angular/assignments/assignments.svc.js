@@ -92,6 +92,9 @@
 			return $http.post('/api/course/' + courseCode + '/assignment/create', newAssignment).then(
 				function Success(res){
 					return res.data;
+				},
+				function Failure(res){
+					return res.data;
 				}
 			);
 		};

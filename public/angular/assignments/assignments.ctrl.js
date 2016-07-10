@@ -26,7 +26,7 @@
 
 	angular.module('assignments')
 
-	.controller('AssignmentsController', function($scope, $stateParams, $state, AssignmentFactory){
+	.controller('AssignmentsController', function($scope, $stateParams, $state, ModalService, AssignmentFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.searchAssignments = [];
@@ -55,15 +55,17 @@
 			return arr;
 		}
 
-		this.createAssignment = function(){
-			AssignmentFactory.createAssignment(vm.courseCode, vm.newAssignment).then(
-				function Success(assignment){
+		this.showAssignmentCreationModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/assignments/partials/createAssignmentModal.html',
+				controller: 'mCreateAssignmentController',
+				controllerAs: 'createAssignmentCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(assignment) {
 					$state.go('root.assignment', { courseCode: vm.courseCode, assignmentID: assignment.assignmentID });
-				}, 
-				function Failure(userMessage){
-					vm.userMessageCreate = userMessage;
-				}
-			);
+				});
+			});
 		}
 
 		this.search = function(){
@@ -103,6 +105,41 @@
 		}
 	})
 
+	.controller('mCreateAssignmentController', function($stateParams, $element, close, AssignmentFactory){
+		var vm = this;
+
+		this.create = function(){
+			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
+				function Success(assignment){
+					if (typeof assignment.userMessage !== 'undefined'){
+						vm.userMessage = assignment.userMessage;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+						//success so close
+						close(assignment, 500);
+					}
+				}
+			);
+		}
+
+		this.openAssignment = function(){
+			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
+				function Success(data){
+
+					if (typeof data.userMessage !== 'undefined'){
+						vm.userMessage = data.userMessage;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+						//success so close
+						close(data, 500);
+					}
+				}
+			)
+		}
+	})
+
 	.controller('AssignmentController', 
 		function($scope, $stateParams, ModalService, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
 
@@ -125,11 +162,16 @@
 			);
 		}
 
+		this.hasContent = function(){
+			return Object.keys(vm.assignment).length > 0 &&
+			 (vm.assignment.exercises.length > 0 || vm.assignment.questions.length > 0);
+		}
+
 		this.showOpenModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/assignments/partials/openModal.html',
-				controller: 'OpenModalController',
-				controllerAs: 'openModalCtrl'
+				templateUrl: '/angular/assignments/partials/openAssignmentModal.html',
+				controller: 'mOpenAssignmentController',
+				controllerAs: 'openAssignmentCtrl'
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
@@ -183,27 +225,22 @@
 		init();
 	})
 	
-	.controller('OpenModalController', function($scope, $stateParams, close, AssignmentFactory){
+	.controller('mOpenAssignmentController', function($scope, $stateParams, $element, close, AssignmentFactory){
 		var vm = this;
 		this.openAssignment = function(){
-			console.log('close')
-			console.log(vm.openInfo)
 			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
 				function Success(data){
-					console.log(data);
+
 					if (typeof data.userMessage !== 'undefined'){
 						vm.userMessage = data.userMessage;
 					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
 						//success so close
 						close(data, 500);
 					}
 				}
 			)
-		}
-
-		this.cancel = function(){
-			console.log('cancel')
-			console.log(vm.openInfo);
 		}
 	})
 

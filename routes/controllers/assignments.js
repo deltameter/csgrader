@@ -135,7 +135,11 @@ module.exports.open = function(req, res){
 
 			assignment.open(dueDate, deadlineType, pointLoss, function(err, assignment){
 				if (err){ return helper.sendError(res, 400, err); }
-				return helper.sendSuccess(res, assignment)
+
+				course.addOpenAssignment(assignment);
+				course.save();
+				
+				return helper.sendSuccess(res, assignment);
 			})
 		});
 	});

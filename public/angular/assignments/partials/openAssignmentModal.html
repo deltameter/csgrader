@@ -8,10 +8,10 @@
 				<h4 class="modal-title">Open Assignment</h4>
 			</div>
 			<div class="modal-body">
-				<div class="col-md-8 col-md-offset-2" ng-show="openModalCtrl.userMessage.length > 0">
+				<div class="col-md-8 col-md-offset-2" ng-show="openAssignmentCtrl.userMessage.length > 0">
 					<div class="alert alert-dismissible alert-warning">
 						<strong>Warning!</strong>
-						<p>{{ openModalCtrl.userMessage }}</p>
+						<p>{{ openAssignmentCtrl.userMessage }}</p>
 					</div>
 				</div>
 				<form class="form-horizontal" name="openForm" novalidate>
@@ -19,14 +19,14 @@
 					<div class="form-group">
 						<label class="col-md-3 col-md-offset-1 control-label">Deadline</label>
 						<div class="col-md-6">
-							<input date-time format="MMMM Do h:mm a" class="form-control" ng-model="openModalCtrl.openInfo.dueDate" min-view="minutes">
+							<input date-time format="MMMM Do h:mm a" class="form-control" ng-model="openAssignmentCtrl.openInfo.dueDate" min-view="minutes">
 						</div>
 					</div>
 
 					<div class="form-group">
 						<label class="col-md-3 col-md-offset-1 control-label">Deadline Type</label>
 						<div class="col-md-6">
-							<select class="form-control" ng-model="openModalCtrl.openInfo.deadlineType" required>
+							<select class="form-control" ng-model="openAssignmentCtrl.openInfo.deadlineType" required>
 								<option selected="selected" disabled="true">Select Deadline Type</option>
 								<option value="strict">Strict (can&#39;t turn in after deadline)</option>
 								<option value="pointloss">Lose Points</option>
@@ -35,17 +35,17 @@
 						</div>
 					</div>
 
-					<div class="form-group" ng-show="openModalCtrl.openInfo.deadlineType === 'pointloss'">
+					<div class="form-group" ng-show="openAssignmentCtrl.openInfo.deadlineType === 'pointloss'">
 						<label class="col-md-3 col-md-offset-1 control-label">Lateness penalty</label>
 						<div class="col-md-6">
-							<input type="text" ng-required="openModalCtrl.openInfo.deadlineType === 'pointloss'" ng-model="openModalCtrl.openInfo.pointLoss" placeholder="0-100 (percent)" class="form-control" autocomplete="off">
+							<input type="text" ng-required="openAssignmentCtrl.openInfo.deadlineType === 'pointloss'" ng-model="openAssignmentCtrl.openInfo.pointLoss" placeholder="0-100 (percent)" class="form-control" autocomplete="off">
 						</div>
 					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-success" ng-click="openModalCtrl.openAssignment()">Open</button>
+				<button type="button" class="btn btn-success" ng-click="openAssignmentCtrl.openAssignment()">Open</button>
 			</div>
 		</div>
 	</div>
