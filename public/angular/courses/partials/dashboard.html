@@ -10,9 +10,14 @@
 						<h2 class="panel-title course-title">{{ course.name }}</h2>
 					</div>
 					<div class="panel-body">
-						<div class="row col-xs-12" ng-repeat="assignment in course.openAssignments">
-							<p class="pull-left">{{ assignment.name }}</p>
-							<p class="pull-right">Due: {{ assignment.dueDate | date:'MMM dd, hh:mm a' }}</p>
+						<div class="row col-xs-12">
+							<div ng-show="course.openAssignments.length === 0">
+								<p class="text-center">There are currently no open assignments.</p>
+							</div>
+							<div ng-repeat="assignment in course.openAssignments">
+								<p class="pull-left">{{ assignment.name }}</p>
+								<p class="pull-right">Due: {{ assignment.dueDate | date:'MMM dd, hh:mm a' }}</p>
+							</div>
 						</div>
 					</div>
 				</div>

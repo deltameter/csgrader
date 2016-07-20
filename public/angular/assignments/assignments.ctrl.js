@@ -111,8 +111,8 @@
 		this.create = function(){
 			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
 				function Success(assignment){
-					if (typeof assignment.userMessage !== 'undefined'){
-						vm.userMessage = assignment.userMessage;
+					if (typeof assignment.userMessages !== 'undefined'){
+						vm.userMessages = assignment.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
@@ -123,21 +123,6 @@
 			);
 		}
 
-		this.openAssignment = function(){
-			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
-				function Success(data){
-
-					if (typeof data.userMessage !== 'undefined'){
-						vm.userMessage = data.userMessage;
-					}else{
-						//we have to manually close the modal because we have a complex form
-						$element.modal('hide');
-						//success so close
-						close(data, 500);
-					}
-				}
-			)
-		}
 	})
 
 	.controller('AssignmentController', 
@@ -175,9 +160,23 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
+					vm.assignment.bIsOpen = true;
 					vm.assignment.dueDate = result.dueDate;
 					vm.assignment.deadlineType = result.deadlineType;
 					vm.assignment.pointLoss = result.pointLoss;
+				});
+			});
+		}
+
+		this.showCloseModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/assignments/partials/closeAssignmentModal.html',
+				controller: 'mCloseAssignmentController',
+				controllerAs: 'closeAssignmentCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(result) {
+					vm.assignment.bIsOpen = false;
 				});
 			});
 		}
@@ -193,7 +192,7 @@
 		}
 		
 		this.deleteQuestion = function(contentOrderIndex, questionIndex, questionID){
-			QuestionFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionIndex, questionID).then(
+			QuestionFactory.deleteQuestion(vm.courseCode, vm.assignmentID, questionID).then(
 				function Success(){
 					vm.assignment.content.splice(contentOrderIndex, 1);
 					vm.assignment.questions.splice(questionIndex, 1);
@@ -213,7 +212,7 @@
 		}
 
 		this.deleteExercise = function(contentOrderIndex, exerciseIndex, exerciseID){
-			ExerciseFactory.deleteExercise(vm.courseCode, vm.assignmentID, exerciseIndex, exerciseID).then(
+			ExerciseFactory.deleteExercise(vm.courseCode, vm.assignmentID, exerciseID).then(
 				function Success(){
 					vm.assignment.content.splice(contentOrderIndex, 1);
 					vm.assignment.exercises.splice(exerciseIndex, 1);
@@ -230,14 +229,31 @@
 		this.openAssignment = function(){
 			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
 				function Success(data){
-
-					if (typeof data.userMessage !== 'undefined'){
-						vm.userMessage = data.userMessage;
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
 						//success so close
-						close(data, 500);
+						close(vm.openInfo, 500);
+					}
+				}
+			)
+		}
+	})
+
+	.controller('mCloseAssignmentController', function($scope, $stateParams, $element, close, AssignmentFactory){
+		var vm = this;
+		this.close = function(){
+			AssignmentFactory.closeAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.password).then(
+				function Success(data){
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+						//success so close
+						close(null, 500);
 					}
 				}
 			)
@@ -274,12 +290,7 @@
 		}
 
 		this.submitQuestion = function(){
-			var answer = {
-				answer: vm.question.studentAnswer,
-				questionIndex: vm.question.questionIndex
-			}
-
-			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, answer).then(
+			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, vm.question.questionID, vm.question.studentAnswer).then(
 				function Success(res){
 					vm.question.tries++;
 
@@ -439,7 +450,7 @@
 			}
 
 			//remove the extension and create a newfile
-			var newFile = ExerciseFactory.createNewFile(this.newFileName.split('.')[0], this.exercise);
+			var newFile = ExerciseFactory.createNewFile(this.newFileName, this.exercise);
 
 			if (newFile !== false){
 				console.log(this.exercise);
@@ -489,7 +500,7 @@
 
 
 		this.testExercise = function(){
-			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.solutionCode).then(
+			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.solutionCode).then(
 				function Success(res){
 					vm.exercise.bIsTested = res.data.bIsCorrect;
 					vm.compilationInfo.testResults = res.data.testResults;
@@ -499,7 +510,7 @@
 		}
 
 		this.submitExercise = function(){
-			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise.exerciseIndex, vm.exercise.code).then(
+			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.code).then(
 				function Success(res){
 					var compilationInfo = res.data;
 					vm.compilationInfo.testResults = compilationInfo.testResults;
@@ -550,6 +561,7 @@
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
 				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 					function Success(res){
+						console.log(res.data.bIsFinished)
 						vm.exercise.bIsFinished = res.data.bIsFinished;
 						vm.toggleEdit();
 					}

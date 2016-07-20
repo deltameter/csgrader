@@ -7,10 +7,12 @@
 			</div>
 			<form class="form-horizontal" name="createForm" ng-submit="createForm.$valid && courseCreationCtrl.create()" novalidate>
 				<div class="modal-body">
-					<div class="col-md-8 col-md-offset-2" ng-show="courseCreationCtrl.userMessage.length > 0">
+					<div class="col-md-8 col-md-offset-2" ng-show="courseCreationCtrl.userMessages.length > 0">
 						<div class="alert alert-dismissible alert-warning">
 							<strong>Warning!</strong>
-							<p>{{ courseCreationCtrl.userMessage }}</p>
+						<ul>
+							<li ng-repeat = 'message in courseCreationCtrl.userMessages'>{{ message }}</li>
+						</ul>
 						</div>
 					</div>
 

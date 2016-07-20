@@ -1,6 +1,6 @@
 (function(){
 	angular.module('classrooms')
-	.controller('ClassroomController', function($stateParams, $http, StudentFactory, ClassroomFactory){
+	.controller('ClassroomController', function($stateParams, $state, ModalService, StudentFactory, ClassroomFactory){
 		var vm = this;
 
 		vm.courseCode = $stateParams.courseCode;
@@ -46,15 +46,46 @@
 			)
 		}
 
+		this.openDeleteClassroomModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/classrooms/partials/deleteClassroomModal.html',
+				controller: 'mDeleteClassroomController',
+				controllerAs: 'deleteClassroomCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(result) {
+					$state.go('root.classrooms', { courseCode: vm.courseCode });
+				});
+			});
+		}
+
 		getClassroom();
 	})
 
-	.controller('ClassroomsController', function($stateParams, $state, ClassroomFactory){
+	.controller('mDeleteClassroomController', function($stateParams, $element, close, ClassroomFactory){
+		var vm = this;
+
+		this.delete = function(){
+			ClassroomFactory.deleteClassroom($stateParams.courseCode, $stateParams.classCode, vm.password).then(
+				function Success(data){
+					console.log(data)
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+						//success so close
+						close(data, 500);
+					}
+				}
+			)
+		}
+	})
+
+	.controller('ClassroomsController', function($stateParams, $state, ModalService, ClassroomFactory){
 		var vm = this;
 		vm.courseCode = $stateParams.courseCode;
 		vm.classrooms = [];
-		vm.newClassroomName = '';
-		vm.deleteClassCode = '';
 
 		var getClassrooms = function(){
 			ClassroomFactory.getClassrooms($stateParams.courseCode).then(
@@ -64,32 +95,38 @@
 			)
 		}
 
-		this.createClassroom = function(){
-			ClassroomFactory.createClassroom($stateParams.courseCode, vm.newClassroomName).then(
-				function Success(res){
-					$state.go('root.classroom', { courseCode: vm.courseCode, classCode: res.classCode });
-				}
-			)
-		}
-
-		this.deleteClassroom = function(classCode){
-			//Must be clicked twice to actually delete
-			if (vm.deleteClassCode === classCode){
-				ClassroomFactory.deleteClassroom($stateParams.courseCode, vm.deleteClassCode).then(
-					function Success(res){
-						for(var i = 0; i < vm.classrooms.length; i++){
-							if (vm.classrooms[i].classCode === classCode){
-								vm.classrooms.splice(i, 1);
-								break;
-							}
-						}
-					}
-				)
-			}else{
-				vm.deleteClassCode = classCode;
-			}
+		this.openCreateClassroomModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/classrooms/partials/createClassroomModal.html',
+				controller: 'mCreateClassroomController',
+				controllerAs: 'createClassroomCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(result) {
+					$state.go('root.classroom', { courseCode: vm.courseCode, classCode: result.classCode });
+				});
+			});
 		}
 
 		getClassrooms();
+	})
+
+	.controller('mCreateClassroomController', function($stateParams, $element, close, ClassroomFactory){
+		var vm = this;
+
+		this.create = function(){
+			ClassroomFactory.createClassroom($stateParams.courseCode, vm.newClassroomName).then(
+				function Success(data){
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+						//success so close
+						close(data, 500);
+					}
+				}
+			)
+		}
 	})
 })();

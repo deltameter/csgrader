@@ -42,7 +42,7 @@
 				<div class="col-md-7 col-xs-12">
 					<div class="exercise-button-container" ng-repeat="codeFile in exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType] track by $index">
 						<div class="btn-group">
-							<btn class="btn btn-file" ng-class="exerciseEditCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseEditCtrl.focusFile($index)">{{ codeFile.name + exerciseEditCtrl.exercise.language.fileExt }}</btn>
+							<btn class="btn btn-file" ng-class="exerciseEditCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseEditCtrl.focusFile($index)">{{ codeFile.name }}</btn>
 
 							<btn class="btn" double-click="exerciseEditCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseEditCtrl.focusedFileIndex === $index" ><i class="fa fa-times" aria-hidden="true"></i></btn>
 						</div>

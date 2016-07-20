@@ -14,7 +14,7 @@
 					$state.go('root.main');
 				},
 				function(res){
-					vm.authMessage = res.data.userMessage;
+					vm.authMessage = res.data.userMessages;
 				});
 		};
 	})
@@ -47,7 +47,7 @@
 					$state.go('root.main');
 				},
 				function Failure(res){
-					vm.authMessage = res.data.userMessage;
+					vm.authMessage = res.data.userMessages;
 				}
 			);
 		};
@@ -56,7 +56,7 @@
 	.controller('RegistrationController', function($state, UserFactory){
 		var vm = this;
 		vm.regInfo = {};
-		vm.userMessage = '';
+		vm.userMessages = '';
 
 		this.registerForCourse = function(){
 			UserFactory.registerForCourse(vm.regInfo).then(
@@ -64,7 +64,7 @@
 					$state.go('root.course', { courseCode: res.courseCode });
 				},
 				function Failure(res){
-					vm.userMessage = res.data.userMessage;
+					vm.userMessages = res.data.userMessages;
 				}
 			)
 		}

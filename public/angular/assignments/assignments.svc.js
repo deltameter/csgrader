@@ -12,7 +12,8 @@
 			getAll: getAll,
 			search: search,
 			createAssignment: createAssignment,
-			openAssignment: openAssignment
+			openAssignment: openAssignment,
+			closeAssignment: closeAssignment
 		};
 
 		function getAssignment(courseCode, assignmentID){
@@ -109,6 +110,17 @@
 				}
 			);
 		}
+
+		function closeAssignment(courseCode, assignmentID, password){
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/close', { password: password }).then(
+				function Success(res){
+					return res.data;
+				},
+				function Failure(res){
+					return res.data;
+				}
+			);
+		}
 	})
 
 	.factory('QuestionFactory', function($http){
@@ -131,16 +143,30 @@
 		}
 
 		function editQuestion(courseCode, assignmentID, question){
-			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', question);
+			var questionEdit = angular.copy(question)
+			questionEdit.questionID = question._id;
+			delete questionEdit._id;
+
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/edit', questionEdit);
 		}
 
-		function deleteQuestion(courseCode, assignmentID, questionIndex, questionID){
-			var question = { questionID: questionID, questionIndex: questionIndex };
+		function deleteQuestion(courseCode, assignmentID, questionID){
+			var requestInfo = { 
+				url: '/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/delete',
+				method: 'DELETE', 
+				data: { questionID: questionID }, 
+				headers: {"Content-Type": "application/json;charset=utf-8" }
+			};
 
-			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/delete', question);
+			return $http(requestInfo);
 		}
 
-		function submitQuestion(courseCode, assignmentID, answer){
+		function submitQuestion(courseCode, assignmentID, questionID, answer){
+			var questionAnswer = {
+				answer: answer,
+				questionID: questionID
+			}
+
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/submit', answer);
 		}
 	})
@@ -172,9 +198,9 @@
 		}
 
 		function editExercise(courseCode, assignmentID, exercise){
-			var exerciseEdit = { 
+			var exerciseEdit = {
+				exerciseID: exercise._id,
 				title: exercise.title,
-				exerciseIndex: exercise.exerciseIndex, 
 				context: exercise.context,
 				code: exercise.code,
 				tests: exercise.tests,
@@ -185,9 +211,9 @@
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/edit', exerciseEdit);
 		}
 
-		function testExercise(courseCode, assignmentID, exerciseIndex, code){
+		function testExercise(courseCode, assignmentID, exerciseID, code){
 			var exerciseTest = {
-				exerciseIndex: exerciseIndex,
+				exerciseID: exerciseID,
 				code: code
 			}
 
@@ -204,12 +230,23 @@
 			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/submit', submission);
 		}
 
-		function deleteExercise(courseCode, assignmentID, exerciseIndex, exerciseID){
-			var exercise = { exerciseID: exerciseID, exerciseIndex: exerciseIndex };
-			return $http.post('/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/delete', exercise);
+		function deleteExercise(courseCode, assignmentID, exerciseID){
+			var requestInfo = { 
+				url: '/api/course/' + courseCode + '/assignment/' + assignmentID + '/exercise/delete',
+				method: 'DELETE', 
+				data: { exerciseID: exerciseID }, 
+				headers: {"Content-Type": "application/json;charset=utf-8" }
+			};
+
+			return $http(requestInfo);
 		}
 
 		function createNewFile(filename, exercise){
+			//if it doesnt have an ext, use the default
+			if (typeof filename.split('.')[1] === 'undefined'){
+				filename += exercise.language.fileExt;
+			}
+
 			//if there is no other file with the same name
 			if (exercise.code.map(function(code){ return code.name }).indexOf(filename) === -1 
 				&& exercise.tests.map(function(test){ return test.name }).indexOf(filename) === -1){

@@ -1,20 +1,24 @@
 var testTeacher = require('./assignmentTests').testTeacher,
 	testStudent = require('./assignmentTests').testStudent,
+	exerciseIDs = require('./assignmentTests').exerciseIDs,
+	questionIDs = require('./assignmentTests').questionIDs,
 	expect = require('chai').expect,
     async = require('async');
+
 
 describe('Submission', function(){
 	describe('submit question', function(){
 		it('should accept a fill in the blank answer', function(done){
 			var answer = {
-				questionIndex: 0,
+				questionID: questionIDs[0],
 				answer: ' dank '
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
+				console.log(res.body)
 				expect(res.status).to.equal(200);
 				expect(res.body.bIsCorrect).to.equal(true);
 				done();
@@ -23,12 +27,12 @@ describe('Submission', function(){
 
 		it('should accept a multiple choice answer', function(done){
 			var answer = {
-				questionIndex: 1,
+				questionID: questionIDs[1],
 				answer: 3
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -39,12 +43,12 @@ describe('Submission', function(){
 
 		it('should accept an frq answer that\'s homework', function(done){
 			var answer = {
-				questionIndex: 3,
+				questionID: questionIDs[3],
 				answer: 'Implying implications'
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -55,12 +59,12 @@ describe('Submission', function(){
 
 		it('should accept an frq answer that\'s not homework', function(done){
 			var answer = {
-				questionIndex: 4,
+				questionID: questionIDs[4],
 				answer: 'Implying implications'
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -71,12 +75,12 @@ describe('Submission', function(){
 
 		it('should not accept the submission if the user has already gotten it right', function(done){
 			var answer = {
-				questionIndex: 1,
+				questionID: questionIDs[1],
 				answer: 3
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(400);
@@ -86,13 +90,13 @@ describe('Submission', function(){
 
 		it ('should deny users after they\'ve tried too many times', function(done){
 			var answer = {
-				questionIndex: 2,
+				questionID: questionIDs[2],
 				answer: 3
 			}
 
 			var test = function(callback){
 				testStudent
-				.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+				.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 				.send(answer)
 				.end(function(err, res){
 					callback(err, { res: res, bIsCorrect: res.body.bIsCorrect });
@@ -109,12 +113,12 @@ describe('Submission', function(){
 
 		it('shouldn\'t accept an answer to a question that doesn\'t exist', function(done){
 			var answer = {
-				questionIndex: 100,
+				questionID: 'rarememes',
 				answer: 'Implying implications'
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/question/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.not.equal(200);
@@ -131,14 +135,14 @@ describe('Submission', function(){
 				exerciseIndex: 0,
 				code: [
 					{ 
-						name: 'Kang',
+						name: 'Kang.java',
 						code: 'public class Kang{ public String speak(){ return "I AM UNCERTAIN AS TO THE STATUS OF OUR KANGNESS"; } }'
 					}
 				]
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/save')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/save')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -150,17 +154,17 @@ describe('Submission', function(){
 			//takes a while for the grading machine to get back to us
 			this.timeout(5000);
 			var info = {
-				exerciseIndex: 0,
+				exerciseID: exerciseIDs[0],
 				code: [
 					{ 
-						name: 'Kang',
+						name: 'Kang.java',
 						code: 'public class Kang{ public String speak(){ return "WE WUZ NOT KANGZ"; } }'
 					}
 				]
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -173,17 +177,17 @@ describe('Submission', function(){
 			//takes a while for the grading machine to get back to us
 			this.timeout(5000);
 			var info = {
-				exerciseIndex: 0,
+				exerciseID: exerciseIDs[0],
 				code: [
 					{ 
-						name: 'Kang',
+						name: 'Kang.java',
 						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }'
 					}
 				]
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -196,17 +200,17 @@ describe('Submission', function(){
 			//takes a while for the grading machine to get back to us
 			this.timeout(5000);
 			var info = {
-				exerciseIndex: 0,
+				exerciseID: exerciseIDs[0],
 				code: [
 					{ 
-						name: 'Kang',
+						name: 'Kang.java',
 						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
 					}
 				],
 			}
 
 			testStudent
-			.put('/api/course/smushdapcs/assignment/' + assignment._id + '/exercise/submit')
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -224,7 +228,7 @@ describe('Submission', function(){
 			}
 
 			testTeacher
-			.get('/api/course/smushdapcs/classroom/' + classroom.classCode + 'grades/export')
+			.get('/api/course/MikeCS/classroom/' + classroom.classCode + 'grades/export')
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -233,6 +237,7 @@ describe('Submission', function(){
 		});
 	});
 });
+
 //Ensure tests run in order we want
 module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;

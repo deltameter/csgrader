@@ -9,9 +9,16 @@ var mongoose = require('mongoose'),
 describe('Course', function(){
 	describe('creation', function(){
 		var apcsCourse = {
-			name: 'SMUSHD AP CS',
-			courseCode: 'smushdapcs',
+			name: 'Michael\'s CS Class',
+			courseCode: 'MikeCS',
 			password: 'topkekerino',
+			defaultLanguage: 'Java'
+		}
+
+		var deleteCourse = {
+			name: 'DELETE ME FAM',
+			courseCode: 'DELETE',
+			password: 'deleterino',
 			defaultLanguage: 'Java'
 		}
 
@@ -40,6 +47,27 @@ describe('Course', function(){
 				done();
 			});
 		});
+
+		it ('should "delete" a course', function(done){
+			testTeacher
+			.post('/api/course/create')
+			.send(deleteCourse)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+
+				const deleteInfo = {
+					password: 'password1'
+				}
+
+				testTeacher
+				.delete('/api/course/' + 'DELETE')
+				.send(deleteInfo)
+				.end(function(err, res){
+					expect(res.status).to.equal(200);
+					done();
+				});
+			});
+		})
 
 		it('should get a user\'s courses', function(done){
 			testTeacher
@@ -71,7 +99,7 @@ describe('Course', function(){
 
 		it('should create given the right info', function(done){
 			testTeacher
-			.post('/api/course/smushdapcs/classroom/create')
+			.post('/api/course/MikeCS/classroom/create')
 			.send(newClass)
 			.end(function(err, res){
 				if (err) throw err;
@@ -81,26 +109,33 @@ describe('Course', function(){
 				newStudent.classCode = res.body.classCode;
 				
 				testTeacher
-				.get('/api/course/smushdapcs/classroom/' + res.body.classCode)
+				.get('/api/course/MikeCS/classroom/' + res.body.classCode)
 				.end(function(err, res){
 					if (err) throw err;
 					expect(res.status).to.equal(200);
-					done();
+
+					Course.findOne({ courseCode: 'DELETE' }, function(err, course){
+						expect(course).to.equal(null);
+						done();
+					});
 				});
 			});
 		});
 
 		it('should delete a classroom', function(done){
 			testTeacher
-			.post('/api/course/smushdapcs/classroom/create')
+			.post('/api/course/MikeCS/classroom/create')
 			.send(deleteClass)
 			.end(function(err, res){
 				if (err) throw err;
 				var classCode = res.body.classCode;
 
+
 				testTeacher
-				.delete('/api/course/smushdapcs/classroom/' + classCode)
+				.delete('/api/course/MikeCS/classroom/' + classCode)
+				.send({ password: 'password1' })
 				.end(function(err, res){
+					console.log(res.body)
 					if (err) throw err;
 					expect(res.status).to.equal(200);
 					done();
@@ -110,7 +145,7 @@ describe('Course', function(){
 
 		it('shouldn\'t register a student whose teacher hasn\'t entered them in yet', function(done){
 			var regInfo = {
-				identifier: 'smushdapcs-' + classroom.classCode,
+				identifier: 'MikeCS-' + classroom.classCode,
 				password: 'topkekerino'
 			}
 
@@ -137,7 +172,7 @@ describe('Course', function(){
 			async.parallel([
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/create')
+					.post('/api/course/MikeCS/classroom/' + classroom.classCode +'/student/create')
 					.send(newStudent)
 					.end(function(err, res){
 						if (err) throw err;
@@ -147,7 +182,7 @@ describe('Course', function(){
 				},
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/' + classroom.classCode + '/student/create')
+					.post('/api/course/MikeCS/classroom/' + classroom.classCode + '/student/create')
 					.send(newStudent2)
 					.end(function(err, res){
 						if (err) throw err;
@@ -157,7 +192,7 @@ describe('Course', function(){
 				},
 				function(callback){
 					testTeacher
-					.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/create')
+					.post('/api/course/MikeCS/classroom/' + classroom.classCode +'/student/create')
 					.send(newStudent3)
 					.end(function(err, res){
 						if (err) throw err;
@@ -168,8 +203,8 @@ describe('Course', function(){
 					});
 				}
 			], function(err, results){
-				Course.find({}, function(err, courses){
-					expect(courses[0].classrooms[0].students.length).to.equal(3);
+				Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
+					expect(course.classrooms[0].students.length).to.equal(3);
 					done();
 				});
 			});
@@ -177,7 +212,7 @@ describe('Course', function(){
 
 		it('should accept a CSV file of students and create them all', function(done){
 			testTeacher
-			.post('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/import')
+			.post('/api/course/MikeCS/classroom/' + classroom.classCode +'/student/import')
 			.attach('students', __dirname + '/resources/students.csv')
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
@@ -195,13 +230,13 @@ describe('Course', function(){
 			}
 
 			testTeacher
-			.put('/api/course/smushdapcs/classroom/' + classroom.classCode +'/student/edit')
+			.put('/api/course/MikeCS/classroom/' + classroom.classCode +'/student/edit')
 			.send(editUser)
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(200);
 
-				Course.findOne({}, function(err, course){
+				Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
 					var student = course.classrooms[0].students.find(function(student){
 						return student._id.toString() === modifyUser._id.toString();
 					})
@@ -216,13 +251,13 @@ describe('Course', function(){
 
 		it('should delete a student', function(done){
 			testTeacher
-			.delete('/api/course/smushdapcs/classroom/' + classroom.classCode + '/student/delete/' + modifyUser._id)
+			.delete('/api/course/MikeCS/classroom/' + classroom.classCode + '/student/delete/' + modifyUser._id)
 			.end(function(err, res){
 				if (err) throw err;
 				expect(res.status).to.equal(200);
 
-				Course.find({}, function(err, courses){
-					expect(courses[0].classrooms[0].students.length).to.equal(5);
+				Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
+					expect(course.classrooms[0].students.length).to.equal(5);
 					done();
 				});
 			});
@@ -232,7 +267,7 @@ describe('Course', function(){
 	describe('registration', function(){
 		it('shouldn\'t register a student who hasn\'t entered a gradebookID' , function(done){
 			var regInfo = {
-				identifier: 'smushdapcs-' + classroom.classCode,
+				identifier: 'MikeCS-' + classroom.classCode,
 				password: 'topkekerino'
 			}
 
@@ -248,7 +283,7 @@ describe('Course', function(){
 
 		it('should register a student after they input their gradebookID', function(done){
 			var regInfo = {
-				identifier: 'smushdapcs-' + classroom.classCode,
+				identifier: 'MikeCS-' + classroom.classCode,
 				password: 'topkekerino',
 				gradebookID: '123'
 			}
@@ -265,7 +300,7 @@ describe('Course', function(){
 
 		it('shouldn\'t register a student who\'s already registered', function(done){
 			var regInfo = {
-				identifier: 'smushdapcs-' + classroom.classCode,
+				identifier: 'MikeCS-' + classroom.classCode,
 				password: 'topkekerino'
 			}
 

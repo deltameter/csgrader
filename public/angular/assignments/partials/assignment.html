@@ -1,36 +1,48 @@
 <div class="container" ng-cloak>
-	<div ng-show="assignmentCtrl.user.role === 'teacher' && assignmentCtrl.hasContent()">
-		<div class="row med-spacer-top">
+	<div class="row col-xs-12 small-spacer" ng-show="assignmentCtrl.user.role === 'teacher' && assignmentCtrl.hasContent()">
+		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.assignment.bIsOpen">
+			<button class="btn btn-block btn-primary" ng-click="assignmentCtrl.showOpenModal()">Open Assignment</button>
+		</div>
+
+		<div class="col-xs-12" ng-show="assignmentCtrl.assignment.bIsOpen">
+			<h4 class="text-center small-spacer-top">
+				Due Date: {{ assignmentCtrl.assignment.dueDate | date:'MMM dd, hh:mm a' }} 
+			</h4>
+			<h4 class="text-center small-spacer-top">
+				Points: {{ assignmentCtrl.assignment.pointsWorth }}
+			</h4>
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.assignment.bIsOpen">
-				<button class="btn btn-block btn-danger" ng-click="assignmentCtrl.showOpenModal()">Close Assignment Early</button>
-			</div>
-			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.assignment.bIsOpen">
-				<button class="btn btn-block btn-primary" ng-click="assignmentCtrl.showOpenModal()">Open Assignment</button>
+				<button class="btn btn-block btn-danger" ng-click="assignmentCtrl.showCloseModal()">Close Assignment Early</button>
 			</div>
 		</div>
 	</div>
 
-	<div class="well col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-1" ng-hide="assignmentCtrl.hasContent()">
-		<h4 class="text-center">Nothing here yet. Click the buttons below to start adding to your assignment!</h4>
-	</div>
-	<div class="assignment" ng-repeat="content in assignmentCtrl.assignment.content">
-		<div ng-if="content.type === 'question'" ng-init="bIsNormal=true ; bShowNormal=true">
-			<question ng-if="bIsNormal === true" ng-show="bShowNormal === true"></question>
-			<question-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></question-edit>
+	<div class="row col-xs-12">
+		<div class="well col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-1" ng-hide="assignmentCtrl.hasContent()">
+			<h4 class="text-center">Nothing here yet. Click the buttons below to start adding to your assignment!</h4>
 		</div>
-		<div ng-if="content.type === 'exercise'" ng-init="bIsNormal=true ; bShowNormal=true">
-			<exercise ng-if="bIsNormal === true" ng-show="bShowNormal === true"></exercise>
-			<exercise-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></exercise-edit>
-		</div>
-	</div>
 
-	<div ng-show="assignmentCtrl.user.role === 'teacher'">
-		<div class="row spacer">
-			<div class="col-md-3 col-md-offset-3 col-xs-8 col-xs-offset-2">
-				<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addQuestion()">Add Question</btn>
+		<div class="assignment">
+			<div class="row med-spacer" ng-repeat="content in assignmentCtrl.assignment.content">
+				<div ng-if="content.type === 'question'" ng-init="bIsNormal=true ; bShowNormal=true">
+					<question ng-if="bIsNormal === true" ng-show="bShowNormal === true"></question>
+					<question-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></question-edit>
+				</div>
+				<div ng-if="content.type === 'exercise'" ng-init="bIsNormal=true ; bShowNormal=true">
+					<exercise ng-if="bIsNormal === true" ng-show="bShowNormal === true"></exercise>
+					<exercise-edit ng-if="bIsEditing === true" ng-show="bShowEdit === true"></exercise-edit>
+				</div>
 			</div>
-			<div class="col-md-3 col-md-offset-0 col-xs-8 col-xs-offset-2">
-				<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addExercise()"><i class="fa fa-terminal" aria-hidden="true"></i> Add Exercise</btn>
+		</div>
+
+		<div ng-show="assignmentCtrl.user.role === 'teacher'">
+			<div class="row spacer">
+				<div class="col-md-3 col-md-offset-3 col-xs-8 col-xs-offset-2">
+					<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addQuestion()">Add Question</btn>
+				</div>
+				<div class="col-md-3 col-md-offset-0 col-xs-8 col-xs-offset-2">
+					<btn class="btn btn-primary btn-block" ng-click="assignmentCtrl.addExercise()"><i class="fa fa-terminal" aria-hidden="true"></i> Add Exercise</btn>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -127,17 +127,13 @@ exerciseSchema.methods = {
 	isFinished: function(){
 		var exercise = this;
 
-		if (exercise.bIsFinished){
-			return true;
-		}
-
 		//If it's not finished, check if it is now finished
-		if (exercise.tests.length > 0 && typeof exercise.context !== 'undefined'
-		 && typeof exercise.pointsWorth !== 'undefined' && typeof exercise.triesAllowed !== 'undefined'){
+		if (exercise.tests.length > 0 && typeof exercise.context === 'string'
+		 && typeof exercise.pointsWorth === 'number' && typeof exercise.triesAllowed === 'number'){
 			var bTestsComplete = true;
 
 			for (var i = 0; i < exercise.tests.length; i++){
-				if (typeof exercise.tests[i].description === 'undefined' || typeof exercise.tests[i].pointsWorth !== 'number'){
+				if (typeof exercise.tests[i].description !== 'string' || typeof exercise.tests[i].pointsWorth !== 'number'){
 					bTestsComplete = false;
 					break;
 				}
@@ -175,18 +171,28 @@ exerciseSchema.methods = {
 				return callback(new DescError('Could not connect to the server. Please try again.', 500), null);
 			}
 
+			console.log(compilationInfo)
 			var bIsCorrect = compilationInfo.errors.length === 0;
 			var passedTests = compilationInfo.passedTests.trim().split(' ');
 			var fullTests = passedTests.concat(compilationInfo.failedTests.trim().split(' '));
-			var testsWithDescriptions = [];
+
+			var testsWithDescriptions = exercise.tests.map(function(exercise){
+				return {
+					name: exercise.name.split('.')[0],
+					description: exercise.description
+				}
+			})
+
+			var testResults = [];
 
 			for (var i = 0; i < fullTests.length; i++){
-				var test = exercise.tests.find(function(test){
+				var test = testsWithDescriptions.find(function(test){
 					return test.name === fullTests[i];
 				})
 
 				if (test){
-					testsWithDescriptions.push({
+					testResults.push({
+						//equates to true or false, which equates to a checkmark or red X on the frontend
 						passed: (passedTests.indexOf(test.name) !== -1),
 						description: test.description
 					})
@@ -196,7 +202,7 @@ exerciseSchema.methods = {
 			return callback(null, { 
 				bIsCorrect: bIsCorrect, 
 				errors: compilationInfo.errors, 
-				testResults: testsWithDescriptions }
+				testResults: testResults }
 			);
 		});
 	},

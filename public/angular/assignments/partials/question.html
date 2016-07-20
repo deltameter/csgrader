@@ -1,12 +1,25 @@
 <div class="question panel" ng-class="questionCtrl.getPanelClass()">
 	<div class="panel-heading">
 		<div class="row">
-			<div class="col-xs-8">
+			<div class="col-xs-7">
 				<h3 class="panel-title">
 					Question {{ questionCtrl.question.questionIndex + 1 }}{{ questionCtrl.question.questionType === 'frq' ? ': Free Response' : '' }}{{ questionCtrl.question.questionType === 'mc' ? ': Multiple Choice' : '' }}{{ questionCtrl.question.questionType === 'fillblank' ? ': Fill in the Blank' : '' }}
 				</h3>
 			</div>
-			<div class="col-xs-4">
+
+			<div class="col-xs-2">
+				<p class="pull-right information" ng-show="questionCtrl.question.triesAllowed > 0">
+					Attempts: {{ questionCtrl.question.tries }}/{{ questionCtrl.question.triesAllowed }}
+				</p>
+			</div>
+
+			<div class="col-xs-2">
+				<p class="pull-right information" ng-show="questionCtrl.question.pointsWorth > 0">
+					Points: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
+				</p>
+			</div>
+
+			<div class="col-xs-1">
 				<button class="btn btn-sm" ng-class="questionCtrl.getPanelButtonClass()" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="questionCtrl.toggleEdit()">Edit</button>
 			</div>
 		</div>
@@ -15,11 +28,6 @@
 		<div class="row small-spacer col-xs-12 question-context">
 			<div class="col-md-9 col-xs-10 col-xs-offset-1">
 				<div class="context" ng-bind-html="questionCtrl.question.question | trustAsHTML"></div>
-			</div>
-			<div class="col-md-2 col-md-offset-0 col-xs-6 col-xs-offset-3">
-				<p class="pull-right information">
-					Points: {{ questionCtrl.question.pointsEarned }}/{{ questionCtrl.question.pointsWorth }}
-				</p>
 			</div>
 		</div>
 
@@ -43,7 +51,7 @@
 
 				<div class="col-xs-10 col-xs-offset-1" ng-show="questionCtrl.question.questionType ==='frq'">
 					<div class="form-group">
-						<textarea class="form-control" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
+						<textarea class="form-control frq-textarea" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
 					</div>
 				</div>
 

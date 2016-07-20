@@ -48,19 +48,33 @@ module.exports.create = function(req, res){
 
 module.exports.deleteClassroom = function(req, res){
 	req.checkParams('classCode', 'Please include the class name.').notEmpty();
+	req.checkBody('password', 'Please include your password.').notEmpty();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	const classCode = req.body.classCode;
+	const classCode = req.params.classCode;
+	const password = req.body.password;
 
 	Course.get(req.params.courseCode, { classrooms: 1 }, function(err, course){
-		course.deleteClassroom(classCode);
 
-		course.save(function(err){
-			if (err){ return helper.sendError(res, 400, err) };
-			return helper.sendSuccess(res);
-		});
+		if (course.getClassroom(classCode).teacher.toString() !== req.user._id.toString()){
+			return helper.sendError(res, 400, new DescError('You do not own this classroom', 400));
+		}
+
+		req.user.checkPassword(password, function(err, bIsCorrect){
+			if (!bIsCorrect){
+				return helper.sendError(res, 400, new DescError('Incorrect password.', 400));
+			}
+
+			course.deleteClassroom(classCode);
+
+			course.save(function(err){
+				if (err){ return helper.sendError(res, 400, err) };
+				return helper.sendSuccess(res);
+			});
+
+		})
 	});
 }
 

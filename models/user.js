@@ -50,7 +50,7 @@ userSchema.path('lastName').validate(function(lastName){
 }, 'Last name must be between 1 and 25 characters long');
 
 userSchema.path('courses').validate(function(courses){
-	return courses.length <= 20;
+	return courses.length <= 10;
 }, 'The maximum amount of courses you can be affiliated with is 10.');
 
 userSchema.path('email').validate(function(email){
@@ -137,10 +137,10 @@ userSchema.statics = {
 
 //Used to authenticate users
 userSchema.methods = {
-	checkPassword: function(passwordToCheck, cb){
+	checkPassword: function(passwordToCheck, callback){
 		bcrypt.compare(passwordToCheck, this.password, function(err, bIsPassword){
 			if (err) return cb(err);
-			cb(null, bIsPassword)
+			callback(null, bIsPassword)
 		})
 	},
 

@@ -32,12 +32,13 @@ module.exports.addExercise = function(req, res){
 }
 
 module.exports.editExercise = function(req, res){
-	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
+	req.checkBody('exerciseID', 'Please include the exercise').isMongoId();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	const exerciseIndex = req.body.exerciseIndex;
+	const exerciseID = req.body.exerciseID;
+
 	const editInfo = {
 		title: req.body.title,
 		context: req.body.context,
@@ -48,6 +49,8 @@ module.exports.editExercise = function(req, res){
 
 	Assignment.get(req.params.assignmentID, { exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
+
+		const exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
 
 		var exercise = assignment.exercises[exerciseIndex];
 
@@ -63,19 +66,19 @@ module.exports.editExercise = function(req, res){
 }
 
 module.exports.deleteExercise = function(req, res){
-	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
-	req.checkBody('exerciseID', 'Please include the exerciseID').notEmpty();
+	req.checkBody('exerciseID', 'Please include the exerciseID').isMongoId();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	const exerciseIndex = req.body.exerciseIndex;
 	const exerciseID = req.body.exerciseID;
 
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		if (!assignment.doesExerciseExist(exerciseIndex) || assignment.isAssignmentOpen()){
+		const exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
+		
+		if (exerciseIndex === -1 || assignment.isAssignmentOpen()){
 			return helper.sendError(res, 400, new DescError('That exercise does not exist or the assignment is open and cannot be edited.', 404));
 		}
 
@@ -89,20 +92,22 @@ module.exports.deleteExercise = function(req, res){
 }
 
 module.exports.testExercise = function(req, res){
-	req.checkBody('exerciseIndex', 'Please include the exercise').isInt();
+	req.checkBody('exerciseID', 'Please include the exerciseID').isMongoId();
 	req.checkBody('code', 'Please include the code').isArray();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	const exerciseIndex = req.body.exerciseIndex;
+	const exerciseID = req.body.exerciseID;
 	const code = req.body.code;
 
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		if (!assignment.doesExerciseExist(exerciseIndex)){
-			return helper.sendError(res, 400, new DescError('That exercise does not exist', 404));
+		const exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
+
+		if (exerciseIndex === -1){
+		 	return helper.sendError(res, 400, new DescError('That exercise does not exist', 404));
 		}
 
 		assignment.exercises[exerciseIndex].runTests(code, function(err, results){

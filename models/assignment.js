@@ -168,7 +168,8 @@ assignmentSchema.methods = {
 
 	open: function(dueDate, deadlineType, pointLoss, callback){
 		var assignment = this;
-	   	if (assignment.dueDate < Date.now()){
+
+	   	if (dueDate < Date.now()){
 	       return callback(new DescError('Due date must be in the future', 400), null)
 	    }
 
@@ -185,6 +186,10 @@ assignmentSchema.methods = {
 			if (err){ return callback(err, null) };
 			return callback(err, assignment);
 		});
+	},
+
+	close: function(){
+		this.bIsOpen = false;
 	},
 
 	isContentIncomplete: function(){
@@ -234,6 +239,7 @@ assignmentSchema.methods = {
 
 	deleteContent: function(contentType, contentIndex, contentID){
 		var assignment = this;
+
 		assignment[contentType + 's'].splice(contentIndex, 1);
 
 		//Splice it out of the content order
@@ -243,12 +249,14 @@ assignmentSchema.methods = {
 		assignment.markModified('contentOrder');
 	},
 
-	doesQuestionExist: function(questionIndex){
-		return questionIndex < this.questions.length;
-	},
+	getContentIndex: function(contentType, contentID){
+		var assignment = this;
 
-	doesExerciseExist: function(exerciseIndex){
-		return exerciseIndex < this.exercises.length;
+		const contentIndex = assignment[contentType + 's'].findIndex(function(content){
+			return content._id.toString() === contentID.toString();
+		});
+
+		return contentIndex;
 	},
 
 	isAssignmentOpen: function(){

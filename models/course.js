@@ -51,7 +51,7 @@ courseSchema.statics = {
 	
 	create: function(teacher, courseInfo, callback){
 		var Course = this;
-		if (teacher.courses.length >= Course.properties.maxClassrooms){
+		if (teacher.courses.length >= Course.properties.maxClassrooms + 30){
 			return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
 		}
 
@@ -77,6 +77,15 @@ courseSchema.statics = {
 	get: function(courseCode, projection, callback){
 		var Course = this;
 		Course.findOne({ courseCode: courseCode }, projection, function(err, course){
+			if (err){ return callback(err) }
+			if (!course){ return callback(new DescError('That course was not found'), 400); }
+			return callback(null, course);
+		})
+	},
+
+	getByID: function(courseID, projection, callback){
+		var Course = this;
+		Course.findOne({ _id: courseID }, projection, function(err, course){
 			if (err){ return callback(err) }
 			if (!course){ return callback(new DescError('That course was not found'), 400); }
 			return callback(null, course);
@@ -180,6 +189,12 @@ courseSchema.methods = {
 		course.assignments.push(assignment._id);
 	},
 
+	removeAssignment: function(assignmentID){
+		var course = this;
+		var aIndex = course.assignments.indexOf(assignmentID);
+		course.assignments.splice(aIndex, 1);
+	},
+
 	addOpenAssignment: function(assignment){
 		var course = this;
 		var openAssignment = {
@@ -192,10 +207,24 @@ courseSchema.methods = {
 		course.openAssignments.push(openAssignment);
 	},
 
-	deleteAssignment: function(assignmentID){
+	removeOpenAssignment: function(assignmentID){
 		var course = this;
-		var aIndex = course.assignments.indexOf(assignmentID);
-		course.assignments.splice(aIndex, 1);
+		var removeIndex = course.openAssignments.findIndex(x => x.assignmentID.toString() == assignmentID.toString())
+
+		if (removeIndex === -1){
+			return new DescError('Could not find assignment', 400);
+		}
+
+		course.openAssignments.splice(removeIndex, 1);
+	},
+
+	getClassroom: function(classCode){
+		var course = this;
+		console.log(classCode)
+		console.log(course.classrooms)
+		const classIndex = course.classrooms.map(function(e) { return e.classCode; }).indexOf(classCode);
+
+		return course.classrooms[classIndex];
 	},
 
 	addClassroom: function(classroom){

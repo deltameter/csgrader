@@ -11,7 +11,6 @@ module.exports.getCourse = function(req, res){
 	const projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1 };
 
 	Course.getWithOpenAssignments(req.params.courseCode, projection, function(err, course){
-		console.log(err)
 		if (err) return helper.sendError(res, 500, err);
 		return helper.sendSuccess(res, course);
 	});
@@ -19,7 +18,6 @@ module.exports.getCourse = function(req, res){
 
 module.exports.getCourses = function(req, res){
 	Course.getCourseList(req.user.courses, { name: 1, courseCode: 1, openAssignments: 1 }, function(err, courses){
-		console.log(err);
 		if (err) return helper.sendError(res, 500, err);
 
 		return helper.sendSuccess(res, courses);
@@ -97,13 +95,9 @@ module.exports.delete = function(req, res){
 			course.randomizeCourseCode();
 
 			course.save(function(err){
-				console.log('couser')
-				console.log(err)
 				if (err) { return helper.sendError(res, 400, err) };
 
 				req.user.save(function(err){
-								console.log('user')
-				console.log(err)
 					if (err) { return helper.sendError(res, 400, err) };
 					return helper.sendSuccess(res);
 				})

@@ -7,10 +7,12 @@
 			</div>
 			<form class="form-horizontal" name="registrationForm" ng-submit="registrationForm.$valid && registrationCtrl.register()" novalidate>
 				<div class="modal-body">
-					<div class="col-md-8 col-md-offset-2" ng-show="registrationCtrl.userMessage.length > 0">
+					<div class="col-md-8 col-md-offset-2" ng-show="registrationCtrl.userMessages.length > 0">
 						<div class="alert alert-dismissible alert-warning">
 							<strong>Warning!</strong>
-							<p>{{ registrationCtrl.userMessage }}</p>
+							<ul>
+								<li ng-repeat = 'message in registrationCtrl.userMessages'>{{ message }}</li>
+							</ul>
 						</div>
 					</div>
 

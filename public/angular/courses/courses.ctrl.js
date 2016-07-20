@@ -48,8 +48,8 @@
 		this.create = function(){
 			CourseFactory.createCourse(vm.newCourse).then(
 				function Success(data){
-					if (typeof data.userMessage !== 'undefined'){
-						vm.userMessage = data.userMessage;
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
@@ -68,8 +68,8 @@
 		this.create = function(){
 			UserFactory.registerForCourse(vm.regInfo).then(
 				function Success(data){
-					if (typeof data.userMessage !== 'undefined'){
-						vm.userMessage = data.userMessage;
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
@@ -121,8 +121,8 @@
 		this.delete = function(){
 			CourseFactory.deleteCourse($stateParams.courseCode, vm.password).then(
 				function Success(data){
-					if (typeof data.userMessage !== 'undefined'){
-						vm.userMessage = data.userMessage;
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');

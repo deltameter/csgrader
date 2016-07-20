@@ -36,9 +36,19 @@
 			);
 		};
 
-		function deleteClassroom(courseCode, classCode){
-			return $http.delete('/api/course/' + courseCode + '/classroom/' + classCode).then(
+		function deleteClassroom(courseCode, classCode, password){
+			var requestInfo = { 
+				url: '/api/course/' + courseCode + '/classroom/' + classCode,
+				method: 'DELETE', 
+				data: { password: password }, 
+				headers: {"Content-Type": "application/json;charset=utf-8" }
+			};
+
+			return $http(requestInfo).then(
 				function Success(res){
+					return res.data;
+				}, 
+				function Failure(res){
 					return res.data;
 				}
 			)

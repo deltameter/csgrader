@@ -5,6 +5,7 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
 	Submission = mongoose.model('Submission'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
+	async = require('async'),
 	helper = require(__base + 'routes/libraries/helper');
 
 module.exports.getAssignment = function(req, res){
@@ -139,10 +140,52 @@ module.exports.open = function(req, res){
 				course.addOpenAssignment(assignment);
 				course.save();
 				
-				return helper.sendSuccess(res, assignment);
+				return helper.sendSuccess(res);
 			})
 		});
 	});
+}
+
+module.exports.close = function(req, res){
+	req.checkBody('password', 'Please include your password').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const password = req.body.password;
+
+	async.waterfall([
+		//Check password
+		function(callback){
+			req.user.checkPassword(password, function(err, bIsCorrect){
+				if (!bIsCorrect){
+					return callback(new DescError('Incorrect password', 400));
+				}
+
+				return callback(err);
+			});
+		},
+		//close the actual assignment
+		function(callback){
+			Assignment.get(req.params.assignmentID, { courseID: 1, bIsOpen: 1 }, function(err, assignment){
+				assignment.close();
+				assignment.save();
+				return callback(err, assignment.courseID)
+			});
+		},
+		//remove the assignment from the "open assignments" portion of the course
+		function(courseID, callback){
+			Course.getByID(courseID, { openAssignments: 1 }, function(err, course){
+				course.removeOpenAssignment(req.params.assignmentID);
+				course.save(function(err){
+					return helper.sendSuccess(res);
+				});
+			})
+		}
+	], function(err){
+		if (err){ return helper.sendError(res, 400, err) }
+		return helper.sendSuccess(res);
+	})
 }
 
 module.exports.delete = function(req, res){
@@ -156,7 +199,7 @@ module.exports.delete = function(req, res){
 	Course.get(req.params.courseCode, { assignments: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err); }
 		
-		course.deleteAssignment(assignmentID);
+		course.removeAssignment(assignmentID);
 
 		course.save(function(err, newAssignment){
 			if (err) return helper.sendError(res, 400, err);

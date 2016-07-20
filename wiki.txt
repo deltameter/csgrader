@@ -1,0 +1,24 @@
+Compiler API:
+Input:
+{
+	language: ID defined in helper/languagehelper.js
+	code: student submitted code
+	tests: teacher defined tests
+}
+
+Format of code:
+{
+	filename: 'filename.fileext'
+	code: 'code'
+}
+
+Format of tests follows format of code:
+
+Output:
+{
+	errors: 'failed at line 23',
+	passedTests: 'test1 test4'
+	failedTests: 'test2 test3'
+}
+
+NOTE: passedTests and failedTests do not contain file extentions

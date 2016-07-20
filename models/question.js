@@ -36,6 +36,8 @@ questionSchema.statics = {
 
 	create: function(){
 		var newQuestion = new this();
+		//create it with an empty answer for the teacher to fill in
+		newQuestion.answers = [''];
 		return newQuestion;
 	}
 }

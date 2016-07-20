@@ -93,6 +93,8 @@ module.exports = function(app){
 	
 	app.put(assignmentRoute + '/open', teacherAssignmentAuth, assignments.open);
 
+	app.put(assignmentRoute + '/close', teacherAssignmentAuth, assignments.close);
+
 	app.delete(assignmentRoute + '/delete', teacherAssignmentAuth, assignments.delete);
 
 	//******************************
@@ -103,8 +105,7 @@ module.exports = function(app){
 
 	app.put(assignmentRoute + '/question/edit', teacherAssignmentAuth, questions.editQuestion);
 
-	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/question/delete', teacherAssignmentAuth, questions.deleteQuestion);
+	app.delete(assignmentRoute + '/question/delete', teacherAssignmentAuth, questions.deleteQuestion);
 
 	//******************************
 	//****** EXERCISE ROUTES *******
@@ -116,8 +117,7 @@ module.exports = function(app){
 
 	app.post(assignmentRoute + '/exercise/test', teacherAssignmentAuth, exercises.testExercise);
 	
-	//not idempotent so we use post instead of delete
-	app.post(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, exercises.deleteExercise);
+	app.delete(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, exercises.deleteExercise);
 
 	//******************************
 	//***** SUBMISSION ROUTES ******
