@@ -1,5 +1,5 @@
 body {
-  padding-top: 100px;
+  padding-top: 0px;
 }
 
 a {
@@ -75,6 +75,14 @@ img.scale-to-fit{
 	text-transform: none;
 }
 
+.hidden-space{
+	visibility: hidden;
+}
+
+.btn-centered{
+	margin: 0 auto;
+}
+
 /* Assignments */
 .assignment .panel-heading .information{
 	font-size: 15px;
@@ -104,6 +112,26 @@ img.scale-to-fit{
 	padding-top: 30px;
 	padding-right: 40px;
 	padding-left: 40px;
+}
+
+.assignment-footer{
+	height: 50px;
+	line-height: 50px;
+	background-color: #f5f5f5;
+}
+
+.assignment-footer .progress{
+	margin-top: 21px;
+	height: 10px;
+}
+
+/* Dashboard */
+.panel-dashboard-course p{
+	margin-bottom: 0px;
+}
+
+.course-title{
+	font-size: 24px;
 }
 
 /* Questions */
@@ -204,13 +232,4 @@ img.scale-to-fit{
 
 .ace_editor { 
 	height: 200px; 
-}
-
-/* Dashboard */
-.course-title{
-	font-size: 24px;
-}
-
-.hidden-space{
-	visibility: hidden;
 }

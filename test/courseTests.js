@@ -301,7 +301,8 @@ describe('Course', function(){
 		it('shouldn\'t register a student who\'s already registered', function(done){
 			var regInfo = {
 				identifier: 'MikeCS-' + classroom.classCode,
-				password: 'topkekerino'
+				password: 'topkekerino',
+				gradebookID: '123'
 			}
 
 			testStudent

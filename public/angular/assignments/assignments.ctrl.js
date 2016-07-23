@@ -1,11 +1,10 @@
 (function(){
-
-	function choosePanelClass(role, bIsFinished, bIsCorrect, classes){
+	function choosePanelClass(classes, role, bIsFinished, bIsCorrect, bIsAttempted){
 		if (bIsFinished && role === 'teacher'){
 			return classes.success;
 		}else if (bIsCorrect && role === 'student'){
 			return classes.success;
-		}else if (!bIsCorrect && role === 'student'){
+		}else if (bIsAttempted && role === 'student'){
 			return classes.warning;
 		}else{
 			return classes.normal;
@@ -147,6 +146,15 @@
 			);
 		}
 
+		//the exercise and question will tell us when we need to update point totals
+		$scope.$on('POINTS_EARNED', function(event, points){
+			vm.assignment.pointsEarned += points;
+		})
+
+		this.getProgressBarWidth = function(){
+			return (vm.assignment.pointsEarned*100/vm.assignment.pointsWorth).toString() + '%'
+		}
+
 		this.hasContent = function(){
 			return Object.keys(vm.assignment).length > 0 &&
 			 (vm.assignment.exercises.length > 0 || vm.assignment.questions.length > 0);
@@ -161,6 +169,7 @@
 				modal.element.modal();
 				modal.close.then(function(result) {
 					vm.assignment.bIsOpen = true;
+					vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
 					vm.assignment.dueDate = result.dueDate;
 					vm.assignment.deadlineType = result.deadlineType;
 					vm.assignment.pointLoss = result.pointLoss;
@@ -269,28 +278,32 @@
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
 
-		this.getPanelClass = function(){
-			var classes = {
-				success: 'panel-success',
-				warning: 'panel-warning',
-				normal: 'panel-default'
+		this.getPanelClass = function(type){
+			var classes;
+			if (type === 'panel'){
+				classes = {
+					success: 'panel-success',
+					warning: 'panel-warning',
+					normal: 'panel-default'
+				}
+			}else if (type === 'button'){
+				classes = {
+					success: 'btn-default',
+					warning: 'btn-default',
+					normal: 'btn-info'
+				}
 			}
 
-			return choosePanelClass(UserInfo.getUser().role, vm.question.bIsFinished, vm.question.bIsCorrect, classes);
-		}
-
-		this.getPanelButtonClass = function(){
-			var classes = {
-				success: 'btn-default',
-				warning: 'btn-default',
-				normal: 'btn-info'
-			}
-
-			return choosePanelClass(UserInfo.getUser().role, vm.question.bIsFinished, vm.question.bIsCorrect, classes);
+			const bIsCorrect = vm.question.bIsCorrect 
+			|| (vm.question.questionType === 'frq' && vm.question.studentAnswer.length > 0 && vm.question.tries > 0)
+			
+			return choosePanelClass(classes, UserInfo.getUser().role, 
+				vm.question.bIsFinished, bIsCorrect, vm.question.tries > 0);
 		}
 
 		this.submitQuestion = function(){
-			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, vm.question.questionID, vm.question.studentAnswer).then(
+			console.log(vm.question.studentAnswer.toString())
+			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, vm.question._id, vm.question.studentAnswer).then(
 				function Success(res){
 					vm.question.tries++;
 
@@ -299,6 +312,7 @@
 
 						if (vm.question.questionType != 'frq' || vm.question.bIsHomework){
 							vm.question.pointsEarned = vm.question.pointsWorth;
+							$scope.$emit('POINTS_EARNED', vm.question.pointsEarned);
 						}
 					}
 				}
@@ -453,7 +467,6 @@
 			var newFile = ExerciseFactory.createNewFile(this.newFileName, this.exercise);
 
 			if (newFile !== false){
-				console.log(this.exercise);
 				this.exercise[this.focusFileType].push(newFile);
 				this.newFileName = '';
 			}
@@ -475,7 +488,6 @@
 		if (UserInfo.getUser().role === 'teacher'){
 			vm.focusFileType = 'solutionCode';
 		}else{
-			console.log(UserInfo)
 			vm.focusFileType = 'code';
 		}
 
@@ -495,11 +507,15 @@
 				}
 			}
 	
-			return choosePanelClass(UserInfo.getUser().role, (vm.exercise.bIsFinished && vm.exercise.bIsTested), vm.exercise.bIsCorrect, classes);
+			return choosePanelClass(classes, UserInfo.getUser().role, 
+				(vm.exercise.bIsFinished && vm.exercise.bIsTested), vm.exercise.bIsCorrect, vm.exercise.tries > 0);
 		}
 
 
 		this.testExercise = function(){
+			vm.compilationInfo.testResults = [];
+			vm.compilationInfo.errors = '';
+
 			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.solutionCode).then(
 				function Success(res){
 					vm.exercise.bIsTested = res.data.bIsCorrect;
@@ -512,15 +528,19 @@
 		this.submitExercise = function(){
 			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.code).then(
 				function Success(res){
-					var compilationInfo = res.data;
-					vm.compilationInfo.testResults = compilationInfo.testResults;
-					vm.compilationInfo.errors = compilationInfo.errors;
+					var compilationResults = res.data;
+					console.log('pointsearned: ' + compilationResults.pointsEarned)
+					vm.compilationInfo.testResults = compilationResults.testResults;
+					vm.compilationInfo.errors = compilationResults.errors;
 
 					vm.exercise.tries++;
-					if (compilationInfo.bIsCorrect){
-						vm.exercise.bIsCorrect = true;
-						vm.exercise.pointsEarned = vm.exercise.pointsWorth;
-					}
+
+					//add points to our assignment.
+					//subtract previously earned points from newly earned points to get net points earned
+					$scope.$emit('POINTS_EARNED', compilationResults.pointsEarned - vm.exercise.pointsEarned);
+					vm.exercise.pointsEarned = compilationResults.pointsEarned;
+
+					vm.exercise.bIsCorrect = compilationResults.bIsCorrect;
 				}
 			)
 		}
@@ -561,7 +581,6 @@
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
 				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 					function Success(res){
-						console.log(res.data.bIsFinished)
 						vm.exercise.bIsFinished = res.data.bIsFinished;
 						vm.toggleEdit();
 					}

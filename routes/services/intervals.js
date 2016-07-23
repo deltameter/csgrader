@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
 const minutes = 60 * 1000;
 
 function closeAssignments(){
-	Assignment.find({ dueDate: { $lt: new Date(2020, 11, 17, 3, 24, 0) }, bIsOpen: true }, { courseID: 1 }, function(err, assignments){
+	Assignment.find({ dueDate: { $lt: Date.now() }, bIsOpen: true }, { courseID: 1 }, function(err, assignments){
 		console.log('-------- closeAssignments interval --------');
 		console.log('err: ' + err);
 		console.log('-------------------------------------------');

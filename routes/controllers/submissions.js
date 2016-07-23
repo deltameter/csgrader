@@ -99,11 +99,12 @@ module.exports.submitExerciseAnswer = function(req, res){
 			exercise.runTests(code, function(err, results){
 				if (err) { return helper.sendError(res, 400, err); }
 
-				if (results.bIsCorrect){
-					submission.rewardCorrectExercise(assignment, exerciseIndex);
-				}
+				submission.rewardExerciseAnswer(assignment, exerciseIndex, results.bIsCorrect, results.pointsEarned);
 
 				submission.recordExerciseAnswer(true, code, exerciseIndex);
+
+				//don't want to expose the errors. might lead to students hardcoding their solutions
+				results.errors = '';
 
 				submission.save(function(err){
 					if (err) return helper.sendError(res, 400, err);

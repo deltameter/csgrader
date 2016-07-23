@@ -34,7 +34,7 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(res){
-					$state.go('root.course', { courseID: res.courseCode })
+					$state.go('root.course', { courseCode: res.courseCode })
 				});
 			});
 		}
@@ -65,7 +65,7 @@
 	.controller('mRegistrationController', function($element, close, UserFactory){
 		var vm = this;
 
-		this.create = function(){
+		this.register = function(){
 			UserFactory.registerForCourse(vm.regInfo).then(
 				function Success(data){
 					if (typeof data.userMessages !== 'undefined'){

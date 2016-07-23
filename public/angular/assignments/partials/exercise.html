@@ -54,7 +54,7 @@
 			</div>
 		</div>
 
-		<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise[exerciseCtrl.focusFileType][exerciseCtrl.focusedFileIndex].code"></div>
+		<div ui-ace="exerciseCtrl.aceOptions" ng-model="exerciseCtrl.exercise[exerciseCtrl.focusFileType][exerciseCtrl.focusedFileIndex].code" ng-readonly="exerciseCtrl.exercise[exerciseCtrl.focusFileType].length === 0"></div>
 
 		<div class="row col-xs-12 med-spacer-bottom">
 			<div class="well" ng-show="exerciseCtrl.compilationInfo.testResults.length > 0">

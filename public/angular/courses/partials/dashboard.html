@@ -5,7 +5,7 @@
 	<div class="row">
 		<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2 small-spacer" ng-repeat="course in dashboardCtrl.courses">
 			<a ui-sref="root.course({ courseCode: '{{ course.courseCode }}' })">
-				<div class="panel panel-primary">
+				<div class="panel panel-primary panel-dashboard-course">
 					<div class="panel-heading">
 						<h2 class="panel-title course-title">{{ course.name }}</h2>
 					</div>
@@ -14,7 +14,7 @@
 							<div ng-show="course.openAssignments.length === 0">
 								<p class="text-center">There are currently no open assignments.</p>
 							</div>
-							<div ng-repeat="assignment in course.openAssignments">
+							<div class="col-xs-12 tiny-spacer" ng-repeat="assignment in course.openAssignments">
 								<p class="pull-left">{{ assignment.name }}</p>
 								<p class="pull-right">Due: {{ assignment.dueDate | date:'MMM dd, hh:mm a' }}</p>
 							</div>
@@ -28,7 +28,7 @@
 	<div class="row small-spacer">
 		<div class="col-md-2 col-md-offset-5 small-spacer">
 			<btn ng-show="dashboardCtrl.user.role === 'teacher'" class="btn btn-success btn-block" ng-click="dashboardCtrl.showCourseCreationModal()">Create Course!</btn>
-			<btn ng-show="dashboardCtrl.user.role === 'student'" class="btn btn-success btn-block" ng-click="dashboardCtrl.showRegistrationModal()">Register for Course!</btn>
+			<btn ng-show="dashboardCtrl.user.role === 'student'" class="btn btn-success" ng-click="dashboardCtrl.showRegistrationModal()">Register for Course!</btn>
 		</div>
 	</div>
 

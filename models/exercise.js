@@ -83,6 +83,7 @@ exerciseSchema.methods = {
 		});
 
 		return {
+			_id: exercise._id,
 			title: exercise.title,
 			context: exercise.context,
 			language: {
@@ -171,19 +172,21 @@ exerciseSchema.methods = {
 				return callback(new DescError('Could not connect to the server. Please try again.', 500), null);
 			}
 
-			console.log(compilationInfo)
 			var bIsCorrect = compilationInfo.errors.length === 0;
 			var passedTests = compilationInfo.passedTests.trim().split(' ');
 			var fullTests = passedTests.concat(compilationInfo.failedTests.trim().split(' '));
 
-			var testsWithDescriptions = exercise.tests.map(function(exercise){
+			//since the compiler returns filenames without extensions, we need to strip extensions to compare
+			var testsWithDescriptions = exercise.tests.map(function(test){
 				return {
-					name: exercise.name.split('.')[0],
-					description: exercise.description
+					name: test.name.split('.')[0],
+					pointsWorth: test.pointsWorth,
+					description: test.description
 				}
 			})
 
 			var testResults = [];
+			var pointsEarned = 0;
 
 			for (var i = 0; i < fullTests.length; i++){
 				var test = testsWithDescriptions.find(function(test){
@@ -191,18 +194,27 @@ exerciseSchema.methods = {
 				})
 
 				if (test){
+					const passed = (passedTests.indexOf(test.name) !== -1);
+
+					if (passed){
+						pointsEarned += test.pointsWorth;
+					}
+
 					testResults.push({
 						//equates to true or false, which equates to a checkmark or red X on the frontend
-						passed: (passedTests.indexOf(test.name) !== -1),
+						passed: passed,
 						description: test.description
 					})
 				}
 			}
 
-			return callback(null, { 
-				bIsCorrect: bIsCorrect, 
-				errors: compilationInfo.errors, 
-				testResults: testResults }
+			return callback(null, 
+				{ 
+					bIsCorrect: bIsCorrect, 
+					errors: compilationInfo.errors, 
+					testResults: testResults,
+					pointsEarned: pointsEarned
+				}
 			);
 		});
 	},

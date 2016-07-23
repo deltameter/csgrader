@@ -31,11 +31,11 @@ gulp.task('js', function () {
 			'./public/angular/**/core.js', './public/angular/**/*.js'])
 		)
 	
-	//.pipe(sourcemaps.init())
+	.pipe(sourcemaps.init())
 	.pipe(concat('main.min.js'))
 	.pipe(ngAnnotate())
 	.pipe(uglify({ mangle: false }))
-	//.pipe(sourcemaps.write())
+	.pipe(sourcemaps.write())
 	.pipe(gulp.dest('./public/'))
 });
 

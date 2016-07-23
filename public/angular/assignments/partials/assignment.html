@@ -46,4 +46,17 @@
 			</div>
 		</div>
 	</div>
+
+	<footer class="assignment-footer navbar-fixed-bottom" ng-if="assignmentCtrl.user.role === 'student'	">
+		<div class="col-md-2 col-xs-3">
+			<p class="pull-right">Progress: </p>
+		</div>
+		<div class="col-md-8 col-xs-6">
+			<div class="progress progress-striped active">
+				<div class="progress-bar progress-bar-success" style="width: {{assignmentCtrl.getProgressBarWidth()}}"></div>
+			</div>
+		</div>
+	</footer>
+
 </div>
+

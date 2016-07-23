@@ -7,7 +7,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title">Open Assignment</h4>
 			</div>
-			<form class="form-horizontal" name="openForm" ng-submit="openForm.$valid closeAssignmentCtrl.close()">
+			<form class="form-horizontal" name="closeForm" ng-submit="closeForm.$valid && closeAssignmentCtrl.close()">
 				<div class="modal-body">
 					<div class="col-md-8 col-md-offset-2" ng-show="closeAssignmentCtrl.userMessages.length > 0">
 						<div class="alert alert-dismissible alert-warning">

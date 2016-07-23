@@ -129,7 +129,7 @@ module.exports.register = function(req, res){
 		var classroom = course.parseRegistrationCode(req.user, classCode, password);
 
 		if (classroom instanceof DescError){
-			return helper.sendError(res, 400, err);
+			return helper.sendError(res, 400, classroom);
 		}
 
 		classroom.linkStudentToUser(req.user, gradebookID);

@@ -21,8 +21,6 @@ const studentAuth = [auth.requiresLogin, auth.requiresStudent],
 
 var multer = require('multer')();
 
-var intervals = require(__base + 'routes/services/intervals');
-
 module.exports = function(app){
 	//******************************
 	//******** USER ROUTES *********
@@ -57,6 +55,7 @@ module.exports = function(app){
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************
+	
 	//cI = classroom index
 	const classroomRoute = '/api/course/:courseCode/classroom/:classCode';
 

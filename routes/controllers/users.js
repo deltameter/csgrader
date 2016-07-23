@@ -11,16 +11,16 @@ var mongoose = require('mongoose'),
 module.exports.authenticate = function(req, res, next){
 	passport.authenticate('local', function(err, user, info) {
 		if (err){ 
-			return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
+			return helper.sendError(res, 401, new DescError('An error occured while you were trying to access the database.', 400));
 		}
 
 		if (!user){
-			return helper.sendError(res, 401, 'That user does not exist or you did not enter the correct password.');
+			return helper.sendError(res, 401, new DescError('That user does not exist or you did not enter the correct password.', 400));
 		}
 
 		req.logIn(user, function(err) {
 			if (err){ 
-				return helper.sendError(res, 401, 'An error occured while you were trying to access the database.');
+				return helper.sendError(res, 401, new DescError('An error occured while you were trying to access the database.', 400));
 			}
 
 			return module.exports.getSelf(req, res);

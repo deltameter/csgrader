@@ -125,8 +125,6 @@ assignmentSchema.statics = {
 		return newAssignment;
 	}
 
-
-
 }
 
 assignmentSchema.methods = {
@@ -171,6 +169,10 @@ assignmentSchema.methods = {
 
 	   	if (dueDate < Date.now()){
 	       return callback(new DescError('Due date must be in the future', 400), null)
+	    }
+
+	    if (assignment.bIsOpen){
+	    	return callback(new DescError('This assignment is already open.', 400), null)
 	    }
 
 		var err = assignment.isContentIncomplete();

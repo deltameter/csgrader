@@ -134,7 +134,16 @@ module.exports.open = function(req, res){
 		Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 			if (err){ return helper.sendError(res, 400, err); }
 
-			assignment.open(dueDate, deadlineType, pointLoss, function(err, assignment){
+			async.series([
+				function(callback){
+					//delete all previous submissions by students from the last semester/year 
+					Submission.deleteByAssignment(assignment, callback);
+				},
+				function(callback){
+					//actually open the assignment now
+					assignment.open(dueDate, deadlineType, pointLoss, callback);
+				}
+			], function(err){
 				if (err){ return helper.sendError(res, 400, err); }
 
 				course.addOpenAssignment(assignment);

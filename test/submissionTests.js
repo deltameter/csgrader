@@ -128,7 +128,6 @@ describe('Submission', function(){
 	});
 
 	describe('exercise submission', function(){
-
 		it('should save an exercise answer', function(done){
 
 			var info = {
@@ -168,7 +167,7 @@ describe('Submission', function(){
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				expect(res.body.errors).to.not.equal('');
+				expect(res.body.bIsCorrect).to.equal(false);
 				done();
 			});
 		});
@@ -191,7 +190,7 @@ describe('Submission', function(){
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				expect(res.body.errors).to.not.equal('');
+				expect(res.body.bIsCorrect).to.equal(false);
 				done();
 			});
 		});
@@ -214,7 +213,7 @@ describe('Submission', function(){
 			.send(info)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				expect(res.body.errors).to.equal('');
+				expect(res.body.bIsCorrect).to.equal(true);
 				done();
 			});
 		});

@@ -91,6 +91,14 @@ submissionSchema.statics = {
 		newSubmission.save(function(err, submission){
 			return callback(err, submission);
 		})
+	},
+
+	deleteByAssignment: function(assignment, callback){
+		var Submission = this;
+
+		Submission.remove({ assignmentID: assignment._id }, function(err, res){
+			return callback(err, res);
+		})
 	}
 }
 
@@ -164,13 +172,13 @@ submissionSchema.methods = {
 		submission.markModified('questionsCorrect');
 	},
 
-	rewardCorrectExercise: function(assignment, exerciseIndex){
+	rewardExerciseAnswer: function(assignment, exerciseIndex, bIsCorrect, pointsEarned){
 		var submission = this;
 
-		var points = submission.addPoints(assignment, assignment.exercises[exerciseIndex].pointsWorth);
+		var points = submission.addPoints(assignment, pointsEarned);
 
 		submission.exercisePoints[exerciseIndex] = points;
-		submission.exercisesCorrect[exerciseIndex] = true;
+		submission.exercisesCorrect[exerciseIndex] = bIsCorrect;
 		submission.markModified('exercisePoints');
 		submission.markModified('exercisesCorrect');
 	},

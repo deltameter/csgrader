@@ -58,7 +58,7 @@
 			</div>
 		</div>
 
-		<div ui-ace="exerciseEditCtrl.aceOptions" ng-model="exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType][exerciseEditCtrl.focusedFileIndex].code"></div>
+		<div ui-ace="exerciseEditCtrl.aceOptions" ng-model="exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType][exerciseEditCtrl.focusedFileIndex].code" ng-readonly="exerciseEditCtrl.exercise[exerciseCtrl.focusFileType].length === 0"></div>
 
 		<div class="row med-spacer-top" ng-show="exerciseEditCtrl.focusFileType === 'tests'">
 			<form class="form-inline">

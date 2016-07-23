@@ -121,6 +121,8 @@ classroomSchema.methods = {
 	},
 
 	linkStudentToUser: function(user, gradebookID){
+		var classroom = this;
+		
 		//Find the user by their name. 
 		var newStudent = classroom.students.find(function(student){
 			return student.lastName.toLowerCase() === user.lastName.toLowerCase() 

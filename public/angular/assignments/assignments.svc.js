@@ -13,7 +13,8 @@
 			search: search,
 			createAssignment: createAssignment,
 			openAssignment: openAssignment,
-			closeAssignment: closeAssignment
+			closeAssignment: closeAssignment,
+			calculateTotalPoints: calculateTotalPoints
 		};
 
 		function getAssignment(courseCode, assignmentID){
@@ -22,11 +23,44 @@
 					var assignment = res.data.assignment;
 					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
 
+					//if a submission is included, load it. This means either a student is loading this,
+					//or a teacher/aide is viewing a student submission
+					if (res.data.submission){
+						var submission = res.data.submission;
+
+						assignment.pointsEarned = 0; 
+
+						for (var i = 0; i < assignment.questions.length; i++){
+							//parse it into an int if multiple choice
+							if (assignment.questions[i].questionType === 'mc'){
+								submission.questionAnswers[i] = parseInt(submission.questionAnswers[i]);
+							}
+
+							assignment.pointsEarned += submission.questionPoints[i];
+
+							assignment.questions[i].studentAnswer = submission.questionAnswers[i];
+							assignment.questions[i].tries = submission.questionTries[i];
+							assignment.questions[i].pointsEarned = submission.questionPoints[i];
+							assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
+						}
+
+						for (var i = 0; i < assignment.exercises.length; i++){
+
+							assignment.pointsEarned += submission.exercisePoints[i];
+
+							assignment.exercises[i].code = submission.exerciseAnswers[i];
+							assignment.exercises[i].tries = submission.exerciseTries[i];
+							assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
+							assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
+						}
+					}
+
 					for (var i = 0; i < assignment.contentOrder.length; i++){
 						//true = exercise, false = question
 						//content order is the type of problem, then the ID of said problem
+
 						if (assignment.contentOrder[i].indexOf('exercise') === 0){
-							//get the id by removing exercise from the thing
+							//get the id by removing exercise from the contentOrder
 							var id = assignment.contentOrder[i].split('exercise')[1];
 							var location = arrayObjectIndexOf(assignment.exercises, '_id', id);
 
@@ -35,7 +69,7 @@
 							assignment.content[i].exerciseIndex = location;
 
 						}else if (assignment.contentOrder[i].indexOf('question') === 0){
-							//get the id by removing question from the thing
+							//get the id by removing question from the contentOrder
 							var id = assignment.contentOrder[i].split('question')[1];
 							var location = arrayObjectIndexOf(assignment.questions, '_id', id);
 
@@ -45,25 +79,6 @@
 						}
 					}
 
-					//if a submission is included, load it. This means either a student is loading this,
-					//or a teacher/aide is viewing a student submission
-					if (res.data.submission){
-						var submission = res.data.submission;
-
-						for (var i = 0; i < assignment.questions.length; i++){
-							assignment.questions[i].studentAnswer = submission.questionAnswers[i];
-							assignment.questions[i].tries = submission.questionTries[i];
-							assignment.questions[i].pointsEarned = submission.questionPoints[i];
-							assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
-						}
-
-						for (var i = 0; i < assignment.exercises.length; i++){
-							assignment.exercises[i].code = submission.exerciseAnswers[i];
-							assignment.exercises[i].tries = submission.exerciseTries[i];
-							assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
-							assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
-						}
-					}
 					return assignment;
 				},
 				function Failure(res){
@@ -121,6 +136,20 @@
 				}
 			);
 		}
+
+		function calculateTotalPoints(assignment){
+			var totalPoints = 0;
+
+			assignment.exercises.forEach(function(exercise){
+				totalPoints += exercise.pointsWorth;
+			})
+
+			assignment.questions.forEach(function(question){
+				totalPoints += question.pointsWorth;
+			})
+
+			return totalPoints;
+		}
 	})
 
 	.factory('QuestionFactory', function($http){
@@ -162,12 +191,14 @@
 		}
 
 		function submitQuestion(courseCode, assignmentID, questionID, answer){
+			console.log(answer)
+			console.log(questionID)
 			var questionAnswer = {
 				answer: answer,
 				questionID: questionID
 			}
 
-			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/submit', answer);
+			return $http.put('/api/course/' + courseCode + '/assignment/' + assignmentID + '/question/submit', questionAnswer);
 		}
 	})
 
@@ -221,9 +252,9 @@
 
 		}
 
-		function submitExercise(courseCode, assignmentID, exerciseIndex, code){
+		function submitExercise(courseCode, assignmentID, exerciseID, code){
 			var submission = {
-				exerciseIndex: exerciseIndex,
+				exerciseID: exerciseID,
 				code: code
 			}
 
@@ -247,9 +278,14 @@
 				filename += exercise.language.fileExt;
 			}
 
-			//if there is no other file with the same name
-			if (exercise.code.map(function(code){ return code.name }).indexOf(filename) === -1 
-				&& exercise.tests.map(function(test){ return test.name }).indexOf(filename) === -1){
+			//check if there is a code file with the same name
+			
+			const bDistinctCodeName = exercise.code.map(function(code){ return code.name }).indexOf(filename) === -1;
+
+			//check if there is a test file with the same name or if tests doesnt exist (not shown to students)
+			const bDistinctTestName = typeof exercise.tests === 'undefined' || exercise.tests.map(function(test){ return test.name }).indexOf(filename) === -1;
+
+			if (bDistinctCodeName && bDistinctTestName){
 				return {
 					name: filename,
 					code: '//' + filename

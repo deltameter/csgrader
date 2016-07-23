@@ -46,6 +46,7 @@ questionSchema.methods = {
 	stripAnswers: function(){
 		var question = this;
 		return {
+			_id: question._id,
 			question: question.question, //top kek
 			questionType: question.questionType,
 			pointsWorth: question.pointsWorth,

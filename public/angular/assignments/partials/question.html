@@ -1,4 +1,4 @@
-<div class="question panel" ng-class="questionCtrl.getPanelClass()">
+<div class="question panel" ng-class="questionCtrl.getPanelClass('panel')">
 	<div class="panel-heading">
 		<div class="row">
 			<div class="col-xs-7">
@@ -20,7 +20,7 @@
 			</div>
 
 			<div class="col-xs-1">
-				<button class="btn btn-sm" ng-class="questionCtrl.getPanelButtonClass()" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="questionCtrl.toggleEdit()">Edit</button>
+				<button class="btn btn-sm" ng-class="questionCtrl.getPanelClass('button')" ng-show="assignmentCtrl.user.role === 'teacher'" ng-click="questionCtrl.toggleEdit()">Edit</button>
 			</div>
 		</div>
 	</div>
@@ -34,13 +34,13 @@
 		<div class="row med-spacer-bottom">
 			<div class="form-horizontal">
 
-				<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-show="questionCtrl.question.questionType ==='mc'">
+				<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-if="questionCtrl.question.questionType ==='mc'">
 					<div class="tiny-spacer" ng-repeat="answer in questionCtrl.question.answers track by $index">
-						<btn class="btn btn-block btn-normalcase" ng-class="questionCtrl.question.studentAnswer == $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
+						<btn class="btn btn-block btn-normalcase" ng-class="questionCtrl.question.studentAnswer === $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
 					</div>
 				</div>
 
-				<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-show="questionCtrl.question.questionType ==='fillblank'">
+				<div class="form form-horizontal col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-if="questionCtrl.question.questionType ==='fillblank'">
 					<div class="form-group">
 						<label for="textArea" class="col-md-2 control-label">Answer: </label>
 						<div class="col-md-8">
@@ -49,15 +49,15 @@
 					</div>
 				</div>
 
-				<div class="col-xs-10 col-xs-offset-1" ng-show="questionCtrl.question.questionType ==='frq'">
+				<div class="col-xs-10 col-xs-offset-1" ng-if="questionCtrl.question.questionType ==='frq'">
 					<div class="form-group">
 						<textarea class="form-control frq-textarea" rows="4" ng-model="questionCtrl.question.studentAnswer"></textarea>
 					</div>
 				</div>
 
 				<div class="row">
-					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-						<btn class="btn btn-success btn-block" ng-show="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();">Submit</btn>
+					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 med-spacer-bottom">
+						<btn class="btn btn-success btn-block" ng-if="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();">Submit</btn>
 					</div>
 				</div>
 			</div>
