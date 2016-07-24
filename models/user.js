@@ -5,6 +5,7 @@ var mongoose = require('mongoose'),
 	bcrypt = require('bcrypt'),
 	async = require('async'),
 	validator = require('validator'),
+	config = require(__base + '/app/config'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 var SALT_LEVELS = 10;
@@ -38,7 +39,8 @@ var userSchema = new Schema({
 	//Student specific
 
 	//rate limit the # of times a user can submit in a certain time
-	exerciseSubmissionRate: { type: Number, default: 10 }
+	exerciseSubmissionAllowance: { type: Number, default: 10 },
+	exerciseRateLastCheck: { type: Date, default: Date.now() }
 });
 
 userSchema.path('firstName').validate(function(firstName){
@@ -97,12 +99,15 @@ userSchema.pre('save', function(next){
 });
 
 userSchema.statics = {
-	validPassword: function(password){
-		return password.length >= 8 && password.length <= 50;
+	properties: {
+		maxCourses: 10,
+		exerciseAllowanceMax: config.exerciseRateLimiting.max,
+		exerciseSubmissionRate: config.exerciseRateLimiting.rate,
+		exerciseSubmissionPer: config.exerciseRateLimiting.per
 	},
 
-	properties: function(user){
-		maxCourses: 10
+	validPassword: function(password){
+		return password.length >= 8 && password.length <= 50;
 	},
 
 	create: function(userInfo, callback){
@@ -179,6 +184,33 @@ userSchema.methods = {
 		var courseIndex = user.courses.indexOf(courseID);
 		user.courses.splice(courseIndex, 1);
 		user.markModified('courses');
+	},
+
+	/*
+		@description: calculates whether a user can submit an exercise based off of rate limiting
+	*/
+
+	isRateLimited: function(){
+		var user = this;
+		const rate = user.constructor.properties.exerciseSubmissionRate;
+		const per = user.constructor.properties.exerciseSubmissionPer;
+		const max = user.constructor.properties.exerciseAllowanceMax;
+		const currentTime = Date.now()
+
+		user.exerciseSubmissionAllowance += (rate / per) * ((currentTime-user.exerciseRateLastCheck) / 1000);
+
+		if (user.exerciseSubmissionAllowance > max){
+			user.exerciseSubmissionAllowance = max;
+		}
+
+		if (user.exerciseSubmissionAllowance >= 1){
+			user.exerciseSubmissionAllowance -= 1;
+			user.exerciseRateLastCheck = currentTime;
+			user.save();
+			return false;
+		}else{
+			return true;
+		}
 	}
 }
 

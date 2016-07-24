@@ -191,8 +191,6 @@
 		}
 
 		function submitQuestion(courseCode, assignmentID, questionID, answer){
-			console.log(answer)
-			console.log(questionID)
 			var questionAnswer = {
 				answer: answer,
 				questionID: questionID

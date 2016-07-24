@@ -37,9 +37,9 @@
 				<div class="col-md-9 col-xs-12">
 					<div class="exercise-button-container" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
 						<div class="btn-group">
-							<btn class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name }}</btn>
+							<button class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name }}</button>
 
-							<btn class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseCtrl.focusedFileIndex === $index"><i class="fa fa-times" aria-hidden="true"></i></btn>
+							<button class="btn" double-click="exerciseCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseCtrl.focusedFileIndex === $index"><i class="fa fa-times" aria-hidden="true"></i></button>
 						</div>
 					</div>
 				</div>
@@ -48,7 +48,7 @@
 					<div class="col-xs-9">
 						<input type="text" ng-model="exerciseCtrl.newFileName" placeholder="New File Name" class="form-control" autocomplete="off">
 					</div>
-					<btn class="btn btn-success" ng-click="exerciseCtrl.addFile()">+</btn>
+					<button class="btn btn-success" ng-click="exerciseCtrl.addFile()">+</button>
 				</div>
 
 			</div>
@@ -70,12 +70,12 @@
 		<div class="row small-spacer-bottom">
 			<div ng-show="assignmentCtrl.user.role === 'teacher'">
 				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-					<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()">Test & Save Solution</btn>
+					<button class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()" ng-disabled="exerciseCtrl.bBackendComputing">Test & Save Solution <i class="fa fa-cog fa-spin fa-fw" ng-show="exerciseCtrl.bBackendComputing"></i></button>
 				</div>
 			</div>
 
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.user.role !== 'teacher'">
-				<btn class="btn btn-success btn-block" ng-click="exerciseCtrl.submitExercise()">Submit</btn>
+				<button class="btn btn-success btn-block" ng-click="exerciseCtrl.submitExercise()" ng-disabled="exerciseCtrl.bBackendComputing">Submit <i class="fa fa-cog fa-spin fa-fw" ng-show="exerciseCtrl.bBackendComputing"></i></button>
 			</div>
 		</div>
 	</div>

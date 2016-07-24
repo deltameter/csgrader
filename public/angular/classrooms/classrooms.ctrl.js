@@ -54,7 +54,9 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
-					$state.go('root.classrooms', { courseCode: vm.courseCode });
+					if (result){
+						$state.go('root.classrooms', { courseCode: vm.courseCode });
+					}
 				});
 			});
 		}
@@ -65,15 +67,28 @@
 	.controller('mDeleteClassroomController', function($stateParams, $element, close, ClassroomFactory){
 		var vm = this;
 
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
 		this.delete = function(){
 			ClassroomFactory.deleteClassroom($stateParams.courseCode, $stateParams.classCode, vm.password).then(
 				function Success(data){
-					console.log(data)
 					if (typeof data.userMessages !== 'undefined'){
 						vm.userMessages = data.userMessages;
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
+						
+						//so we don't close it again in the $element watcher
+						vm.closed = true;
+
 						//success so close
 						close(data, 500);
 					}
@@ -103,7 +118,10 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
-					$state.go('root.classroom', { courseCode: vm.courseCode, classCode: result.classCode });
+					console.log(result)
+					if (result){
+						$state.go('root.classroom', { courseCode: vm.courseCode, classCode: result.classCode });
+					}
 				});
 			});
 		}
@@ -114,6 +132,16 @@
 	.controller('mCreateClassroomController', function($stateParams, $element, close, ClassroomFactory){
 		var vm = this;
 
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
 		this.create = function(){
 			ClassroomFactory.createClassroom($stateParams.courseCode, vm.newClassroomName).then(
 				function Success(data){
@@ -122,6 +150,8 @@
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
+
+						vm.closed = true;
 						//success so close
 						close(data, 500);
 					}

@@ -217,6 +217,38 @@ describe('Submission', function(){
 				done();
 			});
 		});
+
+		it('should successfully rate limit users that try to submit too many times', function(done){
+			this.timeout(20000);
+			var info = {
+				exerciseID: exerciseIDs[0],
+				code: [
+					{ 
+						name: 'Kang.java',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
+					}
+				],
+			}
+
+			var submit = function(callback){
+				testStudent
+				.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
+				.send(info)
+				.end(function(err, res){
+					return callback(res.status !== 200);
+				});
+			}
+
+			var ddosAttempt = [];
+			for (var i = 0; i < 10; i++){
+				ddosAttempt.push(submit);
+			}
+
+			async.series(ddosAttempt, function(err){
+				expect(err).to.equal(true);
+				done();
+			})
+		})
 	});
 
 	describe('submission tools', function(){

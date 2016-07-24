@@ -148,9 +148,8 @@ img.scale-to-fit{
 	padding-right: 10px;
 }
 
-.question-edit .config .form-group{
-	margin-left: 50px;
-	margin-right: 50px;
+.question-edit .config{
+	padding-left: 80px;
 }
 
 .question-edit .config label{
@@ -162,6 +161,18 @@ img.scale-to-fit{
 	width: 30px;
 }
 
+.question-edit .config .frq-config{
+	padding-top: 5px;
+	padding-left: 55px;
+}
+
+.question-edit .config .frq-config label{
+	margin-right: 0px;
+}
+
+.question-edit .config .frq-config .checkbox{
+	margin-bottom: 2px;
+}
 /* Exercises */
 
 .exercise .exercise-context .context{

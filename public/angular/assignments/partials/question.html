@@ -36,7 +36,7 @@
 
 				<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-1" ng-if="questionCtrl.question.questionType ==='mc'">
 					<div class="tiny-spacer" ng-repeat="answer in questionCtrl.question.answers track by $index">
-						<btn class="btn btn-block btn-normalcase" ng-class="questionCtrl.question.studentAnswer === $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
+						<button class="btn btn-block btn-normalcase" ng-class="questionCtrl.question.studentAnswer === $index ? 'btn-primary' : 'btn-default'" ng-click="questionCtrl.question.studentAnswer = $index">{{ answer }}</div>
 					</div>
 				</div>
 
@@ -57,7 +57,7 @@
 
 				<div class="row">
 					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 med-spacer-bottom">
-						<btn class="btn btn-success btn-block" ng-if="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();">Submit</btn>
+						<button class="btn btn-success btn-block" ng-if="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();" ng-disabled="questionCtrl.bBackendComputing">Submit <i class="fa fa-circle-o-notch fa-spin fa-fw" ng-show="questionCtrl.bBackendComputing"></i></button>
 					</div>
 				</div>
 			</div>

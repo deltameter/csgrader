@@ -1,12 +1,12 @@
 {
-	"env": "dev",
+	"env": "production",
 	"appLocation": "http://localhost:3000",
 	"mongoURL": "mongodb://localhost/csgrader",
 	"gradingMachineURL": "http://162.243.32.207",
 	"exerciseRateLimiting": {
-		"max": 1000,
-		"per": 1,
-		"rate": 1
+		"max": 10,
+		"per": 15,
+		"rate": 2
 	},
 	"sendgrid": {
 		"apiKey": "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",

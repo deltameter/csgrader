@@ -35,7 +35,7 @@ module.exports.editQuestion = function(req, res){
 		questionType: req.body.questionType,
 		answers: req.body.answers,
 		mcAnswer: req.body.mcAnswer,
-		triesAllowed: req.body.triesAllowed === 'unlimited' ? -1 : req.body.triesAllowed,
+		triesAllowed: (req.body.triesAllowed === 'unlimited' || req.body.questionType === 'frq') ? -1 : req.body.triesAllowed,
 		pointsWorth: req.body.pointsWorth,
 		bIsHomework: req.body.bIsHomework
 	}

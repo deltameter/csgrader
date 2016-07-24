@@ -1,14 +1,13 @@
 'use strict';
 const fs = require('fs');
-const dev = fs.readFileSync(__dirname + '/env/dev.json');
 
 if (process.env.NODE_ENV == 'production'){
-	
+	const prod = fs.readFileSync(__dirname + '/env/prod.json');
+	module.exports = JSON.parse(prod);
 }else if (process.env.NODE_ENV == 'test'){
-	var testEnv = JSON.parse(dev);
-	testEnv.env = 'test';
-	testEnv.mongoURL = 'mongodb://localhost/csgradertest';
-	module.exports = testEnv;
+	const test = fs.readFileSync(__dirname + '/env/test.json');
+	module.exports = JSON.parse(test);
 }else{
+	const dev = fs.readFileSync(__dirname + '/env/dev.json');
 	module.exports = JSON.parse(dev);
 }

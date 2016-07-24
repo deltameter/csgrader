@@ -62,7 +62,11 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(assignment) {
-					$state.go('root.assignment', { courseCode: vm.courseCode, assignmentID: assignment.assignmentID });
+					if (assignment){
+						const params = { courseCode: vm.courseCode, assignmentID: assignment.assignmentID };
+						console.log(params)
+						$state.go('root.assignment', params);
+					}
 				});
 			});
 		}
@@ -107,6 +111,16 @@
 	.controller('mCreateAssignmentController', function($stateParams, $element, close, AssignmentFactory){
 		var vm = this;
 
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
 		this.create = function(){
 			AssignmentFactory.createAssignment($stateParams.courseCode, vm.newAssignment).then(
 				function Success(assignment){
@@ -115,6 +129,8 @@
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
+
+						vm.closed = true;
 						//success so close
 						close(assignment, 500);
 					}
@@ -168,11 +184,13 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
-					vm.assignment.bIsOpen = true;
-					vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
-					vm.assignment.dueDate = result.dueDate;
-					vm.assignment.deadlineType = result.deadlineType;
-					vm.assignment.pointLoss = result.pointLoss;
+					if (result){
+						vm.assignment.bIsOpen = true;
+						vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
+						vm.assignment.dueDate = result.dueDate;
+						vm.assignment.deadlineType = result.deadlineType;
+						vm.assignment.pointLoss = result.pointLoss;
+					}
 				});
 			});
 		}
@@ -185,7 +203,9 @@
 			}).then(function(modal) {
 				modal.element.modal();
 				modal.close.then(function(result) {
-					vm.assignment.bIsOpen = false;
+					if (result){
+						vm.assignment.bIsOpen = false;
+					}
 				});
 			});
 		}
@@ -235,6 +255,17 @@
 	
 	.controller('mOpenAssignmentController', function($scope, $stateParams, $element, close, AssignmentFactory){
 		var vm = this;
+
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
 		this.openAssignment = function(){
 			AssignmentFactory.openAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.openInfo).then(
 				function Success(data){
@@ -243,6 +274,9 @@
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
+
+						vm.closed = true;
+
 						//success so close
 						close(vm.openInfo, 500);
 					}
@@ -253,6 +287,17 @@
 
 	.controller('mCloseAssignmentController', function($scope, $stateParams, $element, close, AssignmentFactory){
 		var vm = this;
+
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
 		this.close = function(){
 			AssignmentFactory.closeAssignment($stateParams.courseCode, $stateParams.assignmentID, vm.password).then(
 				function Success(data){
@@ -261,8 +306,11 @@
 					}else{
 						//we have to manually close the modal because we have a complex form
 						$element.modal('hide');
+
+						vm.closed = true;
+
 						//success so close
-						close(null, 500);
+						close(true, 500);
 					}
 				}
 			)
@@ -278,31 +326,30 @@
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
 
-		this.getPanelClass = function(type){
-			var classes;
-			if (type === 'panel'){
-				classes = {
-					success: 'panel-success',
-					warning: 'panel-warning',
-					normal: 'panel-default'
-				}
-			}else if (type === 'button'){
-				classes = {
-					success: 'btn-default',
-					warning: 'btn-default',
-					normal: 'btn-info'
-				}
+		const panelClasses = {
+			panel: {
+				success: 'panel-success',
+				warning: 'panel-warning',
+				normal: 'panel-default'
+			},
+			button: {
+				success: 'btn-default',
+				warning: 'btn-default',
+				normal: 'btn-info'
 			}
+		}
 
-			const bIsCorrect = vm.question.bIsCorrect 
-			|| (vm.question.questionType === 'frq' && vm.question.studentAnswer.length > 0 && vm.question.tries > 0)
+		this.getPanelClass = function(type){
+			const bIsCorrect = vm.question.bIsCorrect || (vm.question.questionType === 'frq' && vm.question.tries > 0)
 			
-			return choosePanelClass(classes, UserInfo.getUser().role, 
+			return choosePanelClass(panelClasses[type], UserInfo.getUser().role, 
 				vm.question.bIsFinished, bIsCorrect, vm.question.tries > 0);
 		}
 
 		this.submitQuestion = function(){
-			console.log(vm.question.studentAnswer.toString())
+			var submitTime = Date.now();
+
+			vm.bBackendComputing = true;
 			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, vm.question._id, vm.question.studentAnswer).then(
 				function Success(res){
 					vm.question.tries++;
@@ -315,6 +362,10 @@
 							$scope.$emit('POINTS_EARNED', vm.question.pointsEarned);
 						}
 					}
+
+					$timeout(function(){
+						vm.bBackendComputing = false;
+					}, Math.max(50, 300 + submitTime - Date.now()))
 				}
 			)
 		}
@@ -491,41 +542,40 @@
 			vm.focusFileType = 'code';
 		}
 
-		this.getPanelClass = function(type){
-			var classes;
-			if (type === 'panel'){
-				classes	= {
-					success: 'panel-success',
-					warning: 'panel-warning',
-					normal: 'panel-default'
-				}
-			}else if (type === 'button'){
-				classes = {
-					success: 'btn-default',
-					warning: 'btn-default',
-					normal: 'btn-info'
-				}
+		const panelClasses = {
+			panel: {
+				success: 'panel-success',
+				warning: 'panel-warning',
+				normal: 'panel-default'
+			},
+			button: {
+				success: 'btn-default',
+				warning: 'btn-default',
+				normal: 'btn-info'
 			}
-	
-			return choosePanelClass(classes, UserInfo.getUser().role, 
+		}
+
+		this.getPanelClass = function(type){
+			return choosePanelClass(panelClasses[type], UserInfo.getUser().role, 
 				(vm.exercise.bIsFinished && vm.exercise.bIsTested), vm.exercise.bIsCorrect, vm.exercise.tries > 0);
 		}
 
-
 		this.testExercise = function(){
-			vm.compilationInfo.testResults = [];
-			vm.compilationInfo.errors = '';
+			vm.bBackendComputing = true;
 
 			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.solutionCode).then(
 				function Success(res){
 					vm.exercise.bIsTested = res.data.bIsCorrect;
 					vm.compilationInfo.testResults = res.data.testResults;
 					vm.compilationInfo.errors = res.data.errors;
+					vm.bBackendComputing = false;
 				}
 			)
 		}
 
 		this.submitExercise = function(){
+			vm.bBackendComputing = true;
+
 			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.code).then(
 				function Success(res){
 					var compilationResults = res.data;
@@ -541,6 +591,8 @@
 					vm.exercise.pointsEarned = compilationResults.pointsEarned;
 
 					vm.exercise.bIsCorrect = compilationResults.bIsCorrect;
+
+					vm.bBackendComputing = false;
 				}
 			)
 		}

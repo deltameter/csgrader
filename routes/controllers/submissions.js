@@ -72,6 +72,10 @@ module.exports.submitExerciseAnswer = function(req, res){
 
 	const assignmentProjection = { bIsOpen: 1, exercises: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
 
+	if (req.user.isRateLimited()){
+		return helper.sendError(res, 400, new DescError('Please wait before submitting more exercises', 400))
+	}
+
 	Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 

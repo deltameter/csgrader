@@ -22,9 +22,9 @@
 					<input type="text" ng-model="student.gradebookID" class="form-control" autocomplete="off">
 				</div>
 				<div class="col-md-1">
-					<btn ng-click="classroomCtrl.editStudent(student, studentForm)" ng-show="studentForm.$dirty" class="btn btn-success btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i></btn>
+					<button ng-click="classroomCtrl.editStudent(student, studentForm)" ng-show="studentForm.$dirty" class="btn btn-success btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
 
-					<btn double-click="classroomCtrl.deleteStudent(student._id)" double-click-class="btn-warning btn-danger" class="btn btn-sm"><i class="fa fa-times" aria-hidden="true"></i></btn>
+					<button double-click="classroomCtrl.deleteStudent(student._id)" double-click-class="btn-warning btn-danger" class="btn btn-sm"><i class="fa fa-times" aria-hidden="true"></i></button>
 
 				</div>
 			</div>
@@ -45,7 +45,7 @@
 					<input type="text" ng-model="classroomCtrl.newStudent.gradebookID" placeholder="Gradebook ID" class="form-control" autocomplete="off">
 				</div>
 				<div class="col-md-1">
-					<btn ng-click="classroomCtrl.createStudent()" class="btn btn-success btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></btn>
+					<button ng-click="classroomCtrl.createStudent()" class="btn btn-success btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></button>
 				</div>
 			</div>
 		</div>
@@ -58,7 +58,7 @@
 				<input type="file" placeholder="First Name" class="form-control" autocomplete="off">
 			</div>
 			<div class="col-md-2">
-				<btn ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></btn>
+				<button ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></button>
 			</div>
 		</div>
 	</div>
@@ -69,7 +69,7 @@
 
 	<div class="row">
 		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-			<btn class="btn btn-danger btn-block" ng-click="classroomCtrl.openDeleteClassroomModal()">Delete Classroom</btn>
+			<button class="btn btn-danger btn-block" ng-click="classroomCtrl.openDeleteClassroomModal()">Delete Classroom</button>
 		</div>
 	</div>
 </div>

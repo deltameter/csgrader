@@ -37,14 +37,14 @@
 		<div class="row small-spacer-top">
 			<div class="col-xs-12 exercise-tab-bar">
 				<div class="col-md-2 col-xs-6 col-md-offset-0 col-xs-offset-3">
-					<btn class="btn btn-default btn-block"  ng-click="exerciseEditCtrl.swapFocusFileType()">{{ exerciseEditCtrl.focusFileType === 'tests' ? 'Tests:' : 'Starter Files:' }}</btn>
+					<button class="btn btn-default btn-block"  ng-click="exerciseEditCtrl.swapFocusFileType()">{{ exerciseEditCtrl.focusFileType === 'tests' ? 'Tests:' : 'Starter Files:' }}</button>
 				</div>
 				<div class="col-md-7 col-xs-12">
 					<div class="exercise-button-container" ng-repeat="codeFile in exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType] track by $index">
 						<div class="btn-group">
-							<btn class="btn btn-file" ng-class="exerciseEditCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseEditCtrl.focusFile($index)">{{ codeFile.name }}</btn>
+							<button class="btn btn-file" ng-class="exerciseEditCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseEditCtrl.focusFile($index)">{{ codeFile.name }}</button>
 
-							<btn class="btn" double-click="exerciseEditCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseEditCtrl.focusedFileIndex === $index" ><i class="fa fa-times" aria-hidden="true"></i></btn>
+							<button class="btn" double-click="exerciseEditCtrl.deleteFile($index)" double-click-class="btn-file-close btn-danger" ng-if="exerciseEditCtrl.focusedFileIndex === $index" ><i class="fa fa-times" aria-hidden="true"></i></button>
 						</div>
 					</div>
 				</div>
@@ -53,12 +53,12 @@
 					<div class="col-xs-9">
 						<input type="text" ng-model="exerciseEditCtrl.newFileName" placeholder="New File Name" class="form-control" autocomplete="off">
 					</div>
-					<btn class="btn btn-success" ng-click="exerciseEditCtrl.addFile()">+</btn>
+					<button class="btn btn-success" ng-click="exerciseEditCtrl.addFile()">+</button>
 				</div>
 			</div>
 		</div>
 
-		<div ui-ace="exerciseEditCtrl.aceOptions" ng-model="exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType][exerciseEditCtrl.focusedFileIndex].code" ng-readonly="exerciseEditCtrl.exercise[exerciseCtrl.focusFileType].length === 0"></div>
+		<div ui-ace="exerciseEditCtrl.aceOptions" ng-model="exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType][exerciseEditCtrl.focusedFileIndex].code" ng-readonly="exerciseEditCtrl.exercise[exerciseEditCtrl.focusFileType].length === 0"></div>
 
 		<div class="row med-spacer-top" ng-show="exerciseEditCtrl.focusFileType === 'tests'">
 			<form class="form-inline">
@@ -80,10 +80,10 @@
 
 		<div class="row small-spacer-bottom">
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-				<btn class="btn btn-success btn-block" ng-click="exerciseEditCtrl.editExercise();">Save</btn>
+				<button class="btn btn-success btn-block" ng-click="exerciseEditCtrl.editExercise();">Save</button>
 			</div>
 			<div class="col-md-1 col-md-offset-2 col-xs-4 col-xs-offset-4">
-				<btn class="btn" double-click="assignmentCtrl.deleteExercise($index, exerciseEditCtrl.exercise.exerciseIndex, exerciseEditCtrl.exercise._id)" double-click-class="btn-warning btn-danger">Delete</btn>
+				<button class="btn" double-click="assignmentCtrl.deleteExercise($index, exerciseEditCtrl.exercise.exerciseIndex, exerciseEditCtrl.exercise._id)" double-click-class="btn-warning btn-danger">Delete</button>
 			</div>
 		</div>
 	</div>

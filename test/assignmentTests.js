@@ -220,8 +220,7 @@ describe('Assignment', function(){
 				question: 'Type some long boring shit here:',
 				questionType: 'frq',
 				pointsWorth: 5,
-				bIsHomework: true,
-				triesAllowed: 'unlimited'
+				bIsHomework: true
 			}
 
 			testTeacher
@@ -239,8 +238,7 @@ describe('Assignment', function(){
 				question: 'Type some long boring shit here:',
 				questionType: 'frq',
 				pointsWorth: 5,
-				bIsHomework: false,
-				triesAllowed: 'unlimited'
+				bIsHomework: false
 			}
 
 			testTeacher
