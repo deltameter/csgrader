@@ -28,7 +28,7 @@
 		})
 
 		.state('root.main.public', {
-			templateUrl: '/angular/general/partials/index.html',
+			templateUrl: '/partials/general/index.html',
 			data: {
 				bIsPublic: true
 			},

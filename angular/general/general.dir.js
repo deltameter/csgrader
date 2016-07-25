@@ -3,7 +3,7 @@
 	.directive('navbar', function(){
 		return {
 			restrict: 'E',
-			templateUrl: '/angular/general/partials/navbar.html',
+			templateUrl: '/partials/general/navbar.html',
 			controller: 'NavController',
 			controllerAs: 'navCtrl'
 		}

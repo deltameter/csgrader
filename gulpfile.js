@@ -25,10 +25,9 @@ gulp.task('js', function () {
 		gulp.src('./bower_components/angular-modal-service/dst/angular-modal-service.min.js'),
 
 		//our code
-		gulp.src('./public/angular/**/*.module.js'),
+		gulp.src('./angular/**/*.module.js'),
 		//include everything but the module js
-		gulp.src(['!./public/angular/**/main.min.js', '!./public/angular/**/*.module.js', 
-			'./public/angular/**/core.js', './public/angular/**/*.js'])
+		gulp.src(['!./angular/**/*.module.js', './angular/**/core.js', './angular/**/*.js'])
 		)
 	
 	.pipe(sourcemaps.init())
@@ -40,5 +39,5 @@ gulp.task('js', function () {
 });
 
 gulp.task('watch', ['js'], function () {
-	gulp.watch(['!./public/angular/main.min.js', './public/angular/**/*.js'], ['js'])
+	gulp.watch(['./angular/**/*.js'], ['js'])
 });

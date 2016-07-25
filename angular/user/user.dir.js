@@ -3,7 +3,7 @@
 	.directive('registration', function(){
 		return {
 			restrict: 'E',
-			templateUrl: '/angular/user/partials/registration.html',
+			templateUrl: '/partials/user/registration.html',
 			controller: 'RegistrationController',
 			controllerAs: 'registrationCtrl'
 		}

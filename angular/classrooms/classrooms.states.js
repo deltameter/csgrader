@@ -3,13 +3,13 @@
 		$stateProvider
 		.state('root.classrooms', {
 			url: '/course/:courseCode/classroom',
-			templateUrl: '/angular/classrooms/partials/classrooms.html',
+			templateUrl: '/partials/classrooms/classrooms.html',
 			controller: 'ClassroomsController',
 			controllerAs: 'classroomsCtrl'
 		})
 		.state('root.classroom', {
 			url: '/course/:courseCode/classroom/:classCode',
-			templateUrl: '/angular/classrooms/partials/classroom.html',
+			templateUrl: '/partials/classrooms/classroom.html',
 			controller: 'ClassroomController',
 			controllerAs: 'classroomCtrl'
 		})

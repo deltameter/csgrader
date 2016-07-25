@@ -56,7 +56,7 @@
 
 		this.showAssignmentCreationModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/assignments/partials/createAssignmentModal.html',
+				templateUrl: '/partials/assignments/createAssignmentModal.html',
 				controller: 'mCreateAssignmentController',
 				controllerAs: 'createAssignmentCtrl'
 			}).then(function(modal) {
@@ -178,7 +178,7 @@
 
 		this.showOpenModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/assignments/partials/openAssignmentModal.html',
+				templateUrl: '/partials/assignments/openAssignmentModal.html',
 				controller: 'mOpenAssignmentController',
 				controllerAs: 'openAssignmentCtrl'
 			}).then(function(modal) {
@@ -197,7 +197,7 @@
 
 		this.showCloseModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/assignments/partials/closeAssignmentModal.html',
+				templateUrl: '/partials/assignments/closeAssignmentModal.html',
 				controller: 'mCloseAssignmentController',
 				controllerAs: 'closeAssignmentCtrl'
 			}).then(function(modal) {

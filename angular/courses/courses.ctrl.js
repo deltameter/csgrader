@@ -15,7 +15,7 @@
 
 		this.showCourseCreationModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/courses/partials/courseCreationModal.html',
+				templateUrl: '/partials/courses/courseCreationModal.html',
 				controller: 'mCourseCreationController',
 				controllerAs: 'courseCreationCtrl'
 			}).then(function(modal) {
@@ -30,7 +30,7 @@
 
 		this.showRegistrationModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/courses/partials/registrationModal.html',
+				templateUrl: '/partials/courses/registrationModal.html',
 				controller: 'mRegistrationController',
 				controllerAs: 'registrationCtrl'
 			}).then(function(modal) {
@@ -129,7 +129,7 @@
 
 		this.showDeleteCourseModal = function(){
 			ModalService.showModal({
-				templateUrl: '/angular/courses/partials/deleteCourseModal.html',
+				templateUrl: '/partials/courses/deleteCourseModal.html',
 				controller: 'mCourseDeletionController',
 				controllerAs: 'courseDeletionCtrl'
 			}).then(function(modal) {

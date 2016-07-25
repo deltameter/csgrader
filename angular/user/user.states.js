@@ -2,7 +2,7 @@
 	angular.module('user').config(['$stateProvider', function($stateProvider){
 		$stateProvider.state('root.login', {
 			url: '/login',
-			templateUrl: '/angular/user/partials/login.html',
+			templateUrl: '/partials/user/login.html',
 			data: {
 				bIsPublic: true
 			},
@@ -17,7 +17,7 @@
 
 		$stateProvider.state('root.join', {
 			url: '/join',
-			templateUrl: '/angular/user/partials/join.html',
+			templateUrl: '/partials/user/join.html',
 			data: {
 				bIsPublic: true
 			},
@@ -27,7 +27,7 @@
 		
 		$stateProvider.state('root.profile', {
 			url: '/profile',
-			templateUrl: '/angular/user/partials/profile.html',
+			templateUrl: '/partials/user/profile.html',
 			controller: 'ProfileController',
 			controllerAs: 'profileCtrl'
 		});
