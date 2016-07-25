@@ -5,10 +5,10 @@
 	</div>
 
 	<div class="row small-spacer">
-		<h5 class="text-center">{{ classroomCtrl.classroom.students.length }} students</h5>
+			<h5 class="text-center">{{ classroomCtrl.classroom.students.length }} students</h5>
 	</div>
 
-	<div class="row">
+	<div class="row med-spacer">
 		<ng-form name="studentForm" class="form-horizontal" ng-repeat="student in classroomCtrl.classroom.students track by $index">
 			<div class="form-group small-spacer">
 				<label class="col-md-2 col-md-offset-1 control-label">{{ studentForm.$dirty }}</label>
@@ -31,10 +31,16 @@
 		</ng-form>
 	</div>
 
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1">
+			<hr>
+		</div>
+	</div>
+
 	<div class="row med-spacer">
 		<div class="form-horizontal">
 			<div class="form-group">
-				<label class="col-md-2 col-md-offset-1 control-label">Add New User</label>
+				<label class="col-md-2 col-md-offset-1 control-label">Add Student</label>
 				<div class="col-md-2">
 					<input type="text" ng-model="classroomCtrl.newStudent.firstName" placeholder="First Name" class="form-control" autocomplete="off">
 				</div>
@@ -51,7 +57,7 @@
 		</div>
 	</div>
 
-	<div class="form-horizontal spacer">
+	<div class="row form-horizontal spacer">
 		<div class="form-group">
 			<label class="col-md-4 col-md-offset-1 control-label">Import from CSV</label>
 			<div class="col-md-4">
@@ -61,10 +67,6 @@
 				<button ng-click="classroomCtrl.createStudent()" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i></button>
 			</div>
 		</div>
-	</div>
-
-	<div class="well">
-		{{ classroomCtrl.classroom }}
 	</div>
 
 	<div class="row">

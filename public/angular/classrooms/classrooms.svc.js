@@ -58,6 +58,7 @@
 	.factory('StudentFactory', function($http){
 		return {
 			createStudent: createStudent,
+			//importStudents: importStudents,
 			editStudent: editStudent,
 			deleteStudent: deleteStudent
 		};

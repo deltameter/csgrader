@@ -1,5 +1,70 @@
 (function(){
 	angular.module('classrooms')
+
+	.controller('ClassroomsController', function($stateParams, $state, ModalService, ClassroomFactory){
+		var vm = this;
+		vm.courseCode = $stateParams.courseCode;
+		vm.classrooms = [];
+
+		var getClassrooms = function(){
+			ClassroomFactory.getClassrooms($stateParams.courseCode).then(
+				function Success(res){
+					vm.classrooms = res;
+				}
+			)
+		}
+
+		this.openCreateClassroomModal = function(){
+			ModalService.showModal({
+				templateUrl: '/angular/classrooms/partials/createClassroomModal.html',
+				controller: 'mCreateClassroomController',
+				controllerAs: 'createClassroomCtrl'
+			}).then(function(modal) {
+				modal.element.modal();
+				modal.close.then(function(result) {
+					console.log(result)
+					if (result){
+						$state.go('root.classroom', { courseCode: vm.courseCode, classCode: result.classCode });
+					}
+				});
+			});
+		}
+
+		getClassrooms();
+	})
+
+	.controller('mCreateClassroomController', function($stateParams, $element, close, ClassroomFactory){
+		var vm = this;
+
+		//without this, the modal will not close if you click away
+		//it will just hide itself
+		//if you click away and then open the modal again and submit, it will call close() twice
+		//once for the new modal, and once for the old invisible modal
+		$element.on('hidden.bs.modal', function(){ 
+			if (!vm.closed){
+				return close(null, 500) 
+			}
+		});
+
+		this.create = function(){
+			ClassroomFactory.createClassroom($stateParams.courseCode, vm.newClassroomName).then(
+				function Success(data){
+					console.log(data.userMessages)
+					if (typeof data.userMessages !== 'undefined'){
+						vm.userMessages = data.userMessages;
+					}else{
+						//we have to manually close the modal because we have a complex form
+						$element.modal('hide');
+
+						vm.closed = true;
+						//success so close
+						close(data, 500);
+					}
+				}
+			)
+		}
+	})
+
 	.controller('ClassroomController', function($stateParams, $state, ModalService, StudentFactory, ClassroomFactory){
 		var vm = this;
 
@@ -89,69 +154,6 @@
 						//so we don't close it again in the $element watcher
 						vm.closed = true;
 
-						//success so close
-						close(data, 500);
-					}
-				}
-			)
-		}
-	})
-
-	.controller('ClassroomsController', function($stateParams, $state, ModalService, ClassroomFactory){
-		var vm = this;
-		vm.courseCode = $stateParams.courseCode;
-		vm.classrooms = [];
-
-		var getClassrooms = function(){
-			ClassroomFactory.getClassrooms($stateParams.courseCode).then(
-				function Success(res){
-					vm.classrooms = res;
-				}
-			)
-		}
-
-		this.openCreateClassroomModal = function(){
-			ModalService.showModal({
-				templateUrl: '/angular/classrooms/partials/createClassroomModal.html',
-				controller: 'mCreateClassroomController',
-				controllerAs: 'createClassroomCtrl'
-			}).then(function(modal) {
-				modal.element.modal();
-				modal.close.then(function(result) {
-					console.log(result)
-					if (result){
-						$state.go('root.classroom', { courseCode: vm.courseCode, classCode: result.classCode });
-					}
-				});
-			});
-		}
-
-		getClassrooms();
-	})
-
-	.controller('mCreateClassroomController', function($stateParams, $element, close, ClassroomFactory){
-		var vm = this;
-
-		//without this, the modal will not close if you click away
-		//it will just hide itself
-		//if you click away and then open the modal again and submit, it will call close() twice
-		//once for the new modal, and once for the old invisible modal
-		$element.on('hidden.bs.modal', function(){ 
-			if (!vm.closed){
-				return close(null, 500) 
-			}
-		});
-
-		this.create = function(){
-			ClassroomFactory.createClassroom($stateParams.courseCode, vm.newClassroomName).then(
-				function Success(data){
-					if (typeof data.userMessages !== 'undefined'){
-						vm.userMessages = data.userMessages;
-					}else{
-						//we have to manually close the modal because we have a complex form
-						$element.modal('hide');
-
-						vm.closed = true;
 						//success so close
 						close(data, 500);
 					}

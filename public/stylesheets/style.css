@@ -179,19 +179,6 @@ img.scale-to-fit{
 	font-size: 15px;
 }
 
-.exercise .exercise-tab-bar, .exercise-edit .exercise-tab-bar{
-	padding-left: 50px;
-	padding-right: 50px;
-}
-
-.exercise-check{
-	color: #4caf50;
-}
-
-.exercise-times{
-	color: #e51c23;
-}
-
 .exercise-edit{
 	min-height: 500px;
 }
@@ -214,7 +201,19 @@ img.scale-to-fit{
 	width: 30px;
 }
 
-.exercise-button-container{
+.exercise-ide-bar{
+	padding-left: 50px;
+	padding-right: 50px;
+}
+
+.exercise-tab-container{
+	padding-bottom: 2px;
+	overflow: auto;
+	overflow-y: hidden;
+	white-space: nowrap;
+}
+
+.exercise-tab{
 	display: inline-block;
 	margin-right: 10px;
 }
@@ -238,9 +237,26 @@ img.scale-to-fit{
     text-align: right;
 }
 
+.exercise-check{
+	color: #4caf50;
+}
+
+.exercise-times{
+	color: #e51c23;
+}
+/* Classrooms List */
+.classrooms-list .list-group-item{
+	padding-left: 50px;
+	padding-right: 50px;
+}
+
+.classrooms-list .memes{
+	line-height: 30px;
+	margin: 0px;
+}
+
 
 /* ACE Editor */
-
 .ace_editor { 
 	height: 200px; 
 }

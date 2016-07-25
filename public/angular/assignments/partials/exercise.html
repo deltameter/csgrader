@@ -34,8 +34,8 @@
 
 		<div class="row small-spacer-top">
 			<div class="col-xs-12 exercise-tab-bar">
-				<div class="col-md-9 col-xs-12">
-					<div class="exercise-button-container" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
+				<div class="col-md-9 col-xs-12 exercise-tab-container">
+					<div class="exercise-tab" ng-repeat="codeFile in exerciseCtrl.exercise[exerciseCtrl.focusFileType] track by $index">
 						<div class="btn-group">
 							<button class="btn btn-file" ng-class="exerciseCtrl.focusedFileIndex === $index ? 'btn-primary' : 'btn-default'" ng-click="exerciseCtrl.focusFile($index)">{{ codeFile.name }}</button>
 
@@ -44,12 +44,12 @@
 					</div>
 				</div>
 
-				<div class="col-md-3 col-xs-6 col-md-offset-0 col-xs-offset-6">
+				<form class="col-md-3 col-xs-6 col-md-offset-0 col-xs-offset-6" ng-submit="exerciseCtrl.addFile()">
 					<div class="col-xs-9">
 						<input type="text" ng-model="exerciseCtrl.newFileName" placeholder="New File Name" class="form-control" autocomplete="off">
 					</div>
-					<button class="btn btn-success" ng-click="exerciseCtrl.addFile()">+</button>
-				</div>
+					<button type="submit" class="btn btn-success">+</button>
+				</form>
 
 			</div>
 		</div>

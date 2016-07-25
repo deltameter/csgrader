@@ -8,8 +8,8 @@
 			</div>
 		</div>
 
-		<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-2">
-			<div class="list-group">
+		<div class="row col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-2 med-spacer-bottom">
+			<div class="list-group classrooms-list">
 				<a href="#" class="list-group-item" ng-repeat="classroom in classroomsCtrl.classrooms" ui-sref="root.classroom({ courseCode: classroomsCtrl.courseCode, classCode: classroom.classCode })">
 					<div class="row">
 						<div class="col-md-7 col-xs-12">
@@ -18,8 +18,8 @@
 							</h4>
 						</div>
 
-						<div class="col-md-5 col-xs-12">
-							<p class="list-group-item-text">
+						<div class="col-md-4 col-xs-12">
+							<p class="memes pull-right">
 								{{ classroom.studentNum }} students
 							</p>
 						</div>
