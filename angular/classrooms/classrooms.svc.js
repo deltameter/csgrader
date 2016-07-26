@@ -55,10 +55,10 @@
 		}
 	})
 
-	.factory('StudentFactory', function($http){
+	.factory('StudentFactory', function($http, $injector){
 		return {
 			createStudent: createStudent,
-			//importStudents: importStudents,
+			importStudents: importStudents,
 			editStudent: editStudent,
 			deleteStudent: deleteStudent
 		};
@@ -70,6 +70,18 @@
 				}
 			);
 		};
+
+		function importStudents(courseCode, classCode, file){
+			var Upload = $injector.get('Upload');
+			file.upload = Upload.upload({
+				url: '/api/course/' + courseCode + '/classroom/' + classCode + '/student/import',
+				data: { students: file },
+			});
+
+			return file.upload.then(function(res){
+				return res.data;
+			});
+		}
 
 		function editStudent(courseCode, classCode, student){
 			var studentInfo = {

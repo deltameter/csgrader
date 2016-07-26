@@ -81,12 +81,12 @@ module.exports.deleteClassroom = function(req, res){
 module.exports.importStudents = function(req, res){
 	//REQUIRES classroom.classCode, csv file
 	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
-		classroom.addStudentsByCSV(req.file.buffer, function(err){
+		classroom.addStudentsByCSV(req.file.buffer, function(err, allStudents){
 			if (err){ return helper.sendError(res, 400, err) };
 
 			course.save(function(err){
 				if (err){ return helper.sendError(res, 400, err) };
-				return helper.sendSuccess(res);
+				return helper.sendSuccess(res, allStudents);
 			})
 		})
 	});

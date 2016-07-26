@@ -1,4 +1,4 @@
-<div class="container" ng-cloak>
+<div class="container" oc-lazy-load="['/js/vendor/ace-builds/src-min-noconflict/ace.js', '/js/vendor/angular-ui-ace/ui-ace.min.js', '/js/vendor/angular-ui-tinymce/dist/tinymce.min.js']">
 	<div class="row col-xs-12 small-spacer" ng-show="assignmentCtrl.user.role === 'teacher' && assignmentCtrl.hasContent()">
 		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.assignment.bIsOpen">
 			<button class="btn btn-block btn-primary" ng-click="assignmentCtrl.showOpenModal()">Open Assignment</button>

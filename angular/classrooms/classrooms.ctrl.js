@@ -90,6 +90,16 @@
 			)
 		}
 
+		this.importStudents = function(){
+			StudentFactory.importStudents($stateParams.courseCode, $stateParams.classCode, vm.importFile).then(
+				function Success(students){
+					console.log(students);
+					vm.classroom.students = vm.classroom.students.concat(students);
+					vm.importFile = null;
+				}
+			)
+		}
+
 		this.editStudent = function(student, form){
 			StudentFactory.editStudent($stateParams.courseCode, $stateParams.classCode, student).then(
 				function Success(res){

@@ -141,7 +141,7 @@
 	})
 
 	.controller('AssignmentController', 
-		function($scope, $stateParams, ModalService, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
+		function($scope, $stateParams, $ocLazyLoad, ModalService, UserInfo, AssignmentFactory, QuestionFactory, ExerciseFactory){
 
 		var vm = this;
 		vm.user = UserInfo.getUser();
@@ -177,22 +177,31 @@
 		}
 
 		this.showOpenModal = function(){
-			ModalService.showModal({
-				templateUrl: '/partials/assignments/openAssignmentModal.html',
-				controller: 'mOpenAssignmentController',
-				controllerAs: 'openAssignmentCtrl'
-			}).then(function(modal) {
-				modal.element.modal();
-				modal.close.then(function(result) {
-					if (result){
-						vm.assignment.bIsOpen = true;
-						vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
-						vm.assignment.dueDate = result.dueDate;
-						vm.assignment.deadlineType = result.deadlineType;
-						vm.assignment.pointLoss = result.pointLoss;
-					}
+
+			//load the date picker stuff before we get into the modal. 
+			$ocLazyLoad.load([
+				'/stylesheets/datepicker.min.css',
+				'/js/vendor/moment/moment.js',
+				'/js/vendor/angular-datepicker/dist/angular-datepicker.min.js'
+			]).then(function(){
+
+				ModalService.showModal({
+					templateUrl: '/partials/assignments/openAssignmentModal.html',
+					controller: 'mOpenAssignmentController',
+					controllerAs: 'openAssignmentCtrl'
+				}).then(function(modal) {
+					modal.element.modal();
+					modal.close.then(function(result) {
+						if (result){
+							vm.assignment.bIsOpen = true;
+							vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
+							vm.assignment.dueDate = result.dueDate;
+							vm.assignment.deadlineType = result.deadlineType;
+							vm.assignment.pointLoss = result.pointLoss;
+						}
+					});
 				});
-			});
+			});;
 		}
 
 		this.showCloseModal = function(){
@@ -253,7 +262,7 @@
 		init();
 	})
 	
-	.controller('mOpenAssignmentController', function($scope, $stateParams, $element, close, AssignmentFactory){
+	.controller('mOpenAssignmentController', function($scope, $stateParams, $compile, $element, close, AssignmentFactory){
 		var vm = this;
 
 		//without this, the modal will not close if you click away

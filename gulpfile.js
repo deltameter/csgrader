@@ -9,20 +9,10 @@ var gulp = require('gulp'),
 gulp.task('js', function () {
 	streamqueue({ objectMode: true },
 		//DEPENDENCIES
-		//Load Ace
-		gulp.src('./bower_components/ace-builds/src-min-noconflict/ace.js'),
-		//Load ui-ace
-		gulp.src('./bower_components/angular-ui-ace/ui-ace.min.js'),
+		gulp.src('./public/js/vendor/oclazyload/dist/ocLazyLoad.min.js'),
 
-		//load ui-tinymc
-
-		gulp.src('./bower_components/angular-ui-tinymce/dist/tinymce.min.js'),
-		
-		//load the datepicker
-		gulp.src('./bower_components/moment/moment.js'),
-		gulp.src('./bower_components/angular-datepicker/dist/angular-datepicker.min.js'),
 		//load modal service
-		gulp.src('./bower_components/angular-modal-service/dst/angular-modal-service.min.js'),
+		gulp.src('./public/js/vendor/angular-modal-service/dst/angular-modal-service.min.js'),
 
 		//our code
 		gulp.src('./angular/**/*.module.js'),
@@ -30,12 +20,12 @@ gulp.task('js', function () {
 		gulp.src(['!./angular/**/*.module.js', './angular/**/core.js', './angular/**/*.js'])
 		)
 	
-	.pipe(sourcemaps.init())
+	//.pipe(sourcemaps.init())
 	.pipe(concat('main.min.js'))
 	.pipe(ngAnnotate())
 	.pipe(uglify({ mangle: false }))
-	.pipe(sourcemaps.write())
-	.pipe(gulp.dest('./public/'))
+	//.pipe(sourcemaps.write())
+	.pipe(gulp.dest('./public/js'))
 });
 
 gulp.task('watch', ['js'], function () {

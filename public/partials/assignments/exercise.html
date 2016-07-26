@@ -70,7 +70,7 @@
 		<div class="row small-spacer-bottom">
 			<div ng-show="assignmentCtrl.user.role === 'teacher'">
 				<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-					<button class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()" ng-disabled="exerciseCtrl.bBackendComputing">Test & Save Solution <i class="fa fa-cog fa-spin fa-fw" ng-show="exerciseCtrl.bBackendComputing"></i></button>
+					<button class="btn btn-success btn-block" ng-click="exerciseCtrl.testExercise()" ng-disabled="exerciseCtrl.bBackendComputing || exerciseCtrl.exercise.tries >= exerciseCtrl.exercise.triesAllowed">Test & Save Solution <i class="fa fa-cog fa-spin fa-fw" ng-show="exerciseCtrl.bBackendComputing"></i></button>
 				</div>
 			</div>
 

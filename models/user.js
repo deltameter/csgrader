@@ -121,8 +121,12 @@ userSchema.statics = {
 			role: userInfo.role
 		});
 
-		if (userInfo.password !== userInfo.retypePassword || !User.validPassword(userInfo.password)){
+		if (userInfo.password !== userInfo.retypePassword){
 			return callback(new DescError('Passwords must match.'), 400);
+		}
+
+		if (!User.validPassword(userInfo.password)){
+			return callback(new DescError('Passwords must be between 8-50 letters.'), 400);
 		}
 
 		newUser.save(function(err, user){

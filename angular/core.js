@@ -2,10 +2,8 @@
 	var app = angular.module('grader', 
 		[
 			//dependencies
-			'ui.ace',
+			'oc.lazyLoad',
 			'ui.router',
-			'ui.tinymce',
-			'datePicker',
 			'angularModalService',
 
 			//our code
@@ -33,13 +31,9 @@
 			}
 
   			if (AuthResolver.bIsResolved()){
-/*  				console.log('stateChangeStart resolved');
-  				console.log('auth: ' + AuthService.isAuthenticated());*/
   				ensureAuth(event, AuthService.isAuthenticated());
   			}else{
   				AuthResolver.resolve().then(function(data){
-/*  					console.log('stateChangeStart not resolved');
-  					console.log('auth: ' + AuthService.isAuthenticated());*/
   					ensureAuth(event, AuthService.isAuthenticated());
   				});
   			}

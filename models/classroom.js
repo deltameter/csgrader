@@ -116,7 +116,7 @@ classroomSchema.methods = {
 				classroom.addStudent(studentInfo);
 			}
 
-			return callback(null);
+			return callback(null, classroom.students);
 		});
 	},
 
