@@ -84,31 +84,48 @@ img.scale-to-fit{
 }
 
 /* Assignments */
-.assignment .panel-heading .information{
-	font-size: 15px;
-	margin-bottom: 0px;
-}
-
 .assignment-search-well{
 	padding-left: 35px;
 	padding-right: 35px;
 }
 
-.assignment .panel-heading{
+.assignment-panel .panel-title{
+	padding-left: 40px;
+	font-size: 36px;
+} 
+
+.assignment-panel .panel-heading .information{
+	font-size: 20px;
+	line-height: 40px;
+	margin-bottom: 0px;
+}
+
+.assignment-panel .panel-body .description{
+	font-size: 18px;
+	padding-left: 100px;
+	padding-right: 100px;
+	padding-top: 30px;
+}
+
+.assignment-content .panel-heading .information{
+	font-size: 15px;
+	margin-bottom: 0px;
+}
+
+.assignment-content .panel-heading{
 	padding-left: 30px;
 	padding-right: 30px;
 }
 
-.assignment .panel-title{
+.assignment-content .panel-title{
 	font-size: 24px
-
 }
 
-.assignment .panel-heading .btn{
+.assignment-content .panel-heading .btn{
 	float: right;
 }
 
-.assignment .panel-body{
+.assignment-content .panel-body{
 	padding-top: 30px;
 	padding-right: 40px;
 	padding-left: 40px;

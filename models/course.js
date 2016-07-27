@@ -147,7 +147,7 @@ courseSchema.statics = {
 				return callback(null, classrooms);
 			}
 		);
-	}	
+	}
 }
 
 courseSchema.methods = {
@@ -220,11 +220,25 @@ courseSchema.methods = {
 
 	getClassroom: function(classCode){
 		var course = this;
-		console.log(classCode)
-		console.log(course.classrooms)
 		const classIndex = course.classrooms.map(function(e) { return e.classCode; }).indexOf(classCode);
 
 		return course.classrooms[classIndex];
+	},
+
+	getClassroomByUserID: function(userID){
+		var course = this;
+
+		var classroom = course.classrooms.find(function(classroom){ 
+			return classroom.students
+			.filter(function(student){
+				return typeof student.userID !== 'undefined'
+			})
+			.map(function(student){ 
+				return student.userID.toString()
+			}).indexOf(userID.toString()) !== -1;
+		})
+
+		return classroom;
 	},
 
 	addClassroom: function(classroom){

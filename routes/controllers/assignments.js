@@ -12,26 +12,82 @@ module.exports.getAssignment = function(req, res){
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		if (req.user.role !== 'teacher'){
-			var studentAssignment = assignment.stripAnswers(assignment);
-
-			Submission.get(req.user._id, assignment._id, {}, function(err, submission){
-				if (err){
-					//Could not find a submission by this name. Make one.
-					if (err instanceof DescError){
-						Submission.create(req.user._id, assignment, function(err, submission){
-							return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
-						});
-					}else{
-						return helper.sendError(res, 400, err);
-					}
-				}else{
-					return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
-				}
-			});
-		}else{
+		if (req.user.role === 'teacher'){
 			return helper.sendSuccess(res, { assignment: assignment });
 		}
+		
+		const studentAssignment = assignment.stripAnswers();
+
+		Submission.get(assignment._id, req.user._id, {}, function(err, submission){
+			if (err && err instanceof DescError){
+				//Could not find a submission for this assignment by this student. Make one.
+				Submission.create(req.user, assignment, function(err, submission){
+					if (err){ return helper.sendError(res, 400, err); }
+
+					//add the student's submission info to the assignment
+					Course.get(req.params.courseCode, { classrooms: 1 }, function(err, course){
+						if (err){ return helper.sendError(res, 400, err); }
+
+						const classroom = course.getClassroomByUserID(req.user._id);
+						assignment.addSubmission(classroom, submission);
+						assignment.save();
+
+
+						return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
+					})
+				});
+			}else if (err){
+				return helper.sendError(res, 400, err);
+			}else{
+				return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
+			}
+		});
+	})
+}
+
+module.exports.getSubmissions = function(req, res){
+	Assignment.get(req.params.assignmentID, { classSubmissions: 1 }, function(err, assignment){
+		if (err){ return helper.sendError(res, 400, err); }
+
+		return helper.sendSuccess(res, assignment.classSubmissions)
+	})
+}
+
+module.exports.getSubmissionList = function(req, res){
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const submissionIDs = req.body.submissionIDs;
+
+	Assignment.get(req.params.assignmentID, { classSubmissions: 1 }, function(err, assignment){
+		const classroomSubmission = assignment.classSubmissions.find(function(classSub){
+			return classSub.classCode === req.params.classCode;
+		});
+
+		async.parallel({
+			assignment: function(callback){
+				Assignment.get(req.params.assignmentID, { pointsWorth: 1 }, function(err, assignment){
+					return callback(err, assignment)
+				});
+			},
+			submissions: function(callback){
+				console.log(classroomSubmission.submissionIDs);
+				Submission
+				.getBySubmissionIDs(
+					classroomSubmission.submissionIDs, 
+					{ studentID: 1, studentName: 1, pointsEarned: 1 }, 
+
+					function(err, submissions){
+						return callback(err, submissions)
+					}
+				)
+			}
+		}, function(err, results){
+			if (err){ return helper.sendError(res, 400, err) }
+
+			return helper.sendSuccess(res, results);
+		})
+
 	})
 }
 

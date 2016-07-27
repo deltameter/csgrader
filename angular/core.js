@@ -12,6 +12,7 @@
 			'classrooms',
 			'user',
 			'assignments',
+			'submissions',
 			'misc'
 		]);
 

@@ -34,7 +34,7 @@ module.exports.submitQuestionAnswer = function(req, res){
 
 		const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
 
-		Submission.get(req.user._id, assignment._id, questionProjection, function(err, submission){
+		Submission.get(assignment._id, req.user._id, questionProjection, function(err, submission){
 			if (err) { return helper.sendError(res, 400, err); }
 
 			const question = assignment.questions[questionIndex];
@@ -91,7 +91,7 @@ module.exports.submitExerciseAnswer = function(req, res){
 
 		const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
 
-		Submission.get(req.user._id, assignment._id, exerciseProjection, function(err, submission){
+		Submission.get(assignment._id, req.user._id, exerciseProjection, function(err, submission){
 			if (err) { return helper.sendError(res, 400, err); }
 
 			const exercise = assignment.exercises[exerciseIndex];
@@ -130,7 +130,7 @@ module.exports.saveExerciseAnswer = function(req, res){
 	const exerciseIndex = req.body.exerciseIndex;
 	const code = req.body.code;
 
-	Submission.get(req.user._id, assignment._id, { exerciseAnswers: 1 }, function(err, submission){
+	Submission.get(assignment._id, req.user._id, { exerciseAnswers: 1 }, function(err, submission){
 		if (err) return helper.sendError(res, 400, err);
 
 		submission.recordExerciseAnswer(false, code, exerciseIndex);

@@ -121,6 +121,9 @@ module.exports = function(app){
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************
+	app.get(assignmentRoute + '/submission', teacherAssignmentAuth, assignments.getSubmissions);
+
+	app.get(assignmentRoute + '/submission/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
 
 	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
 

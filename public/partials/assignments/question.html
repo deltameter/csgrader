@@ -56,8 +56,10 @@
 				</div>
 
 				<div class="row">
-					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 med-spacer-bottom">
-						<button class="btn btn-success btn-block" ng-if="assignmentCtrl.user.role !== 'teacher'" ng-click="questionCtrl.submitQuestion();" ng-disabled="questionCtrl.bBackendComputing ||  questionCtrl.question.tries >= questionCtrl.question.triesAllowed ">Submit <i class="fa fa-circle-o-notch fa-spin fa-fw" ng-show="questionCtrl.bBackendComputing"></i></button>
+					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 med-spacer-bottom" ng-if="assignmentCtrl.user.role !== 'teacher'">
+						<button class="btn btn-success btn-block" ng-if="questionCtrl.question.questionType !== 'frq'" ng-click="questionCtrl.submitQuestion();" ng-disabled="questionCtrl.bBackendComputing || questionCtrl.question.tries >= questionCtrl.question.triesAllowed || questionCtrl.question.bIsCorrect">Submit <i class="fa fa-circle-o-notch fa-spin fa-fw" ng-show="questionCtrl.bBackendComputing"></i></button>
+
+						<button class="btn btn-success btn-block" ng-if="questionCtrl.question.questionType === 'frq'" ng-click="questionCtrl.submitQuestion();" ng-disabled="questionCtrl.bBackendComputing">Save <i class="fa fa-circle-o-notch fa-spin fa-fw" ng-show="questionCtrl.bBackendComputing"></i></button>
 					</div>
 				</div>
 			</div>

@@ -188,7 +188,7 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should set the third to be an mc', function(done){
+		it('should set the third to be an multiple choice question', function(done){
 			var questionEdit = {
 				questionID: questionIDs[2],
 				question: 'What\'s the dankest letter?',
@@ -503,12 +503,11 @@ describe('Assignment', function(){
 			})
 		})
 
-		it ('should create a new submission on first access by student', function(done){
+		it ('should create a new submission and return the assignment on first access by student', function(done){
 			testStudent
 			.get('/api/course/MikeCS/assignment/' + assignment._id)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-
 				Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
 					expect(submission).to.exist;
 					done();
@@ -518,7 +517,7 @@ describe('Assignment', function(){
 
 		it('should not create duplicate submissions', function(done){
 			testStudent
-			.get('/api/course/MikeCS/assignment/' + assignment._id + '/submission')
+			.get('/api/course/MikeCS/assignment/' + assignment._id)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				Submission.count({}, function(err, count){
@@ -527,6 +526,16 @@ describe('Assignment', function(){
 				});
 			});
 		});
+
+		it('should create a submission key in the assignment', function(done){
+			testTeacher
+			.get('/api/course/MikeCS/assignment/' + assignment._id + '/submission')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.length).to.equal(1);
+				done();
+			})
+		})
 	});
 });
 

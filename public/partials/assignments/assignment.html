@@ -1,28 +1,61 @@
 <div class="container" oc-lazy-load="['/js/vendor/ace-builds/src-min-noconflict/ace.js', '/js/vendor/angular-ui-ace/ui-ace.min.js', '/js/vendor/angular-ui-tinymce/dist/tinymce.min.js']">
-	<div class="row col-xs-12 small-spacer" ng-show="assignmentCtrl.user.role === 'teacher' && assignmentCtrl.hasContent()">
-		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.assignment.bIsOpen">
-			<button class="btn btn-block btn-primary" ng-click="assignmentCtrl.showOpenModal()">Open Assignment</button>
-		</div>
+	<div class="row">
+		<div class="assignment-panel panel panel-default">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-xs-7">
+						<h3 class="panel-title">
+							{{ assignmentCtrl.assignment.name }}
+						</h3>
+					</div>
 
-		<div class="col-xs-12" ng-show="assignmentCtrl.assignment.bIsOpen">
-			<h4 class="text-center small-spacer-top">
-				Due Date: {{ assignmentCtrl.assignment.dueDate | date:'MMM dd, hh:mm a' }} 
-			</h4>
-			<h4 class="text-center small-spacer-top">
-				Points: {{ assignmentCtrl.assignment.pointsWorth }}
-			</h4>
-			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.assignment.bIsOpen">
-				<button class="btn btn-block btn-danger" ng-click="assignmentCtrl.showCloseModal()">Close Assignment Early</button>
+					<div class="col-xs-3">
+						<p class="text-center information" ng-show="assignmentCtrl.assignment.bIsOpen">
+							Due: {{ assignmentCtrl.assignment.dueDate | date:'MMM dd, hh:mm a' }} 
+						</p>
+					</div>
+
+					<div class="col-xs-2">
+						<p class="text-center information">
+							Points: {{ assignmentCtrl.assignment.pointsWorth }}
+						</p>
+					</div>
+				</div>
+
+				<h2 class="panel-title"></h2>
+			</div>
+			<div class="panel-body">
+				<div class="row description">
+					{{ assignmentCtrl.assignment.description }}
+				</div>
+
+				<div class="row med-spacer-bottom" ng-show="assignmentCtrl.user.role === 'teacher' && assignmentCtrl.hasContent()">
+
+					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3" ng-show="!assignmentCtrl.assignment.bIsOpen">
+						<button class="btn btn-block btn-primary" ng-click="assignmentCtrl.showOpenModal()">Open Assignment</button>
+					</div>
+
+					<div class="row" ng-show="assignmentCtrl.assignment.bIsOpen">
+						<div class="col-md-3 col-md-offset-2 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.assignment.bIsOpen">
+							<button class="btn btn-block btn-success" ui-sref="root.submissions({ courseCode: assignmentCtrl.courseCode, assignmentID: assignmentCtrl.assignmentID })">Check Submissions</button>
+						</div>
+
+						<div class="col-md-3 col-md-offset-2 col-xs-6 col-xs-offset-3" ng-show="assignmentCtrl.assignment.bIsOpen">
+							<button class="btn btn-block btn-danger" ng-click="assignmentCtrl.showCloseModal()">Close Assignment Early</button>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>
 
-	<div class="row col-xs-12">
+	<div class="row">
 		<div class="well col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-1" ng-hide="assignmentCtrl.hasContent()">
 			<h4 class="text-center">Nothing here yet. Click the buttons below to start adding to your assignment!</h4>
 		</div>
 
-		<div class="assignment">
+		<div class="assignment-content col-xs-12">
 			<div class="row med-spacer" ng-repeat="content in assignmentCtrl.assignment.content">
 				<div ng-if="content.type === 'question'" ng-init="bIsNormal=true ; bShowNormal=true">
 					<question ng-if="bIsNormal === true" ng-show="bShowNormal === true"></question>

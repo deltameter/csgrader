@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 
 var submissionSchema = new Schema({
 	studentID: { type: Schema.Types.ObjectId, required: true },
+	studentName: { type: String, required: true },
 	assignmentID: { type: Schema.Types.ObjectId, required: true },
 
 	pointsEarned: { type: Number, default: 0 },
@@ -30,7 +31,7 @@ var submissionSchema = new Schema({
 submissionSchema.index({ studentID: 1, assignmentID: 1 }, { unique: true });
 
 submissionSchema.statics = {
-	get: function(userID, assignmentID, projection, callback){
+	get: function(assignmentID, userID, projection, callback){
 		var Submission = this;
 		Submission.findOne({ studentID: userID, assignmentID: assignmentID }, projection, function(err, submission){
 			if (err) { return callback(err, null); }
@@ -39,7 +40,16 @@ submissionSchema.statics = {
 		})
 	},
 
-	create: function(userID, assignment, callback){
+	getBySubmissionIDs: function(submissionIDs, projection, callback){
+		var Submission = this;
+		Submission.find({ _id: { $in: submissionIDs }}, projection, function(err, submissions){
+			if (err) { return callback(err, null); }
+			if (!submissions) { return callback(new DescError('There are no submissions for those users', 404), null); }
+			return callback(null, submissions);
+		})
+	},
+
+	create: function(student, assignment, callback){
 		var Submission = this;
 
 		var questionAnswers = new Array(assignment.questions.length),
@@ -76,7 +86,8 @@ submissionSchema.statics = {
 		}
 
 		var newSubmission = new Submission({
-			studentID: userID,
+			studentID: student._id,
+			studentName: student.firstName + ' ' + student.lastName,
 			assignmentID: assignment._id,
 			questionAnswers: questionAnswers,
 			questionTries: questionTries,

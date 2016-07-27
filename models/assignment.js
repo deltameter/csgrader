@@ -39,7 +39,11 @@ var assignmentSchema = new Schema({
 	//allows a way to interweave questions and exercises
 	contentOrder: [{ type: String, validate: contentValidation }],
 
-	studentSubmissions: [Schema.Types.ObjectId]
+	classSubmissions: [{
+		className: { type: String, required: true },
+		classCode: { type: String, required: true },
+		submissionIDs: [Schema.Types.ObjectId]
+	}]
 });
 
 assignmentSchema.statics = {
@@ -128,15 +132,38 @@ assignmentSchema.statics = {
 }
 
 assignmentSchema.methods = {
+	addSubmission: function(classroom, submission){
+		var assignment = this;
+
+		var classSubmission = assignment.classSubmissions.find(function(classSub){ 
+			return classSub.classCode === classroom.classCode;
+		})
+		if (typeof classSubmission === 'undefined'){
+			//not yet created, first submission!
+			classSubmission = {
+				className: classroom.name,
+				classCode: classroom.classCode,
+				submissionIDs: new Array()
+			}
+
+			classSubmission.submissionIDs.push(submission._id);
+			assignment.classSubmissions.push(classSubmission)
+		}else{
+			classSubmission.submissionIDs.push(submission._id);
+		}
+	},
+
 	stripAnswers: function(assignment){
 		var assignment = this;
 
+		var questions = new Array(assignment.questions.length);
 		for (var i = 0; i < assignment.questions.length; i++){
-			assignment.questions[i] = assignment.questions[i].stripAnswers();
+			questions[i] = assignment.questions[i].stripAnswers();
 		}
 
+		var exercises = new Array(assignment.exercises.length);
 		for (var i = 0; i < assignment.exercises.length; i++){
-			assignment.exercises[i] = assignment.exercises[i].stripAnswers();
+			exercises[i] = assignment.exercises[i].stripAnswers();
 		}
 
 		return {
@@ -146,8 +173,8 @@ assignmentSchema.methods = {
 			dueDate: assignment.dueDate,
 			pointsWorth: assignment.pointsWorth,
 			pointLoss: assignment.pointLoss,
-			questions: assignment.questions,
-			exercises: assignment.exercises,
+			questions: questions,
+			exercises: exercises,
 			contentOrder: assignment.contentOrder
 		}
 	},

@@ -1,5 +1,7 @@
 var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
+	User = mongoose.model('User'),
+	Submission = mongoose.model('Submission'),
 	Course = mongoose.model('Course');
 
 const minutes = 60 * 1000;

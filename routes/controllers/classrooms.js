@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
 	Classroom = mongoose.model('Classroom'),
 	async = require('async'),
-	User = require(__base + 'routes/services/user'),
+	User = mongoose.model('User'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
 	helper = require(__base + 'routes/libraries/helper');
 
@@ -198,14 +198,14 @@ module.exports.exportGrades = function(req, res){
 	 	async.parallel({
 	 		submissions: function(callback){
 				Submission
-				.find({assignmentID: assignmentID, studentID: { $in : studentIDs }},
+				.getManyByIDs(assignmentID, studentIDs,
 				{ studentID: 1, pointsEarned: 1 }, 
 				function(err, submissions){
 					callback(err, submissions);
 				});
 	 		},
 	 		assignment: function(callback){
-	 			Assignment.findOne({_id: assignmentID}, { pointsWorth: 1 }, function(err, assignment){
+	 			Assignment.get(assignmentID, { pointsWorth: 1 }, function(err, assignment){
 	 				callback(err, assignment);
 	 			});
 	 		}
