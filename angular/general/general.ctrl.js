@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('general').controller('NavController', function($rootScope, $scope, $http, AuthService, AuthResolver, $state){
 		var vm = this;
 		vm.$state = $state;

@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('classrooms')
 	.factory('ClassroomFactory', function($http){
 		return {

@@ -1,0 +1,15 @@
+<div class="container" oc-lazy-load="['/js/vendor/ace-builds/src-min-noconflict/ace.js', '/js/vendor/angular-ui-ace/ui-ace.min.js', '/js/vendor/angular-ui-tinymce/dist/tinymce.min.js']">
+	<div class="row submission">
+		<div class="assignment-content col-xs-12">
+			<div class="row med-spacer" ng-repeat="content in submissionCtrl.assignment.content">
+				<div ng-if="content.type === 'question'" ng-init="bIsNormal=true ; bShowNormal=true">
+					<question></question>
+				</div>
+				<div ng-if="content.type === 'exercise'" ng-init="bIsNormal=true ; bShowNormal=true">
+					<exercise></exercise>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+

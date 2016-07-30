@@ -32,7 +32,6 @@ module.exports.getAssignment = function(req, res){
 						assignment.addSubmission(classroom, submission);
 						assignment.save();
 
-
 						return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
 					})
 				});
@@ -42,6 +41,25 @@ module.exports.getAssignment = function(req, res){
 				return helper.sendSuccess(res, { assignment: studentAssignment, submission: submission });
 			}
 		});
+	})
+}
+
+module.exports.getAssignmentToGrade = function(req, res){
+	async.parallel({
+		assignment: function(callback){
+			Assignment.get(req.params.assignmentID, {}, function(err, assignment){
+				return callback(err, assignment);
+			});
+		},
+		submission: function(callback){
+			Submission.getByID(req.params.submissionID, {}, function(err, submission){
+				return callback(err, submission);
+			});
+		}
+	}, function(err, results){
+		if (err){ return helper.sendError(res, 400, err); }
+
+		return helper.sendSuccess(res, results);
 	})
 }
 
@@ -71,7 +89,6 @@ module.exports.getSubmissionList = function(req, res){
 				});
 			},
 			submissions: function(callback){
-				console.log(classroomSubmission.submissionIDs);
 				Submission
 				.getBySubmissionIDs(
 					classroomSubmission.submissionIDs, 

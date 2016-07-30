@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('classrooms')
 
 	.controller('ClassroomsController', function($stateParams, $state, ModalService, ClassroomFactory){

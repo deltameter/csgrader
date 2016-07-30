@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	function choosePanelClass(classes, role, bIsFinished, bIsCorrect, bIsAttempted){
 		if (bIsFinished && role === 'teacher'){
 			return classes.success;
@@ -326,9 +328,10 @@
 		}
 	})
 
-	.controller('QuestionController', function($scope, $stateParams, $timeout, $element, UserInfo, QuestionFactory){
+	.controller('QuestionController', function($state, $scope, $stateParams, $timeout, $element, UserInfo, QuestionFactory){
 		var vm = this;
 
+		vm.state = $state;
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 
@@ -540,9 +543,11 @@
 
 	})
 
-	.controller('ExerciseController', function($scope, $controller, $timeout, UserInfo, $element, ExerciseFactory){
+	.controller('ExerciseController', function($state, $scope, $controller, $timeout, UserInfo, $element, ExerciseFactory){
 		var vm = this;
 
+		vm.state = $state;
+		
 		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
 
 		if (UserInfo.getUser().role === 'teacher'){

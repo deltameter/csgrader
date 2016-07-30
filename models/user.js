@@ -134,7 +134,7 @@ userSchema.statics = {
 		});
 	},
 
-	findByID: function(userID, callback){
+	getByID: function(userID, callback){
 		var User = this;
 		User.findOne({ _id: userID }, function(err, user){
 			if (err){ return callback(err) }

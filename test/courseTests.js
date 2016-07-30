@@ -1,3 +1,5 @@
+'use strict';
+
 var testTeacher = require('./userTests').testTeacher,
 	testStudent = require('./userTests').testStudent,
 	async = require('async'),

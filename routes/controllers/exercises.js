@@ -1,3 +1,4 @@
+
 var mongoose = require('mongoose'),
 	Assignment = mongoose.model('Assignment'),
 	Exercise = mongoose.model('Exercise'),

@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('classrooms').config(['$stateProvider', function($stateProvider){
 		$stateProvider
 		.state('root.classrooms', {

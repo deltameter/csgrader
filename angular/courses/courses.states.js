@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('user').config(['$stateProvider', function($stateProvider){
 		$stateProvider.state('root.main.dashboard', {
 			templateUrl: '/partials/courses/dashboard.html',

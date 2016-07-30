@@ -1,7 +1,7 @@
 //TEST PROCESS
 // 1. Users: userTests.js
 
-
+'use strict';
 process.env.NODE_ENV = 'test';
 
 var mongoose = require('mongoose'),

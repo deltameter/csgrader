@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	function arrayObjectIndexOf(myArray, property, searchTerm) {
 		for(var i = 0, len = myArray.length; i < len; i++) {
 			if (myArray[i][property] === searchTerm) return i;
@@ -9,6 +11,7 @@
 	angular.module('assignments').factory('AssignmentFactory', function($http) {
 		return {
 			getAssignment: getAssignment,
+			getAssignmentToGrade: getAssignmentToGrade,
 			getAll: getAll,
 			search: search,
 			createAssignment: createAssignment,
@@ -17,75 +20,96 @@
 			calculateTotalPoints: calculateTotalPoints
 		};
 
+		function parseAssignment(assignment, submission){
+			assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
+
+			//if a submission is included, load it. This means either a student is loading this,
+			//or a teacher/aide is viewing a student submission
+			if (submission){
+				assignment.pointsEarned = 0; 
+
+				for (var i = 0; i < assignment.questions.length; i++){
+					//parse it into an int if multiple choice
+					if (assignment.questions[i].questionType === 'mc'){
+						submission.questionAnswers[i] = parseInt(submission.questionAnswers[i]);
+					}
+
+					assignment.pointsEarned += submission.questionPoints[i];
+
+					assignment.questions[i].studentAnswer = submission.questionAnswers[i];
+					assignment.questions[i].tries = submission.questionTries[i];
+					assignment.questions[i].pointsEarned = submission.questionPoints[i];
+					assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
+				}
+
+				for (var i = 0; i < assignment.exercises.length; i++){
+
+					assignment.pointsEarned += submission.exercisePoints[i];
+
+					assignment.exercises[i].code = submission.exerciseAnswers[i];
+					assignment.exercises[i].tries = submission.exerciseTries[i];
+					assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
+					assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
+				}
+
+				//append the teacher's comments
+				for (var i = 0; i < submission.teacherComments.length; i++){
+					const comment = submission.teacherComments[i];
+					//since content is 'question' or 'exercise', we can use the array selector to make this more general
+					const property = comment.contentType + 's';
+					const index = assignment[property].map(function(content){
+						return content._id;
+					}).indexOf(comment.contentID)
+
+					assignment[property][index].teacherCommentText = comment.text;
+				}
+			}
+
+			for (var i = 0; i < assignment.contentOrder.length; i++){
+				//true = exercise, false = question
+				//content order is the type of problem, then the ID of said problem
+
+				if (assignment.contentOrder[i].indexOf('exercise') === 0){
+					//get the id by removing exercise from the contentOrder
+					var id = assignment.contentOrder[i].split('exercise')[1];
+					var location = arrayObjectIndexOf(assignment.exercises, '_id', id);
+
+					assignment.content[i] = assignment.exercises[location];
+					assignment.content[i].type = 'exercise';
+					assignment.content[i].exerciseIndex = location;
+
+				}else if (assignment.contentOrder[i].indexOf('question') === 0){
+					//get the id by removing question from the contentOrder
+					var id = assignment.contentOrder[i].split('question')[1];
+					var location = arrayObjectIndexOf(assignment.questions, '_id', id);
+
+					assignment.content[i] = assignment.questions[location];
+					assignment.content[i].type = 'question';
+					assignment.content[i].questionIndex = location;
+				}
+			}
+
+			return assignment;
+		}
+
 		function getAssignment(courseCode, assignmentID){
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID).then(
 				function Success(res){
-					var assignment = res.data.assignment;
-					assignment.content = new Array(assignment.questions.length + assignment.exercises.length);
-
-					//if a submission is included, load it. This means either a student is loading this,
-					//or a teacher/aide is viewing a student submission
-					if (res.data.submission){
-						var submission = res.data.submission;
-
-						assignment.pointsEarned = 0; 
-
-						for (var i = 0; i < assignment.questions.length; i++){
-							//parse it into an int if multiple choice
-							if (assignment.questions[i].questionType === 'mc'){
-								submission.questionAnswers[i] = parseInt(submission.questionAnswers[i]);
-							}
-
-							assignment.pointsEarned += submission.questionPoints[i];
-
-							assignment.questions[i].studentAnswer = submission.questionAnswers[i];
-							assignment.questions[i].tries = submission.questionTries[i];
-							assignment.questions[i].pointsEarned = submission.questionPoints[i];
-							assignment.questions[i].bIsCorrect = submission.questionsCorrect[i];
-						}
-
-						for (var i = 0; i < assignment.exercises.length; i++){
-
-							assignment.pointsEarned += submission.exercisePoints[i];
-
-							assignment.exercises[i].code = submission.exerciseAnswers[i];
-							assignment.exercises[i].tries = submission.exerciseTries[i];
-							assignment.exercises[i].pointsEarned = submission.exercisePoints[i];
-							assignment.exercises[i].bIsCorrect = submission.exercisesCorrect[i];
-						}
-					}
-
-					for (var i = 0; i < assignment.contentOrder.length; i++){
-						//true = exercise, false = question
-						//content order is the type of problem, then the ID of said problem
-
-						if (assignment.contentOrder[i].indexOf('exercise') === 0){
-							//get the id by removing exercise from the contentOrder
-							var id = assignment.contentOrder[i].split('exercise')[1];
-							var location = arrayObjectIndexOf(assignment.exercises, '_id', id);
-
-							assignment.content[i] = assignment.exercises[location];
-							assignment.content[i].type = 'exercise';
-							assignment.content[i].exerciseIndex = location;
-
-						}else if (assignment.contentOrder[i].indexOf('question') === 0){
-							//get the id by removing question from the contentOrder
-							var id = assignment.contentOrder[i].split('question')[1];
-							var location = arrayObjectIndexOf(assignment.questions, '_id', id);
-
-							assignment.content[i] = assignment.questions[location];
-							assignment.content[i].type = 'question';
-							assignment.content[i].questionIndex = location;
-						}
-					}
-
-					return assignment;
-				},
-				function Failure(res){
-					console.log(res);
+					return parseAssignment(res.data.assignment, res.data.submission)
 				}
 			);
 		};
+
+		function getAssignmentToGrade(courseCode, assignmentID, submissionID){
+			const submissionRoute = '/api/course/' + courseCode 
+				+ '/assignment/' + assignmentID + '/submission/' + submissionID;
+
+			return $http.get(submissionRoute).then(
+				function Success(res){
+					return parseAssignment(res.data.assignment, res.data.submission)
+				}
+			);
+		}
 
 		function getAll(courseCode){
 			return $http.get('/api/course/' + courseCode + '/assignment').then(

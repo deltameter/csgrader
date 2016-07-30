@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('user').controller('DashboardController', function($state, ModalService, CourseFactory, UserInfo){
 		var vm = this;
 		this.newCourse = {};

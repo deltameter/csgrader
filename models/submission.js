@@ -6,9 +6,9 @@ var mongoose = require('mongoose'),
 
 var submissionSchema = new Schema({
 	studentID: { type: Schema.Types.ObjectId, required: true },
-	studentName: { type: String, required: true },
 	assignmentID: { type: Schema.Types.ObjectId, required: true },
 
+	studentName: { type: String, required: true },
 	pointsEarned: { type: Number, default: 0 },
 
 	questionAnswers: [String],
@@ -24,7 +24,14 @@ var submissionSchema = new Schema({
 	exercisePoints: [Number],
 
 	//Line num, class, and actual comment
-	teacherComments: [Schema.Types.Mixed]
+	teacherComments: [
+		{
+			contentType: { type: String, enum: 'exercise question'.split(' '), required: true },
+			contentID: { type: Schema.Types.ObjectId, required: true },
+			text: String
+		}
+	]
+
 }, { minimize: false });
 //set minimize: false or else empty exerciseAnswers are saved as null and that messes up the angular frontend
 
@@ -34,6 +41,15 @@ submissionSchema.statics = {
 	get: function(assignmentID, userID, projection, callback){
 		var Submission = this;
 		Submission.findOne({ studentID: userID, assignmentID: assignmentID }, projection, function(err, submission){
+			if (err) { return callback(err, null); }
+			if (!submission) { return callback(new DescError('There is no submission for that user', 404), null); }
+			return callback(null, submission);
+		})
+	},
+
+	getByID: function(submissionID, projection, callback){
+		var Submission = this;
+		Submission.findOne({ _id: submissionID }, projection, function(err, submission){
 			if (err) { return callback(err, null); }
 			if (!submission) { return callback(new DescError('There is no submission for that user', 404), null); }
 			return callback(null, submission);
@@ -175,9 +191,10 @@ submissionSchema.methods = {
 	rewardCorrectQuestion: function(assignment, questionIndex){
 		var submission = this;
 
-		var points = submission.addPoints(assignment, assignment.questions[questionIndex].pointsWorth);
+		const netPoints = assignment.questions[questionIndex].pointsWorth - submission.questionPoints[questionIndex];
+		const finalPoints = submission.addPoints(assignment, netPoints);
 
-		submission.questionPoints[questionIndex] = points;
+		submission.questionPoints[questionIndex] += finalPoints;
 		submission.questionsCorrect[questionIndex] = true;
 		submission.markModified('questionPoints');
 		submission.markModified('questionsCorrect');
@@ -186,9 +203,10 @@ submissionSchema.methods = {
 	rewardExerciseAnswer: function(assignment, exerciseIndex, bIsCorrect, pointsEarned){
 		var submission = this;
 
-		var points = submission.addPoints(assignment, pointsEarned);
+		const netPoints = pointsEarned - submission.exercisePoints[exerciseIndex];
+		const finalPoints  = submission.addPoints(assignment, netPoints);
 
-		submission.exercisePoints[exerciseIndex] = points;
+		submission.exercisePoints[exerciseIndex] += finalPoints;
 		submission.exercisesCorrect[exerciseIndex] = bIsCorrect;
 		submission.markModified('exercisePoints');
 		submission.markModified('exercisesCorrect');
@@ -202,6 +220,34 @@ submissionSchema.methods = {
 
 		this.pointsEarned += points;
 		return points;
+	},
+
+	recordComment: function(contentType, contentID, commentText){
+		var submission = this;
+		var comment = submission.teacherComments.find(function(comment){
+			return comment.contentType == contentType && comment.contentID == contentID;
+		})
+
+		if (typeof comment === 'undefined'){
+			comment = {
+				contentType: contentType,
+				contentID: contentID,
+				text: commentText
+			}
+
+			submission.teacherComments.push(comment);
+		}else{
+			comment.text = commentText;
+		}
+	},
+
+	recordGrade: function(contentType, contentIndex, points){
+		var submission = this;
+		const contentProperty = contentType + 'Points'; //i.e. questionPoints, exercisePoints
+		submission.pointsEarned -= submission[contentProperty][contentIndex];
+		submission[contentProperty][contentIndex] = points;
+		submission.pointsEarned += points;
+		submission.markModified(contentProperty);
 	}
 }
 

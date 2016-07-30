@@ -18,46 +18,55 @@ module.exports.submitQuestionAnswer = function(req, res){
 	const answer = req.body.answer;
 
 	const assignmentProjection = { bIsOpen: 1, questions: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
+	const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
 
-	Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
+	var questionIndex;
+
+	async.parallel({
+		assignment: function(callback){
+			Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
+				if (err){ return callback(err) }
+
+				questionIndex = assignment.getContentIndex('question', questionID);
+
+				if (questionIndex === -1){
+					return callback(new DescError('You cannot submit anymore.', 404));
+				}
+
+				return callback(null, assignment);
+			});
+		},
+		submission: function(callback){
+			Submission.get(assignment._id, req.user._id, questionProjection, function(err, submission){
+				return callback(err, submission);
+			});
+		}
+	}, function(err, results){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		const questionIndex = assignment.getContentIndex('question', questionID);
+		var submission = results.submission;
+		var assignment = results.assignment;
 
-		if (questionIndex === -1){
-			return helper.sendError(res, 400, new DescError('You cannot submit anymore.', 404));
+		const question = assignment.questions[questionIndex];
+
+		//check if the user has tried too many times already
+		err = submission.isQuestionLocked(question, questionIndex);
+		if (err) { return helper.sendError(res, 400, err); }
+
+		const bIsCorrect = question.gradeAnswer(answer);
+
+		if (bIsCorrect){
+			submission.rewardCorrectQuestion(assignment, questionIndex);
 		}
 
-		//is the assignment locked now?
-		err = assignment.isLocked();
-		if (err){ return helper.sendError(res, 400, err); }
+		submission.recordQuestionAnswer(answer, questionIndex);
 
-		const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
+		submission.save(function(err){
+			if (err) return helper.sendError(res, 400, err);
 
-		Submission.get(assignment._id, req.user._id, questionProjection, function(err, submission){
-			if (err) { return helper.sendError(res, 400, err); }
-
-			const question = assignment.questions[questionIndex];
-
-			//check if the user has tried too many times already
-			err = submission.isQuestionLocked(question, questionIndex);
-			if (err) { return helper.sendError(res, 400, err); }
-
-			const bIsCorrect = question.gradeAnswer(answer);
-
-			if (bIsCorrect){
-				submission.rewardCorrectQuestion(assignment, questionIndex);
-			}
-
-			submission.recordQuestionAnswer(answer, questionIndex);
-
-			submission.save(function(err){
-				if (err) return helper.sendError(res, 400, err);
-
-				return helper.sendSuccess(res, { bIsCorrect: bIsCorrect });
-			});
-		})
-	});
+			return helper.sendSuccess(res, { bIsCorrect: bIsCorrect });
+		});
+	})
 }
 
 module.exports.submitExerciseAnswer = function(req, res){
@@ -67,57 +76,66 @@ module.exports.submitExerciseAnswer = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	const exerciseID = req.body.exerciseID;
-	const code = req.body.code;
-
-	const assignmentProjection = { bIsOpen: 1, exercises: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
-
 	if (req.user.isRateLimited()){
 		return helper.sendError(res, 400, new DescError('Please wait before submitting more exercises', 400))
 	}
 
-	Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
-		if (err){ return helper.sendError(res, 400, err); }
+	const exerciseID = req.body.exerciseID;
+	const code = req.body.code;
+	
+	const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
+	const assignmentProjection = { bIsOpen: 1, exercises: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
 
-		const exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
-		
-		if (exerciseIndex === -1){
-			return helper.sendError(res, 400, new DescError('That exercise does not exist', 404));
+	var exerciseIndex;
+
+	async.parallel({
+		assignment: function(callback){
+			Assignment.get(req.params.assignmentID, assignmentProjection, function(err, assignment){
+				if (err){ return callback(err) }
+
+				exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
+				
+				if (exerciseIndex === -1){
+					return callback(new DescError('That exercise does not exist', 404));
+				}
+
+				return callback(null, assignment);
+			});
+		},
+		submission: function(callback){
+			Submission.get(assignment._id, req.user._id, exerciseProjection, function(err, submission){
+				return callback(err, submission);
+			});
 		}
+	}, function(err, results){
+		var assignment = results.assignment;
+		var submission = results.submission;
 
-		//is the assignment locked now?
-		err = assignment.isLocked();
-		if (err){ return helper.sendError(res, 400, err); }
+		if (err) { return helper.sendError(res, 400, err); }
 
-		const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
+		const exercise = assignment.exercises[exerciseIndex];
 
-		Submission.get(assignment._id, req.user._id, exerciseProjection, function(err, submission){
+		//check if the user has tried too many times already or if assignment is locked
+		err = submission.isExerciseLocked(exercise, exerciseIndex)
+		if (err) { return helper.sendError(res, 400, err); }
+
+		exercise.runTests(code, function(err, results){
 			if (err) { return helper.sendError(res, 400, err); }
 
-			const exercise = assignment.exercises[exerciseIndex];
+			submission.rewardExerciseAnswer(assignment, exerciseIndex, results.bIsCorrect, results.pointsEarned);
 
-			//check if the user has tried too many times already or if assignment is locked
-			err = submission.isExerciseLocked(exercise, exerciseIndex)
-			if (err) { return helper.sendError(res, 400, err); }
+			submission.recordExerciseAnswer(true, code, exerciseIndex);
 
-			exercise.runTests(code, function(err, results){
-				if (err) { return helper.sendError(res, 400, err); }
+			//don't want to expose the errors. might lead to students hardcoding their solutions
+			results.errors = '';
 
-				submission.rewardExerciseAnswer(assignment, exerciseIndex, results.bIsCorrect, results.pointsEarned);
+			submission.save(function(err){
+				if (err) return helper.sendError(res, 400, err);
 
-				submission.recordExerciseAnswer(true, code, exerciseIndex);
-
-				//don't want to expose the errors. might lead to students hardcoding their solutions
-				results.errors = '';
-
-				submission.save(function(err){
-					if (err) return helper.sendError(res, 400, err);
-
-					return helper.sendSuccess(res, results);
-				});
+				return helper.sendSuccess(res, results);
 			});
 		});
-	});
+	})
 }
 
 module.exports.saveExerciseAnswer = function(req, res){
@@ -134,6 +152,56 @@ module.exports.saveExerciseAnswer = function(req, res){
 		if (err) return helper.sendError(res, 400, err);
 
 		submission.recordExerciseAnswer(false, code, exerciseIndex);
+
+		submission.save(function(err){
+			if (err) return helper.sendError(res, 400, err);
+
+			return helper.sendSuccess(res);
+		});
+	})
+}
+
+module.exports.saveComment = function(req, res){
+	req.checkBody('contentType', 'Please include the contentType').isIn(['question', 'exercise']);
+	req.checkBody('contentID', 'Please include the contentID').isMongoId();
+	req.checkBody('text', 'Please include the comment text').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const contentType = req.body.contentType;
+	const contentID = req.body.contentID;
+	const text = req.body.text;
+
+	Submission.getByID(req.params.submissionID, { teacherComments: 1 }, function(err, submission){
+		if (err) return helper.sendError(res, 400, err);
+
+		submission.recordComment(contentType, contentID, text);
+
+		submission.save(function(err){
+			if (err) return helper.sendError(res, 400, err);
+
+			return helper.sendSuccess(res);
+		});
+	})
+}
+
+module.exports.gradeContent = function(req, res){
+	req.checkBody('contentType', 'Please include the contentType').isIn(['question', 'exercise']);;
+	req.checkBody('contentIndex', 'Please include the contentIndex').isInt();
+	req.checkBody('points', 'New points must be a number').isInt();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	const contentType = req.body.contentType;
+	const contentIndex = req.body.contentIndex;
+	const points = parseInt(req.body.points);
+
+	Submission.getByID(req.params.submissionID, { pointsEarned:1, exercisePoints: 1, questionPoints: 1 }, function(err, submission){
+		if (err) return helper.sendError(res, 400, err);
+
+		submission.recordGrade(contentType, contentIndex, points);
 
 		submission.save(function(err){
 			if (err) return helper.sendError(res, 400, err);

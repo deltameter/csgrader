@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('general').config(function($stateProvider){
 
 		$stateProvider

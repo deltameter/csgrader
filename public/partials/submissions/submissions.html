@@ -37,7 +37,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="submission in submissionsCtrl.submissions" ui-sref="root.submission({ courseCode: classroomsCtrl.courseCode, classCode: classroom.classCode, submissionID: classroomsCtrl.submissionID })">
+				<tr ng-repeat="submission in submissionsCtrl.submissions" ui-sref="root.submission({ courseCode: submissionsCtrl.courseCode, assignmentID: submissionsCtrl.assignmentID, submissionID: submission._id })">
 					<td>{{ submission.studentName }}</td>
 					<td>{{ submission.pointsEarned/submissionsCtrl.assignment.pointsWorth }}</td>
 				</tr>

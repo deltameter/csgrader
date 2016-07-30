@@ -1,3 +1,5 @@
+'use strict';
+
 var app = require('./testPrep').app,
 	expect = require('chai').expect,
     supertest = require('supertest'),

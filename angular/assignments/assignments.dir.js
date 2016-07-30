@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('assignments')
 	.directive('question', function(){
 		return {

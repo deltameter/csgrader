@@ -6,6 +6,24 @@ a {
   color: #00B7FF;
 }
 
+/* General */
+
+.btn-normalcase{
+	text-transform: none;
+}
+
+.hidden-space{
+	visibility: hidden;
+}
+
+.btn-centered{
+	margin: 0 auto;
+}
+
+blockquote.readable{
+	background-color: #fafafa;
+}
+
 /* Spacing */
 
 .spacer{
@@ -69,20 +87,6 @@ img.scale-to-fit{
 	width: 100%;
 }
 
-/* General */
-
-.btn-normalcase{
-	text-transform: none;
-}
-
-.hidden-space{
-	visibility: hidden;
-}
-
-.btn-centered{
-	margin: 0 auto;
-}
-
 /* Assignments */
 .assignment-search-well{
 	padding-left: 35px;
@@ -142,6 +146,28 @@ img.scale-to-fit{
 	height: 10px;
 }
 
+/* Submissions */
+.submission .submission-points-input{
+	color: #ffffff;
+	width: 30px;
+	height: 25px;
+	margin-top: 0px;
+	float: right;
+}
+
+.submission .submission-points-form-group{
+	margin-left: 0px;
+	margin-right: -80px;
+	margin-bottom: 0px;
+}
+
+.submission textarea.comment-textarea{
+	background-color: #f5f7f9;
+
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
 /* Dashboard */
 .panel-dashboard-course p{
 	margin-bottom: 0px;
@@ -156,11 +182,14 @@ img.scale-to-fit{
 	font-size: 15px;
 }
 
-.question textarea{
-	background-color: #fafafa;
+.question textarea.frq-textarea{
+	background-color: #f5f7f9;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
-.question textarea.frq-textarea{
+.question textarea.frq-textarea:read-only {
+	background-color: #f5f7f9;
 	padding-left: 10px;
 	padding-right: 10px;
 }

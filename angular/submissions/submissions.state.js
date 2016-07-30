@@ -1,4 +1,5 @@
 (function(){
+	'use strict';
 	angular.module('submissions').config(['$stateProvider', function($stateProvider){
 		$stateProvider
 		
@@ -8,5 +9,13 @@
 			controller: 'SubmissionsController',
 			controllerAs: 'submissionsCtrl'
 		})
+
+		.state('root.submission', {
+			url: '/course/:courseCode/assignment/:assignmentID/submission/:submissionID',
+			templateUrl: '/partials/submissions/submission.html',
+			controller: 'SubmissionController',
+			controllerAs: 'submissionCtrl'
+		})
+
 	}]);
 })();

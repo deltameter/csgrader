@@ -1,4 +1,6 @@
 (function(){
+	'use strict';
+	
 	angular.module('courses').factory('CourseFactory', function ($http) {
 		return {
 			getCourse: getCourse,

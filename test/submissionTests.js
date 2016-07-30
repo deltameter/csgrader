@@ -1,3 +1,5 @@
+'use strict';
+
 var testTeacher = require('./assignmentTests').testTeacher,
 	testStudent = require('./assignmentTests').testStudent,
 	exerciseIDs = require('./assignmentTests').exerciseIDs,
@@ -5,10 +7,67 @@ var testTeacher = require('./assignmentTests').testTeacher,
 	expect = require('chai').expect,
     async = require('async');
 
+var mongoose = require('mongoose'),
+	Submission = mongoose.model('Submission');
+
+var submission;
 
 describe('Submission', function(){
+	describe('creation', function(){
+		it ('should create a new submission and return the assignment on first access by student', function(done){
+			testStudent
+			.get('/api/course/MikeCS/assignment/' + assignment._id)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Submission.findOne({ assignmentID: assignment._id }, function(err, sub){
+					expect(sub).to.exist;
+					submission = sub;
+					done();
+				});
+			});
+		});
+
+		it('should not create duplicate submissions', function(done){
+			testStudent
+			.get('/api/course/MikeCS/assignment/' + assignment._id)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Submission.count({}, function(err, count){
+					expect(count).to.equal(1);
+					done();
+				});
+			});
+		});
+
+		it('should create a create a key to the newly created submission in the assignment', function(done){
+			testTeacher
+			.get('/api/course/MikeCS/assignment/' + assignment._id + '/submission')
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.length).to.equal(1);
+				done();
+			})
+		})
+
+	})
 	describe('submit question', function(){
-		it('should accept a fill in the blank answer', function(done){
+		it('shouldnt accept an incorrect fill in the blank answer', function(done){
+			var answer = {
+				questionID: questionIDs[0],
+				answer: 'alksdfj'
+			}
+
+			testStudent
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.bIsCorrect).to.equal(false);
+				done();
+			});
+		});
+
+		it('should accept a corrent fill in the blank answer', function(done){
 			var answer = {
 				questionID: questionIDs[0],
 				answer: ' dank '
@@ -18,14 +77,29 @@ describe('Submission', function(){
 			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
 			.send(answer)
 			.end(function(err, res){
-				console.log(res.body)
 				expect(res.status).to.equal(200);
 				expect(res.body.bIsCorrect).to.equal(true);
 				done();
 			});
 		});
 
-		it('should accept a multiple choice answer', function(done){
+		it('shouldnt accept an incorrect multiple choice answer', function(done){
+			var answer = {
+				questionID: questionIDs[1],
+				answer: 2
+			}
+
+			testStudent
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				expect(res.body.bIsCorrect).to.equal(false);
+				done();
+			});
+		});
+
+		it('should accept a correct multiple choice answer', function(done){
 			var answer = {
 				questionID: questionIDs[1],
 				answer: 3
@@ -251,7 +325,66 @@ describe('Submission', function(){
 		})
 	});
 
-	describe('submission tools', function(){
+	describe('finished submission', function(){
+		it ('should add up the points correctly', function(done){
+			Submission.findOne({ _id: submission._id }, function(err, sub){
+				expect(sub.pointsEarned).to.equal(25);
+				done();
+			});
+		})
+
+		it ('should display correct points earned for each individual content', function(done){
+			Submission.findOne({ _id: submission._id }, function(err, sub){
+				expect(sub.questionPoints[0]).to.equal(5);
+				expect(sub.questionPoints[1]).to.equal(5);
+				expect(sub.questionPoints[2]).to.equal(0); //tried too many times locked out
+				expect(sub.questionPoints[3]).to.equal(5);
+				expect(sub.questionPoints[4]).to.equal(0); //frq that's to be graded
+				expect(sub.exercisePoints[0]).to.equal(10);
+				done();
+			});
+		})
+	})
+	describe('teacher submission tools', function(){
+		it ('should leave a comment', function(done){
+			var comment = {
+				contentType: 'exercise',
+				contentID: exerciseIDs[0],
+				text: 'These memes are quite spicy!'
+			}
+
+			testTeacher
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/comment')
+			.send(comment)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Submission.findOne({ _id: submission._id }, function(err, sub){
+					expect(sub.teacherComments.length).to.equal(1);
+					done();
+				});
+			});
+		});
+
+		it ('should grade an frq', function(done){
+			var comment = {
+				contentType: 'question',
+				contentIndex: 4,
+				points: 5
+			}
+
+			testTeacher
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/grade')
+			.send(comment)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Submission.findOne({ _id: submission._id }, function(err, sub){
+					expect(sub.pointsEarned).to.equal(30);
+					expect(sub.questionPoints[4]).to.equal(5);
+					done();
+				});
+			});
+		})
+
 		it('should get an exported CSV of values', function(done){
 			var info = {
 				classIndex: 0,

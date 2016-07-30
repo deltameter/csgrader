@@ -1,10 +1,11 @@
+'use strict';
+
 var testTeacher = require('./courseTests').testTeacher,
 	testStudent = require('./courseTests').testStudent,
 	expect = require('chai').expect,
     async = require('async');
 
 var mongoose = require('mongoose'),
-	Submission = mongoose.model('Submission');
 	Course = mongoose.model('Course');
 
 var exerciseIDs = [];
@@ -232,7 +233,7 @@ describe('Assignment', function(){
 			});
 		});
 
-		it('should set the fifth to be an frq that is homework', function(done){
+		it('should set the fifth to be an frq that is not homework', function(done){
 			var questionEdit = {
 				questionID: questionIDs[4],
 				question: 'Type some long boring shit here:',
@@ -294,7 +295,6 @@ describe('Assignment', function(){
 			var edit = {
 				title: 'Dank Exercise',
 				exerciseID: exerciseIDs[0],
-				pointsWorth: 10,
 				triesAllowed: 'unlimited',
 				context: 'Create a class called Kang that prints out with a public void speak that returns "WE WUZ KANGZ"',
 				code: [
@@ -473,7 +473,7 @@ describe('Assignment', function(){
 	describe('retrieval', function(){
 		it('should return all assignments', function(done){
 			testTeacher
-			.get('/api/course/MikeCS/assignment/')
+			.get('/api/course/MikeCS/assignment')
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				expect(res.body.assignments.length).to.equal(1);
@@ -499,40 +499,6 @@ describe('Assignment', function(){
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
 				expect(res.body.assignments.length).to.equal(0);
-				done();
-			})
-		})
-
-		it ('should create a new submission and return the assignment on first access by student', function(done){
-			testStudent
-			.get('/api/course/MikeCS/assignment/' + assignment._id)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				Submission.findOne({ assignmentID: assignment._id }, function(err, submission){
-					expect(submission).to.exist;
-					done();
-				});
-			});
-		});
-
-		it('should not create duplicate submissions', function(done){
-			testStudent
-			.get('/api/course/MikeCS/assignment/' + assignment._id)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				Submission.count({}, function(err, count){
-					expect(count).to.equal(1);
-					done();
-				});
-			});
-		});
-
-		it('should create a submission key in the assignment', function(done){
-			testTeacher
-			.get('/api/course/MikeCS/assignment/' + assignment._id + '/submission')
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				expect(res.body.length).to.equal(1);
 				done();
 			})
 		})

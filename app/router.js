@@ -123,7 +123,13 @@ module.exports = function(app){
 	//******************************
 	app.get(assignmentRoute + '/submission', teacherAssignmentAuth, assignments.getSubmissions);
 
-	app.get(assignmentRoute + '/submission/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
+	app.get(assignmentRoute + '/submission/classroom/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
+
+	app.get(assignmentRoute + '/submission/:submissionID', teacherAssignmentAuth, assignments.getAssignmentToGrade);
+
+	app.put(assignmentRoute + '/submission/:submissionID/comment', teacherAssignmentAuth, submissions.saveComment);
+
+	app.put(assignmentRoute + '/submission/:submissionID/grade', teacherAssignmentAuth, submissions.gradeContent);
 
 	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
 
