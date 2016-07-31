@@ -68,7 +68,7 @@ describe('Submission', function(){
 			});
 		});
 
-		it('should accept a corrent fill in the blank answer', function(done){
+		it('should accept a correct fill in the blank answer', function(done){
 			var answer = {
 				questionID: questionIDs[0],
 				answer: ' dank '

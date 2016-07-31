@@ -66,7 +66,6 @@
 				modal.close.then(function(assignment) {
 					if (assignment){
 						const params = { courseCode: vm.courseCode, assignmentID: assignment.assignmentID };
-						console.log(params)
 						$state.go('root.assignment', params);
 					}
 				});
@@ -362,6 +361,7 @@
 			var submitTime = Date.now();
 
 			vm.bBackendComputing = true;
+			
 			QuestionFactory.submitQuestion(vm.courseCode, vm.assignmentID, vm.question._id, vm.question.studentAnswer).then(
 				function Success(res){
 					vm.question.tries++;
@@ -579,7 +579,6 @@
 
 			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.solutionCode).then(
 				function Success(res){
-					console.log(res.data)
 					vm.exercise.bIsTested = res.data.bIsCorrect;
 					vm.compilationInfo.testResults = res.data.testResults;
 					vm.compilationInfo.errors = res.data.errors;
@@ -648,7 +647,6 @@
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
 				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 					function Success(res){
-						console.log(res.data)
 						vm.exercise.bIsFinished = res.data.bIsFinished;
 						vm.toggleEdit();
 					}
