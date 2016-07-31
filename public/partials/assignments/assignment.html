@@ -68,7 +68,7 @@
 			</div>
 		</div>
 
-		<div ng-show="assignmentCtrl.user.role === 'teacher'">
+		<div ng-show="assignmentCtrl.user.role === 'teacher' && !assignmentCtrl.assignment.bIsOpen">
 			<div class="row spacer">
 				<div class="col-md-3 col-md-offset-3 col-xs-8 col-xs-offset-2">
 					<button class="btn btn-primary btn-block" ng-click="assignmentCtrl.addQuestion()">Add Question</button>
@@ -80,7 +80,7 @@
 		</div>
 	</div>
 
-	<footer class="assignment-footer navbar-fixed-bottom" ng-if="assignmentCtrl.user.role === 'student'	">
+	<footer class="assignment-footer navbar-fixed-bottom" ng-if="::assignmentCtrl.user.role === 'student'">
 		<div class="col-md-2 col-xs-3">
 			<p class="pull-right">Progress: </p>
 		</div>

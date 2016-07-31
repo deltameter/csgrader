@@ -197,7 +197,7 @@
 						if (result){
 							vm.assignment.bIsOpen = true;
 							vm.assignment.pointsWorth = AssignmentFactory.calculateTotalPoints(vm.assignment);
-							vm.assignment.dueDate = result.dueDate;
+							vm.assignment.dueDate = new Date(result.dueDate);
 							vm.assignment.deadlineType = result.deadlineType;
 							vm.assignment.pointLoss = result.pointLoss;
 						}
@@ -579,6 +579,7 @@
 
 			ExerciseFactory.testExercise(this.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.solutionCode).then(
 				function Success(res){
+					console.log(res.data)
 					vm.exercise.bIsTested = res.data.bIsCorrect;
 					vm.compilationInfo.testResults = res.data.testResults;
 					vm.compilationInfo.errors = res.data.errors;
@@ -593,7 +594,7 @@
 			ExerciseFactory.submitExercise(vm.courseCode, vm.assignmentID, vm.exercise._id, vm.exercise.code).then(
 				function Success(res){
 					var compilationResults = res.data;
-					console.log('pointsearned: ' + compilationResults.pointsEarned)
+	
 					vm.compilationInfo.testResults = compilationResults.testResults;
 					vm.compilationInfo.errors = compilationResults.errors;
 
@@ -647,6 +648,7 @@
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){
 				ExerciseFactory.editExercise(vm.courseCode, vm.assignmentID, vm.exercise).then(
 					function Success(res){
+						console.log(res.data)
 						vm.exercise.bIsFinished = res.data.bIsFinished;
 						vm.toggleEdit();
 					}
