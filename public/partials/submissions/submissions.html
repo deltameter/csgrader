@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container submissions-list">
 	<div class="row">
 		<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-2" ng-hide="submissionsCtrl.classrooms.length > 0">
 			<div class="well">
@@ -28,20 +28,36 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="row spacer-top" ng-show="submissionsCtrl.submissions.length > 0">
+		<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3 small-spacer-top">
+			<button class="btn btn-success btn-block" ng-click="submissionsCtrl.exportGrades()">Export Grades</button>
+		</div>
+		<div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2 small-spacer-bottom" ng-show="submissionsCtrl.exportedGrades">
+			<textarea class="form-control readable" rows="4" ng-model="submissionsCtrl.exportedGrades" readonly></textarea>
+		</div>
+	</div>
+
 	<div class="row" ng-show="submissionsCtrl.submissions.length > 0">
-		<table class="table table-striped table-hover">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Progress</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="submission in submissionsCtrl.submissions" ui-sref="root.submission({ courseCode: submissionsCtrl.courseCode, assignmentID: submissionsCtrl.assignmentID, submissionID: submission._id })">
-					<td>{{ submission.studentName }}</td>
-					<td>{{ submission.pointsEarned/submissionsCtrl.assignment.pointsWorth }}</td>
-				</tr>
-			</tbody>
-		</table> 
+		<div class="col-md-8 col-md-offset-2 col-xs-10 col-xs-offset-2">
+			<table class="table table-striped table-hover">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Progress</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="submission in submissionsCtrl.submissions" ui-sref="root.submission({ courseCode: submissionsCtrl.courseCode, assignmentID: submissionsCtrl.assignmentID, submissionID: submission._id })">
+						<td class="col-md-4 col-xs-5">{{ submission.studentName }}</td>
+						<td class="col-md-8 col-xs-7">
+							<div class="progress submission-progress">
+								<div class="progress-bar progress-bar-success" style="width: {{:: submission.pointsEarned * 100 / submissionsCtrl.assignment.pointsWorth }}%"></div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table> 
+		</div>
 	</div>
 </div>

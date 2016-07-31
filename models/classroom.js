@@ -166,6 +166,7 @@ classroomSchema.methods = {
 	},
 
 	exportGrades: function(assignment, submissions, callback){
+		const classroom = this;
 		var hash = {};
 		var gradeInfo = new Array();
 

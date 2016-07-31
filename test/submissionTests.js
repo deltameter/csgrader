@@ -8,6 +8,7 @@ var testTeacher = require('./assignmentTests').testTeacher,
     async = require('async');
 
 var mongoose = require('mongoose'),
+	Course = mongoose.model('Course'),
 	Submission = mongoose.model('Submission');
 
 var submission;
@@ -345,8 +346,9 @@ describe('Submission', function(){
 			});
 		})
 	})
+
 	describe('teacher submission tools', function(){
-		it ('should leave a comment', function(done){
+		it ('should leave a comment on an exercise', function(done){
 			var comment = {
 				contentType: 'exercise',
 				contentID: exerciseIDs[0],
@@ -360,6 +362,25 @@ describe('Submission', function(){
 				expect(res.status).to.equal(200);
 				Submission.findOne({ _id: submission._id }, function(err, sub){
 					expect(sub.teacherComments.length).to.equal(1);
+					done();
+				});
+			});
+		});
+
+		it ('should leave a comment on an frq', function(done){
+			var comment = {
+				contentType: 'question',
+				contentID: questionIDs[4],
+				text: 'U write goodly'
+			}
+
+			testTeacher
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/comment')
+			.send(comment)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+				Submission.findOne({ _id: submission._id }, function(err, sub){
+					expect(sub.teacherComments.length).to.equal(2);
 					done();
 				});
 			});
@@ -386,20 +407,58 @@ describe('Submission', function(){
 		})
 
 		it('should get an exported CSV of values', function(done){
-			var info = {
-				classIndex: 0,
-				assignmentID: assignment._id
-			}
+			Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
+				const classCode = course.classrooms[0].classCode;
+				const csvURL = '/api/course/MikeCS/assignment/' + assignment._id + 
+					'/submission/classroom/' + classCode + '/export'
 
-			testTeacher
-			.get('/api/course/MikeCS/classroom/' + classroom.classCode + 'grades/export')
-			.send(info)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				done();
-			});
+				testTeacher
+				.get(csvURL)
+				.end(function(err, res){
+					expect(res.status).to.equal(200);
+					expect(res.body.csv).to.exist;
+					done();
+				});
+			})
 		});
 	});
+
+	describe('completion', function(done){
+		it ('shouldnt allow a student to edit an exercise that has been commented on by the teacher', function(done){
+			var info = {
+				exerciseID: exerciseIDs[0],
+				code: [
+					{ 
+						name: 'Kang.java',
+						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
+					}
+				],
+			}
+
+			testStudent
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
+			.send(info)
+			.end(function(err, res){
+				expect(res.status).to.equal(400);
+				done();
+			});
+		})
+
+		it('shouldnt allow a student to edit an frq that has been commented on by the teacher', function(done){
+			var answer = {
+				questionID: questionIDs[4],
+				answer: 'Better answer here.'
+			}
+
+			testStudent
+			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
+			.send(answer)
+			.end(function(err, res){
+				expect(res.status).to.equal(400);
+				done();
+			});
+		})
+	})
 });
 
 //Ensure tests run in order we want

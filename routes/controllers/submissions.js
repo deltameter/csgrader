@@ -17,8 +17,8 @@ module.exports.submitQuestionAnswer = function(req, res){
 	const questionID = req.body.questionID;
 	const answer = req.body.answer;
 
-	const assignmentProjection = { bIsOpen: 1, questions: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
-	const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1 };
+	const assignmentProjection = { bIsOpen: 1, questions: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1, };
+	const questionProjection = { pointsEarned: 1, questionsCorrect: 1, questionTries: 1, questionPoints: 1, questionAnswers: 1, teacherComments: 1 };
 
 	var questionIndex;
 
@@ -83,9 +83,9 @@ module.exports.submitExerciseAnswer = function(req, res){
 	const exerciseID = req.body.exerciseID;
 	const code = req.body.code;
 	
-	const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1 };
 	const assignmentProjection = { bIsOpen: 1, exercises: 1, dueDate: 1, deadlineType: 1, pointsLoss: 1 };
-
+	const exerciseProjection = { pointsEarned: 1, exercisesCorrect: 1, exerciseTries: 1, exercisePoints: 1, exerciseAnswers: 1, teacherComments: 1 };
+	
 	var exerciseIndex;
 
 	async.parallel({

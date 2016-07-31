@@ -2,6 +2,8 @@
 
 const mongoose = require('mongoose'),
 	Course = mongoose.model('Course'),
+	Assignment = mongoose.model('Assignment'),
+	Submission = mongoose.model('Submission'),
 	Classroom = mongoose.model('Classroom'),
 	async = require('async'),
 	User = mongoose.model('User'),
@@ -188,24 +190,19 @@ module.exports.deleteStudent = function(req, res){
 }
 
 module.exports.exportGrades = function(req, res){
-	//requires assignment.ID
-	req.checkBody('assignmentID', 'Please include the assignment.').isMongoId();
-
-	var validationErrors = req.validationErrors();
-	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
-
-	Classroom.get(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+	Course.getWithClassroom(req.params.courseCode, req.params.classCode, { classrooms: 1 }, function(err, course, classroom){
+		const studentIDs = classroom.students.map(function(student){ return student.userID });
 	 	async.parallel({
 	 		submissions: function(callback){
 				Submission
-				.getManyByIDs(assignmentID, studentIDs,
+				.find({ assignmentID: req.params.assignmentID, studentID: { $in : studentIDs } },
 				{ studentID: 1, pointsEarned: 1 }, 
 				function(err, submissions){
 					callback(err, submissions);
 				});
 	 		},
 	 		assignment: function(callback){
-	 			Assignment.get(assignmentID, { pointsWorth: 1 }, function(err, assignment){
+	 			Assignment.get(req.params.assignmentID, { pointsWorth: 1 }, function(err, assignment){
 	 				callback(err, assignment);
 	 			});
 	 		}

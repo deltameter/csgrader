@@ -24,6 +24,12 @@
 			});
 		}
 
+		this.exportGrades = function(){
+			SubmissionsFactory.exportGrades().then(function(data){
+				vm.exportedGrades = data.csv;
+			})
+		}
+		
 		init();
 	})
 

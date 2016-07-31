@@ -130,6 +130,12 @@ submissionSchema.statics = {
 }
 
 submissionSchema.methods = {
+	findTeacherSubmission: function(contentType, contentID){
+		var submission = this;
+		return submission.teacherComments.find(function(comment){
+			return comment.contentType === contentType && comment.contentID.toString() === contentID.toString();
+		})
+	},
 
 	isExerciseLocked: function(exercise, exerciseIndex){
 		var submission = this;
@@ -141,6 +147,10 @@ submissionSchema.methods = {
 		//-1 = unlimited
 		if (exercise.triesAllowed !== -1 && submission.exerciseTries[exerciseIndex] >= exercise.triesAllowed){
 			return new DescError('You can\'t try this exercise any more', 400);
+		}
+
+		if (submission.findTeacherSubmission('exercise', exercise._id)){
+			return new DescError('You can\'t edit this because it\'s already been graded.');
 		}
 
 		return false;
@@ -160,6 +170,10 @@ submissionSchema.methods = {
 		//-1 = unlimited tries
 		if (question.triesAllowed !== -1 && submission.questionTries[questionIndex] >= question.triesAllowed){
 			return new DescError('You can\'t try this question any more', 400);
+		}
+
+		if (submission.findTeacherSubmission('question', question._id)){
+			return new DescError('You can\'t edit this because it\'s already been graded.');
 		}
 
 		return false;

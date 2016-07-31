@@ -1,5 +1,7 @@
 'use strict';
 
+const config = require(__base + '/app/config');
+
 var general = require(__base + 'routes/controllers/general'),
 	users = require(__base + 'routes/controllers/users'),
 	courses = require(__base + 'routes/controllers/courses'),
@@ -75,8 +77,6 @@ module.exports = function(app){
 
 	app.delete(classroomRoute + '/student/delete/:studentClassID', teacherCourseAuth, classrooms.deleteStudent);
 
-	app.get(classroomRoute + '/grades/export', teacherCourseAuth, classrooms.exportGrades)
-
 	//******************************
 	//***** ASSIGNMENT ROUTES ******
 	//******************************
@@ -95,6 +95,27 @@ module.exports = function(app){
 	app.put(assignmentRoute + '/close', teacherAssignmentAuth, assignments.close);
 
 	app.delete(assignmentRoute + '/delete', teacherAssignmentAuth, assignments.delete);
+
+	//******************************
+	//***** SUBMISSION ROUTES ******
+	//******************************
+	app.get(assignmentRoute + '/submission', teacherAssignmentAuth, assignments.getSubmissions);
+
+	app.get(assignmentRoute + '/submission/classroom/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
+
+	app.get(assignmentRoute + '/submission/classroom/:classCode/export', teacherAssignmentAuth, classrooms.exportGrades);
+
+	app.get(assignmentRoute + '/submission/:submissionID', teacherAssignmentAuth, assignments.getAssignmentToGrade);
+
+	app.put(assignmentRoute + '/submission/:submissionID/comment', teacherAssignmentAuth, submissions.saveComment);
+
+	app.put(assignmentRoute + '/submission/:submissionID/grade', teacherAssignmentAuth, submissions.gradeContent);
+
+	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
+
+	app.put(assignmentRoute + '/exercise/submit', studentAssignmentAuth, submissions.submitExerciseAnswer);
+
+	app.put(assignmentRoute + '/exercise/save', studentAssignmentAuth, submissions.saveExerciseAnswer);
 
 	//******************************
 	//****** QUESTION ROUTES *******
@@ -117,34 +138,16 @@ module.exports = function(app){
 	app.post(assignmentRoute + '/exercise/test', teacherAssignmentAuth, exercises.testExercise);
 	
 	app.delete(assignmentRoute + '/exercise/delete', teacherAssignmentAuth, exercises.deleteExercise);
-
-	//******************************
-	//***** SUBMISSION ROUTES ******
-	//******************************
-	app.get(assignmentRoute + '/submission', teacherAssignmentAuth, assignments.getSubmissions);
-
-	app.get(assignmentRoute + '/submission/classroom/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
-
-	app.get(assignmentRoute + '/submission/:submissionID', teacherAssignmentAuth, assignments.getAssignmentToGrade);
-
-	app.put(assignmentRoute + '/submission/:submissionID/comment', teacherAssignmentAuth, submissions.saveComment);
-
-	app.put(assignmentRoute + '/submission/:submissionID/grade', teacherAssignmentAuth, submissions.gradeContent);
-
-	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
-
-	app.put(assignmentRoute + '/exercise/submit', studentAssignmentAuth, submissions.submitExerciseAnswer);
-
-	app.put(assignmentRoute + '/exercise/save', studentAssignmentAuth, submissions.saveExerciseAnswer);
 	
 	//******************************
-	//****** CS GRADER ROUTES ******
+	//****** FRONT END ROUTES ******
 	//******************************
 	
-	//app.get('/', general.showIndex);
-	app.get('*', function(req, res){
-		return res.sendFile(__base + '/views/base.html');
-	});
+	if (config.env !== 'test'){
+		app.get('*', function(req, res){
+			return res.sendFile(__base + '/views/base.html');
+		});
+	}
 
 	//******************************
 	//*** ERROR HANDLING ROUTES ****

@@ -5,11 +5,13 @@
 	.factory('SubmissionsFactory', function($http) {
 		var courseCode = '';
 		var assignmentID = '';
+		var currentClassCode = '';
 
 		return {
 			setParams: setParams,
 			getClassesWithProgress: getClassesWithProgress,
-			getSubmissions: getSubmissions
+			getSubmissions: getSubmissions,
+			exportGrades: exportGrades
 		}
 
 		function setParams(setCourseCode, setAssignmentID){
@@ -17,7 +19,7 @@
 			assignmentID = setAssignmentID;
 		}
 
-		function getClassesWithProgress(regInfo){
+		function getClassesWithProgress(){
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID + '/submission').then(
 				function Success(res){
 					return res.data;
@@ -26,7 +28,19 @@
 		}
 
 		function getSubmissions(classCode){
+			currentClassCode = classCode;
 			return $http.get('/api/course/' + courseCode + '/assignment/' + assignmentID + '/submission/classroom/' + classCode).then(
+				function Success(res){
+					return res.data;
+				}
+			)
+		}
+
+		function exportGrades(){
+			const exportURL = '/api/course/' + courseCode 
+			+ '/assignment/' + assignmentID + '/submission/classroom/' + currentClassCode + '/export'
+
+			return $http.get(exportURL).then(
 				function Success(res){
 					return res.data;
 				}
