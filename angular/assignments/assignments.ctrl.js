@@ -58,7 +58,7 @@
 
 		this.showAssignmentCreationModal = function(){
 			ModalService.showModal({
-				templateUrl: '/partials/assignments/createAssignmentModal.html',
+				templateUrl: '/partials/assignments/modals/createAssignmentModal.html',
 				controller: 'mCreateAssignmentController',
 				controllerAs: 'createAssignmentCtrl'
 			}).then(function(modal) {
@@ -187,7 +187,7 @@
 			]).then(function(){
 
 				ModalService.showModal({
-					templateUrl: '/partials/assignments/openAssignmentModal.html',
+					templateUrl: '/partials/assignments/modals/openAssignmentModal.html',
 					controller: 'mOpenAssignmentController',
 					controllerAs: 'openAssignmentCtrl'
 				}).then(function(modal) {
@@ -207,7 +207,7 @@
 
 		this.showCloseModal = function(){
 			ModalService.showModal({
-				templateUrl: '/partials/assignments/closeAssignmentModal.html',
+				templateUrl: '/partials/assignments/modals/closeAssignmentModal.html',
 				controller: 'mCloseAssignmentController',
 				controllerAs: 'closeAssignmentCtrl'
 			}).then(function(modal) {
@@ -415,8 +415,8 @@
 
 		$scope.tinymceOptions = {
 		  	inline: false,
-		    plugins: 'autolink link image code',
-    		toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | image link code',
+		    plugins: 'media autolink link image code',
+    		toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | image media link code',
 		  	skin: 'lightgray',
 		  	theme : 'modern'
 		};
@@ -640,8 +640,13 @@
 
 		vm.exerciseSnapshot = JSON.parse(JSON.stringify(vm.exercise));
 
-		//used for ngPattern
-		$scope.onlyNumbers = /^\d+$/;
+		$scope.tinymceOptions = {
+		  	inline: false,
+		    plugins: 'media autolink link image code',
+    		toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | image media link code',
+		  	skin: 'lightgray',
+		  	theme : 'modern'
+		};
 
 		this.editExercise = function(){
 			if (!angular.equals(vm.exercise, vm.exerciseSnapshot)){

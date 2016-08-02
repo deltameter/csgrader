@@ -108,10 +108,10 @@ module.exports.submitExerciseAnswer = function(req, res){
 			});
 		}
 	}, function(err, results){
+		if (err) { return helper.sendError(res, 400, err); }
+
 		var assignment = results.assignment;
 		var submission = results.submission;
-
-		if (err) { return helper.sendError(res, 400, err); }
 
 		const exercise = assignment.exercises[exerciseIndex];
 
@@ -148,7 +148,7 @@ module.exports.saveExerciseAnswer = function(req, res){
 	const exerciseIndex = req.body.exerciseIndex;
 	const code = req.body.code;
 
-	Submission.get(assignment._id, req.user._id, { exerciseAnswers: 1 }, function(err, submission){
+	Submission.get(req.params.assignmentID, req.user._id, { exerciseAnswers: 1 }, function(err, submission){
 		if (err) return helper.sendError(res, 400, err);
 
 		submission.recordExerciseAnswer(false, code, exerciseIndex);

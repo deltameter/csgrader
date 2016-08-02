@@ -9,7 +9,9 @@
 				<div class="form-group">
 					<label class="control-label">Attempts Allowed</label>
 
-					<input type="text" class="form-control small-input" ng-model="exerciseEditCtrl.exercise.triesAllowed" ng-pattern="onlyNumbers" ng-disabled="exerciseEditCtrl.question.triesAllowed === -1"/>
+					<input type="text" class="form-control small-input" ng-model="exerciseEditCtrl.exercise.triesAllowed" ng-hide="exerciseEditCtrl.exercise.triesAllowed === -1"/>
+
+					<input type="text" class="form-control small-input" value="" ng-show="exerciseEditCtrl.exercise.triesAllowed === -1" disabled/>
 
 					<label class="control-label">or</label>
 					<div class="checkbox">

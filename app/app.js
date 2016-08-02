@@ -13,6 +13,7 @@ module.exports = function(app, passport){
 	var sessionStore = new mongoStore({url: config.mongoURL});
 
 	var sessionMiddleware = session({
+		name: 'sessionID',
 		secret: 'salveimperator', 
 		cookie: { maxAge: 3 * 24 * 60 * 60 * 1000 }, //users don't have to sign in for 3 days
 		rolling: true,
@@ -43,6 +44,7 @@ module.exports = function(app, passport){
 	app.use(sessionMiddleware);
 	app.use(passport.initialize());
 	app.use(passport.session());
+	app.disable('x-powered-by');
 
 	//Lets views access authentication status
 	app.use(function (req, res, next) {

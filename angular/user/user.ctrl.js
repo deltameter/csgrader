@@ -3,6 +3,9 @@
 		var vm = this;
 		
 		vm.authMessage = '';
+		
+		vm.shownImage = parseInt(Math.random() * 4);
+
 		vm.user = {
 			email: '',
 			password: ''

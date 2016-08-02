@@ -18,8 +18,10 @@ const studentAuth = [auth.requiresLogin, auth.requiresStudent],
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
 	studentCourseAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment],
 	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
+	teacherOwnerAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, auth.requiresCourseOwnership],
 	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment, auth.requiresAssignment],
 	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, auth.requiresAssignment];
+	
 
 var multer = require('multer')();
 
@@ -52,7 +54,7 @@ module.exports = function(app){
 
 	app.get('/api/course/:courseCode', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);
 
-	app.delete('/api/course/:courseCode', teacherCourseAuth, courses.delete);
+	app.delete('/api/course/:courseCode', teacherOwnerAuth, courses.delete);
 	
 	//******************************
 	//***** CLASSROOM ROUTES *******

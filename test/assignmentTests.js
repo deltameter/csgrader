@@ -10,6 +10,7 @@ var mongoose = require('mongoose'),
 
 var exerciseIDs = [];
 var questionIDs = [];
+var assignment = {};
 
 describe('Assignment', function(){
 	var deleteAssignmentID;
@@ -510,3 +511,4 @@ module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;
 module.exports.exerciseIDs = exerciseIDs;
 module.exports.questionIDs = questionIDs;
+module.exports.assignment = assignment;

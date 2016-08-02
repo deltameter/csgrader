@@ -1,11 +1,81 @@
-<div class="container">
-	<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-		<div class="alert alert-warning" ng-show="joinCtrl.authMessage" ng-cloak>
-			<p>{{ joinCtrl.authMessage }}</p>
+<div class="container" ng-cloak>
+	<div ng-show="!joinCtrl.user.role">
+		<div class="row med-spacer-top">
+			<h2 class="text-center"> You are a ... </h2>
+		</div>
+		<div class="row spacer">
+			<div class="col-md-4 col-md-offset-0 col-xs-10 col-xs-offset-1" ng-click="joinCtrl.user.role = 'student'">
+				<div class="panel panel-default">
+					<div class="panel-heading">	
+						<div class="row small-spacer-top">
+							<h3 class="text-center">Student</h3>
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="row spacer-bottom">
+							<div class="col-xs-10 col-xs-offset-1">
+								<img class="scale-to-fit" alt="image of student" src="/img/join/student.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 col-md-offset-0 col-xs-10 col-xs-offset-1" ng-click="joinCtrl.user.role = 'aide'">
+				<div class="panel panel-default">
+					<div class="panel-heading">	
+						<div class="row small-spacer-top">
+							<h3 class="text-center">Teaching Assistant</h3>
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="row spacer-bottom">
+							<div class="col-xs-10 col-xs-offset-1">
+								<img class="scale-to-fit" alt="image of teaching aide" src="/img/join/aide.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 col-md-offset-0 col-xs-10 col-xs-offset-1" ng-click="joinCtrl.user.role = 'teacher'">
+				<div class="panel panel-default">
+					<div class="panel-heading">	
+						<div class="row small-spacer-top">
+							<h3 class="text-center">Instructor</h3>
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="row spacer-bottom">
+							<div class="col-xs-10 col-xs-offset-1">
+								<img class="scale-to-fit" alt="image of professor" src="/img/join/professor.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2" ng-show="joinCtrl.user.role">
+		<div class="row">
+			<div class="alert alert-dismissible alert-warning" ng-show="joinCtrl.authMessage">
+				<strong>Warning!</strong>
+				<ul>
+					<li ng-repeat="message in joinCtrl.authMessage">{{ message }}</li>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="row small-spacer-bottom">
+				<div class="col-xs-8 col-xs-offset-2">
+					<img class="scale-to-fit" alt="image of student" src="/img/join/student.svg" ng-show="joinCtrl.user.role === 'student'">
+					<img class="scale-to-fit" alt="image of aide" src="/img/join/aide.svg" ng-show="joinCtrl.user.role === 'aide'">
+					<img class="scale-to-fit" alt="image of teacher" src="/img/join/professor.svg" ng-show="joinCtrl.user.role === 'teacher'">
+				</div>
+			</div>
+			<h3 class="text-center med-spacer">&nbsp;{{ joinCtrl.user.firstName }} {{ joinCtrl.user.lastName }}&nbsp;</h3>
 		</div>
 		<form name="joinForm" class="form-horizontal" ng-submit="joinForm.$valid && joinCtrl.signup()" novalidate>
 			<fieldset>
-				{{ joinForm.$valid }}
 				<div class="form-group">
 					<div class="col-md-10 col-md-offset-1">
 						<input type="text" ng-model="joinCtrl.user.firstName" placeholder="First Name" class="form-control" autocomplete="off">
@@ -33,23 +103,6 @@
 				<div class="form-group">
 					<div class="col-md-10 col-md-offset-1">
 						<input type="password" ng-model="joinCtrl.user.retypePassword" placeholder="Retype password" class="form-control" autocomplete="off">
-					</div>
-				</div>
-
-				<div class="form-group">
-					<div class="col-md-10 col-md-offset-1">
-						<label>
-							<input type="radio" ng-model="joinCtrl.user.role" value="student">
-							Student
-						</label><br/>
-						<label>
-							<input type="radio" ng-model="joinCtrl.user.role" value="aide">
-							Student Aide
-						</label><br/>
-						<label>
-							<input type="radio" ng-model="joinCtrl.user.role" value="teacher">
-							Teacher
-						</label><br/>
 					</div>
 				</div>
 

@@ -14,7 +14,9 @@
 				<div class="form-group col-md-5 attempts-allowed" ng-show="questionEditCtrl.question.questionType !== 'frq'">
 					<label class="control-label">Attempts Allowed</label>
 
-					<input type="text" class="form-control" ng-model="questionEditCtrl.question.triesAllowed" ng-disabled="questionEditCtrl.question.triesAllowed === -1"/>
+					<input type="text" class="form-control" ng-model="questionEditCtrl.question.triesAllowed" ng-hide="questionEditCtrl.question.triesAllowed === -1"/>
+
+					<input type="text" class="form-control" value="" ng-show="questionEditCtrl.question.triesAllowed === -1" disabled/>
 
 					<label class="control-label or-label">or</label>
 

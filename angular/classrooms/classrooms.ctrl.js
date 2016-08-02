@@ -18,7 +18,7 @@
 
 		this.openCreateClassroomModal = function(){
 			ModalService.showModal({
-				templateUrl: '/partials/classrooms/createClassroomModal.html',
+				templateUrl: '/partials/classrooms/modals/createClassroomModal.html',
 				controller: 'mCreateClassroomController',
 				controllerAs: 'createClassroomCtrl'
 			}).then(function(modal) {
@@ -125,7 +125,7 @@
 
 		this.openDeleteClassroomModal = function(){
 			ModalService.showModal({
-				templateUrl: '/partials/classrooms/deleteClassroomModal.html',
+				templateUrl: '/partials/classrooms/modals/deleteClassroomModal.html',
 				controller: 'mDeleteClassroomController',
 				controllerAs: 'deleteClassroomCtrl'
 			}).then(function(modal) {

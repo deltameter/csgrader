@@ -1,31 +1,54 @@
 <div class="container">
-	<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-		<div class="alert alert-dismissible alert-warning" ng-show="loginCtrl.authMessage.length > 0">
-			<ul>
-				<li ng-repeat = 'message in loginCtrl.authMessage'>{{ message }}</li>
-			</ul>
+	{{ vm.shownImage }}
+
+	<div class="row spacer">
+		<div class="col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-1">
+			<div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1">
+				<div ng-if="loginCtrl.shownImage === 0">
+					<img class="scale-to-fit" alt="image of programming" ng-src="/img/login/programming.svg">
+				</div>
+				<div ng-if="loginCtrl.shownImage === 1">
+					<img class="scale-to-fit" alt="image of html" ng-src="/img/login/html.svg">
+				</div>
+				<div ng-if="loginCtrl.shownImage === 2">
+					<img class="scale-to-fit" alt="image of cloud" ng-src="/img/login/cloud.svg">
+				</div>
+				<div ng-if="loginCtrl.shownImage === 3">
+					<img class="scale-to-fit" alt="image of settings" ng-src="/img/login/settings.svg" ng-if="loginCtrl.shownImage === 3">
+				</div>
+			</div>
+		</div>	
+	</div>
+
+	<div class="row">
+		<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+			<div class="alert alert-dismissible alert-warning" ng-show="loginCtrl.authMessage.length > 0">
+				<ul>
+					<li ng-repeat = 'message in loginCtrl.authMessage'>{{ message }}</li>
+				</ul>
+			</div>
+			<form name="loginForm" class="form-horizontal" ng-submit="loginForm.$valid && loginCtrl.login()" novalidate>
+				<fieldset>
+					<div class="form-group">
+						<div class="col-md-10 col-md-offset-1">
+							<input type="email" ng-model="loginCtrl.user.email" placeholder="Email" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group small-spacer">
+						<div class="col-md-10 col-md-offset-1">
+							<input type="password" ng-model="loginCtrl.user.password" placeholder="Password" class="form-control" autocomplete="off">
+						</div>
+					</div>
+
+					<div class="form-group med-spacer-bottom">
+						<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+							<button type="submit" class="btn btn-block btn-primary">Submit</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+			<a ui-sref="root.join"><p class="text-center">Don't have an account? Sign up!</a>
 		</div>
-		<form name="loginForm" class="form-horizontal" ng-submit="loginForm.$valid && loginCtrl.login()" novalidate>
-			<fieldset>
-				<div class="form-group">
-					<div class="col-md-10 col-md-offset-1">
-						<input type="email" ng-model="loginCtrl.user.email" placeholder="Email" class="form-control" autocomplete="off">
-					</div>
-				</div>
-
-				<div class="form-group">
-					<div class="col-md-10 col-md-offset-1">
-						<input type="password" ng-model="loginCtrl.user.password" placeholder="Password" class="form-control" autocomplete="off">
-					</div>
-				</div>
-
-				<div class="form-group">
-					<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
-						<button type="submit" class="btn btn-block btn-primary">Submit</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-		<a ui-sref="root.join"><p class="text-center">Don't have an account? Sign up!</a>
 	</div>
 </div>

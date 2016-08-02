@@ -147,6 +147,29 @@ courseSchema.statics = {
 				return callback(null, classrooms);
 			}
 		);
+	},
+
+	forkCourse: function(courseCode, teacher, courseInfo, callback){
+		var objectIdDel = function(copiedObjectWithId) {
+			if (copiedObjectWithId != null && typeof(copiedObjectWithId) !== 'string' &&
+				typeof(copiedObjectWithId) !== 'number' && typeof(copiedObjectWithId) !== 'boolean' ){
+
+				//for array length is defined however for objects length is undefined
+				if (typeof(copiedObjectWithId.length) === 'undefined') { 
+					delete copiedObjectWithId._id;
+					for (var key in copiedObjectWithId) {
+				        objectIdDel(copiedObjectWithId[key]); //recursive del calls on object elements
+				    }
+				}
+				else {
+					for (var i = 0; i < copiedObjectWithId.length; i++) {
+				        objectIdDel(copiedObjectWithId[i]);  //recursive del calls on array elements
+				    }
+				}
+			}
+		}
+
+		
 	}
 }
 

@@ -8,6 +8,8 @@ var testTeacher = require('./userTests').testTeacher,
 var mongoose = require('mongoose'),
 	Course = mongoose.model('Course');
 
+var classroom = {};
+
 describe('Course', function(){
 	describe('creation', function(){
 		var apcsCourse = {

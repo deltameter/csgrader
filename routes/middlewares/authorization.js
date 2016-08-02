@@ -28,7 +28,7 @@ module.exports.requiresEnrollment = function(req, res, next){
 	if (typeof req.session.authorizedCourses === 'undefined' || 
 		req.session.authorizedCourses.indexOf(req.params.courseCode) === -1){
 
-		Course.findOne({courseCode: req.params.courseCode}, function(err, course){
+		Course.findOne({courseCode: req.params.courseCode}, { _id: 1 }, function(err, course){
 			if (err){
 				return helper.sendError(res, 500, new DescError(
 					'An error occured while you were trying to access the database. Please try again.', 400));
@@ -55,11 +55,43 @@ module.exports.requiresEnrollment = function(req, res, next){
 	}
 }
 
+module.exports.requiresCourseOwnership = function(req, res, next){
+	if (typeof req.session.ownedCourses === 'undefined' || 
+		req.session.ownedCourses.indexOf(req.params.courseCode) === -1){
+
+		Course.findOne({ courseCode : req.params.courseCode }, { owner: 1 }, function(err, course){
+			if (err){
+				return helper.sendError(res, 500, new DescError(
+					'An error occured while you were trying to access the database. Please try again.', 400));
+			}
+
+			if (!course){ 
+				return helper.sendError(res, 404, new DescError('That assignment does not exist.', 400));
+			}
+
+			if (course.owner.toString() !== req.user._id.toString()){
+				return helper.sendError(res, 401, new DescError('You must be the owner to do this.', 400));
+			}
+
+			if (typeof req.session.ownedCourses === 'undefined'){
+				req.session.ownedCourses = [];
+			}
+
+			req.session.ownedCourses.push(req.params.courseCode);
+			req.session.save();
+
+			return next();
+		});
+	}else{
+		return next();
+	}
+}
+
 module.exports.requiresAssignment = function(req, res, next){
 	if (typeof req.session.authorizedAssignments === 'undefined' || 
 		req.session.authorizedAssignments.indexOf(req.params.assignmentID) === -1){
 
-		Assignment.findOne({ _id : req.params.assignmentID }, function(err, assignment){
+		Assignment.findOne({ _id : req.params.assignmentID }, { courseID: 1, bIsOpen: 1}, function(err, assignment){
 			if (err){
 				return helper.sendError(res, 500, new DescError(
 					'An error occured while you were trying to access the database. Please try again.', 400));
@@ -73,7 +105,7 @@ module.exports.requiresAssignment = function(req, res, next){
 				return helper.sendError(res, 401, new DescError('You must be enrolled in this course to access it.', 400));
 			}
 
-			if (!assignment.isAssignmentOpen() && req.user.role !== 'teacher'){
+			if (assignment.isLocked() && req.user.role !== 'teacher'){
 				return helper.sendError(res, 404, new DescError('That assignment does not exist or is not available.', 400));
 			}
 
@@ -90,3 +122,4 @@ module.exports.requiresAssignment = function(req, res, next){
 		return next();
 	}
 };
+

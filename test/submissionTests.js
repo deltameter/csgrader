@@ -4,6 +4,7 @@ var testTeacher = require('./assignmentTests').testTeacher,
 	testStudent = require('./assignmentTests').testStudent,
 	exerciseIDs = require('./assignmentTests').exerciseIDs,
 	questionIDs = require('./assignmentTests').questionIDs,
+	assignment = require('./assignmentTests').assignment,
 	expect = require('chai').expect,
     async = require('async');
 
@@ -204,7 +205,6 @@ describe('Submission', function(){
 
 	describe('exercise submission', function(){
 		it('should save an exercise answer', function(done){
-
 			var info = {
 				exerciseIndex: 0,
 				code: [
