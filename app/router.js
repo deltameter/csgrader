@@ -50,6 +50,8 @@ module.exports = function(app){
 
 	app.post('/api/course/create', teacherAuth, courses.create);
 
+	app.post('/api/course/fork', teacherAuth, courses.fork);
+	
 	app.put('/api/course/register', studentAuth, courses.register);
 
 	app.get('/api/course/:courseCode', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);

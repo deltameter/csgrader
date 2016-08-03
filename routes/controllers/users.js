@@ -49,6 +49,10 @@ module.exports.create = function(req, res){
 	req.checkBody('email', 'Email must be valid').isEmail();
 	req.checkBody('role', 'Please select an account type').isIn(['student', 'teacher', 'aide']);
 
+	if (req.body.role === 'teacher'){
+		req.checkBody('institution', 'Please include the educational institution you a part of.').notEmpty();
+	}
+	
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 

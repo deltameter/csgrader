@@ -13,6 +13,7 @@ describe('User', function(){
 	var testTeacherInfo = {
 		firstName: 'John',
 		lastName: 'Doe',
+		institution: 'John Doe High School',
 		password: 'password1', 
 		retypePassword: 'password1',
 		email: 'johndoe@gmail.com',

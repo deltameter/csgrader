@@ -25,18 +25,18 @@ module.exports.getCourses = function(req, res){
 }
 
 module.exports.create = function(req, res){
-	req.checkBody('name', 'Please include the course name.').notEmpty();
-	req.checkBody('courseCode', 'Course code must be between 3-20 characters').notEmpty().isLength({min: 3, max: 20});
-	req.checkBody('password', 'Course password must be between 5-20 characters').notEmpty().isLength({min: 5, max: 20});
+	req.checkBody('name', 'Course name must be between 1-50 characters').isLength({min: 1, max: 50});
+	req.checkBody('courseCode', 'Course code must be between 3-20 characters').isLength({min: 3, max: 20});
+	req.checkBody('password', 'Course password must be between 5-20 characters').isLength({min: 5, max: 20});
 	req.checkBody('defaultLanguage', 'Please select a language.').notEmpty();
 
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.create(req.user, req.body, function(err, courseID){
+	Course.create(req.user, req.body, function(err, course){
 		if (err) { return helper.sendError(res, 400, err) };
 
-		req.user.addCourse(courseID);
+		req.user.addCourse(course._id);
 
 		req.user.save(function(err){
 			if (err) { return helper.sendError(res, 400, err) };
@@ -48,7 +48,7 @@ module.exports.create = function(req, res){
 
 module.exports.changeInfo = function(req, res){
 	req.checkBody('name', 'Please include the course name.').notEmpty();
-	req.checkBody('coursePassword', 'Course password must be between 5-20 characters').notEmpty().isLength({min: 5, max: 20});
+	req.checkBody('coursePassword', 'Course password must be between 5-20 characters').isLength({min: 5, max: 20});
 	req.checkBody('teacherPassword', 'Course password must be between 5-20 characters').notEmpty();
 
 	var validationErrors = req.validationErrors();
@@ -146,4 +146,19 @@ module.exports.register = function(req, res){
 			});
 		});
 	})
+}
+
+module.exports.fork = function(req, res){
+	req.checkBody('name', 'Course name must be between 1-50 characters').isLength({min: 1, max: 50});
+	req.checkBody('courseCodeToFork', 'Course code you\'re forking from must be between 3-20 characters').isLength({min: 3, max: 20});
+	req.checkBody('courseCode', 'New course code must be between 3-20 characters').isLength({min: 3, max: 20});
+	req.checkBody('password', 'Course password must be between 5-20 characters').isLength({min: 5, max: 20});
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	Course.fork(req.body.courseCodeToFork, req.user, req.body, function(err, forkedCourse){
+		console.log(forkedCourse);
+		return helper.sendSuccess(res);
+	});
 }

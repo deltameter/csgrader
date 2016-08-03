@@ -9,7 +9,7 @@ var languages = [
     }
 ]
 
-var findByString = function(langString){
+var findByLangName = function(langString){
 	var language = languages.find(function(lang){
 		return lang.definition.language.toLowerCase() === langString.toLowerCase();
 	});
@@ -17,7 +17,16 @@ var findByString = function(langString){
 	return language;
 }
 
+var findByLangID = function(langID){
+    var language = languages.find(function(lang){
+        return lang.definition.langID === langID;
+    });
+
+    return language;
+}
+
 module.exports = {
 	languages: languages,
-	findByString: findByString
+	findByLangName: findByLangName,
+    findByLangID: findByLangID
 }

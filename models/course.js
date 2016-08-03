@@ -4,6 +4,8 @@ var mongoose = require('mongoose'),
 	validator = require('validator'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
 	languageHelper = require(__base + 'routes/libraries/languages'),
+	Assignment = mongoose.model('Assignment'),
+	async = require('async'),
 	Schema = mongoose.Schema;
 
 var courseSchema = new Schema({
@@ -51,12 +53,27 @@ courseSchema.statics = {
 	
 	create: function(teacher, courseInfo, callback){
 		var Course = this;
+
+		console.log(courseInfo)
+		console.log(typeof courseInfo.defaultLanguage)
 		if (teacher.courses.length >= Course.properties.maxClassrooms + 30){
 			return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
 		}
 
 		if (courseInfo.courseCode.length >= 15){
-			return callback(new DescError('The Course Code is too long'));
+			return callback(new DescError('The Course Code is too long', 400));
+		}
+
+		var defaultLanguage;
+
+		if (typeof courseInfo.defaultLanguage === 'string'){
+			defaultLanguage = languageHelper.findByLangName(courseInfo.defaultLanguage).definition.langID;
+		}else if (typeof courseInfo.defaultLanguage === 'number'){
+			defaultLanguage = languageHelper.findByLangID(courseInfo.defaultLanguage).definition.langID;
+		}
+
+		if (typeof defaultLanguage === 'undefined'){
+			return callback(new DescError('Language not found', 400));
 		}
 
 		var newCourse = new Course({
@@ -64,13 +81,13 @@ courseSchema.statics = {
 			name: courseInfo.name,
 			courseCode: courseInfo.courseCode.replace(/\s/g, ''),
 			password: courseInfo.password,
-			defaultLanguage: languageHelper.findByString(courseInfo.defaultLanguage).definition.langID
+			defaultLanguage: defaultLanguage
 		});
 
 		newCourse.save(function(err, course){
 			if (err) return callback(err, null);
 
-			return callback(null, course._id);
+			return callback(null, course);
 		});
 	},
 
@@ -149,27 +166,32 @@ courseSchema.statics = {
 		);
 	},
 
-	forkCourse: function(courseCode, teacher, courseInfo, callback){
-		var objectIdDel = function(copiedObjectWithId) {
-			if (copiedObjectWithId != null && typeof(copiedObjectWithId) !== 'string' &&
-				typeof(copiedObjectWithId) !== 'number' && typeof(copiedObjectWithId) !== 'boolean' ){
+	fork: function(courseCodeToFork, teacher, courseInfo, callback){
+		var Course = this;
 
-				//for array length is defined however for objects length is undefined
-				if (typeof(copiedObjectWithId.length) === 'undefined') { 
-					delete copiedObjectWithId._id;
-					for (var key in copiedObjectWithId) {
-				        objectIdDel(copiedObjectWithId[key]); //recursive del calls on object elements
-				    }
-				}
-				else {
-					for (var i = 0; i < copiedObjectWithId.length; i++) {
-				        objectIdDel(copiedObjectWithId[i]);  //recursive del calls on array elements
-				    }
-				}
-			}
-		}
+		Course.get(courseCodeToFork, { assignments: 1, defaultLanguage: 1 }, function(err, courseToFork){
+			courseInfo.defaultLanguage = courseToFork.defaultLanguage;
 
-		
+			Course.create(teacher, courseInfo, function(err, forkedCourse){
+				function assignmentCloner(assignmentID){
+					return function(callback){
+						Assignment.clone(assignmentID, forkedCourse._id, forkedCourse.courseCode, function(err, assignment){
+							callback(err, assignment);
+						})
+					}
+				}
+
+				var assignmentCloners = [];
+
+				courseToFork.assignments.forEach(function(assignmentID){
+					assignmentCloners.push(assignmentCloner(assignmentID));
+				})
+
+				async.parallel(assignmentCloners, function(err, results){
+					return callback(err, forkedCourse);
+				})
+			})
+		})
 	}
 }
 

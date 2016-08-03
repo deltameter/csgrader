@@ -14,7 +14,7 @@ module.exports.addExercise = function(req, res){
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
 	const title = req.body.title;
-	const language = languageHelper.findByString(req.body.language);
+	const language = languageHelper.findByLangName(req.body.language);
 
 	Assignment.get(req.params.assignmentID, { bIsOpen: 1, contentOrder: 1, exercises: 1 }, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }

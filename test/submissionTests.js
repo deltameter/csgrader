@@ -9,10 +9,11 @@ var testTeacher = require('./assignmentTests').testTeacher,
     async = require('async');
 
 var mongoose = require('mongoose'),
+	Assignment = mongoose.model('Assignment'),
 	Course = mongoose.model('Course'),
 	Submission = mongoose.model('Submission');
 
-var submission;
+var submission = {};
 
 describe('Submission', function(){
 	describe('creation', function(){
@@ -23,7 +24,7 @@ describe('Submission', function(){
 				expect(res.status).to.equal(200);
 				Submission.findOne({ assignmentID: assignment._id }, function(err, sub){
 					expect(sub).to.exist;
-					submission = sub;
+					submission._id = sub._id;
 					done();
 				});
 			});
@@ -117,6 +118,29 @@ describe('Submission', function(){
 			});
 		});
 
+		it ('should deny users after they\'ve tried too many times', function(done){
+			var answer = {
+				questionID: questionIDs[2],
+				answer: 2
+			}
+
+			var test = function(callback){
+				testStudent
+				.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
+				.send(answer)
+				.end(function(err, res){
+					callback(err, { res: res, bIsCorrect: res.body.bIsCorrect });
+				});
+			}
+
+			async.series([test, test, test, test], function(err, results){
+				if (err) throw err;
+				//expect the last one to throw an error
+				expect(results[3].res.status).to.equal(400);
+				done();
+			});
+		});
+
 		it('should accept an frq answer that\'s homework', function(done){
 			var answer = {
 				questionID: questionIDs[3],
@@ -160,29 +184,6 @@ describe('Submission', function(){
 			.send(answer)
 			.end(function(err, res){
 				expect(res.status).to.equal(400);
-				done();
-			});
-		});
-
-		it ('should deny users after they\'ve tried too many times', function(done){
-			var answer = {
-				questionID: questionIDs[2],
-				answer: 3
-			}
-
-			var test = function(callback){
-				testStudent
-				.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
-				.send(answer)
-				.end(function(err, res){
-					callback(err, { res: res, bIsCorrect: res.body.bIsCorrect });
-				});
-			}
-
-			async.series([test, test, test, test], function(err, results){
-				if (err) throw err;
-				//expect the last one to throw an error
-				expect(results[3].res.status).to.equal(400);
 				done();
 			});
 		});
@@ -335,128 +336,22 @@ describe('Submission', function(){
 		})
 
 		it ('should display correct points earned for each individual content', function(done){
-			Submission.findOne({ _id: submission._id }, function(err, sub){
-				expect(sub.questionPoints[0]).to.equal(5);
-				expect(sub.questionPoints[1]).to.equal(5);
-				expect(sub.questionPoints[2]).to.equal(0); //tried too many times locked out
-				expect(sub.questionPoints[3]).to.equal(5);
-				expect(sub.questionPoints[4]).to.equal(0); //frq that's to be graded
-				expect(sub.exercisePoints[0]).to.equal(10);
-				done();
-			});
-		})
-	})
-
-	describe('teacher submission tools', function(){
-		it ('should leave a comment on an exercise', function(done){
-			var comment = {
-				contentType: 'exercise',
-				contentID: exerciseIDs[0],
-				text: 'These memes are quite spicy!'
-			}
-
-			testTeacher
-			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/comment')
-			.send(comment)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
+			Assignment.findOne({ _id: assignment._id}, { questions: 1 }, function(err, fullAssignment){
 				Submission.findOne({ _id: submission._id }, function(err, sub){
-					expect(sub.teacherComments.length).to.equal(1);
-					done();
-				});
-			});
-		});
-
-		it ('should leave a comment on an frq', function(done){
-			var comment = {
-				contentType: 'question',
-				contentID: questionIDs[4],
-				text: 'U write goodly'
-			}
-
-			testTeacher
-			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/comment')
-			.send(comment)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				Submission.findOne({ _id: submission._id }, function(err, sub){
-					expect(sub.teacherComments.length).to.equal(2);
-					done();
-				});
-			});
-		});
-
-		it ('should grade an frq', function(done){
-			var comment = {
-				contentType: 'question',
-				contentIndex: 4,
-				points: 5
-			}
-
-			testTeacher
-			.put('/api/course/MikeCS/assignment/' + assignment._id + '/submission/' + submission._id + '/grade')
-			.send(comment)
-			.end(function(err, res){
-				expect(res.status).to.equal(200);
-				Submission.findOne({ _id: submission._id }, function(err, sub){
-					expect(sub.pointsEarned).to.equal(30);
-					expect(sub.questionPoints[4]).to.equal(5);
-					done();
-				});
-			});
-		})
-
-		it('should get an exported CSV of values', function(done){
-			Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
-				const classCode = course.classrooms[0].classCode;
-				const csvURL = '/api/course/MikeCS/assignment/' + assignment._id + 
-					'/submission/classroom/' + classCode + '/export'
-
-				testTeacher
-				.get(csvURL)
-				.end(function(err, res){
-					expect(res.status).to.equal(200);
-					expect(res.body.csv).to.exist;
+					function findIndexOfQuestions(questionID){
+						return fullAssignment.questions.findIndex(function(question){
+							return questionID.toString() === question._id.toString();
+						})
+					}
+					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[0])]).to.equal(5);
+					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[1])]).to.equal(5);
+					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[2])]).to.equal(0); //tried too many times locked out
+					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[3])]).to.equal(5);
+					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[4])]).to.equal(0); //frq that's to be graded
+					expect(sub.exercisePoints[0]).to.equal(10);
 					done();
 				});
 			})
-		});
-	});
-
-	describe('completion', function(done){
-		it ('shouldnt allow a student to edit an exercise that has been commented on by the teacher', function(done){
-			var info = {
-				exerciseID: exerciseIDs[0],
-				code: [
-					{ 
-						name: 'Kang.java',
-						code: 'public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ return "WE WUZ EGYPTIANS AND SHIET"; } }'
-					}
-				],
-			}
-
-			testStudent
-			.put('/api/course/MikeCS/assignment/' + assignment._id + '/exercise/submit')
-			.send(info)
-			.end(function(err, res){
-				expect(res.status).to.equal(400);
-				done();
-			});
-		})
-
-		it('shouldnt allow a student to edit an frq that has been commented on by the teacher', function(done){
-			var answer = {
-				questionID: questionIDs[4],
-				answer: 'Better answer here.'
-			}
-
-			testStudent
-			.put('/api/course/MikeCS/assignment/' + assignment._id + '/question/submit')
-			.send(answer)
-			.end(function(err, res){
-				expect(res.status).to.equal(400);
-				done();
-			});
 		})
 	})
 });
@@ -464,3 +359,7 @@ describe('Submission', function(){
 //Ensure tests run in order we want
 module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;
+module.exports.exerciseIDs = exerciseIDs;
+module.exports.questionIDs = questionIDs;
+module.exports.assignment = assignment;
+module.exports.submission = submission;

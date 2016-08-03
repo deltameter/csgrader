@@ -27,7 +27,8 @@ var userSchema = new Schema({
 	firstName: { type: String, required: true },
 	lastName: { type: String, required: true },
 	fullNameLower: { type: String, index: true }, //used for searches
-	
+	institution: String,
+
 	//Courses the user is taking or teaching
 	courses: [Schema.Types.ObjectId],
 
@@ -118,6 +119,7 @@ userSchema.statics = {
 			lastName: userInfo.lastName,
 			password: userInfo.password,
 			email: userInfo.email.toLowerCase(),
+			institution: userInfo.institution,
 			role: userInfo.role
 		});
 

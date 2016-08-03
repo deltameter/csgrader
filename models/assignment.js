@@ -47,6 +47,28 @@ var assignmentSchema = new Schema({
 });
 
 assignmentSchema.statics = {
+	clone: function(assignmentID, courseID, courseCode, callback){
+		var Assignment = this;
+
+		Assignment.get(assignmentID, {}, function(err, assignment){
+			var cloneOfAssignment = JSON.parse(JSON.stringify(assignment));
+
+			cloneOfAssignment._id = undefined;
+			cloneOfAssignment.courseID = courseID;
+			cloneOfAssignment.courseCode = courseCode;
+			cloneOfAssignment.dueDate = undefined;
+			cloneOfAssignment.deadlineType = undefined;
+			cloneOfAssignment.classSubmissions = [];
+			cloneOfAssignment.bIsOpen = false;
+
+			cloneOfAssignment = Assignment.hydrate(cloneOfAssignment);
+
+			cloneOfAssignment.save(function(err, clone){
+				return callback(err, clone);
+			})
+		})
+	},
+
 	/*
 		@description: takes an assignmentID and a projection and returns an assignment
 		@param {MongoID} assignmentID: an object literal containing the changes the user wishes to make
@@ -128,7 +150,6 @@ assignmentSchema.statics = {
 
 		return newAssignment;
 	}
-
 }
 
 assignmentSchema.methods = {
