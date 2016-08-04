@@ -22,7 +22,7 @@ var exerciseSchema = new Schema({
 		{
 			name: String,
 			code: String,
-			bIsHidden: { default: false }
+			bIsHidden: { type: Boolean, default: false }
 		}
 	],
 

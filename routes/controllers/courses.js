@@ -3,8 +3,10 @@
 var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
 	Course = mongoose.model('Course'),
+	Assignment = mongoose.model('Assignment'),
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	helper = require(__base + 'routes/libraries/helper'),
+	async = require('async'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 module.exports.getCourse = function(req, res){
@@ -157,8 +159,44 @@ module.exports.fork = function(req, res){
 	var validationErrors = req.validationErrors();
 	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
 
-	Course.fork(req.body.courseCodeToFork, req.user, req.body, function(err, forkedCourse){
-		console.log(forkedCourse);
+	async.waterfall([
+		function(callback){
+			Course.fork(req.body.courseCodeToFork, req.user, req.body, function(err, results){
+				return callback(err, results.forkedCourse, results.assignmentIDs);
+			});
+		},
+		function(forkedCourse, assignmentIDs, callback){
+			function assignmentCloner(assignmentID){
+				return function(cb){
+					Assignment.clone(assignmentID, forkedCourse._id, forkedCourse.courseCode, function(err, forkedAssignment){
+						cb(err, forkedAssignment._id);
+					});
+				}
+			}
+
+			var assignmentCloners = [];
+
+			assignmentIDs.forEach(function(assignmentID){
+				assignmentCloners.push(assignmentCloner(assignmentID));
+			})
+
+			async.parallel(assignmentCloners, function(err, results){
+				return callback(err, forkedCourse, results);
+			})
+
+		},
+		function(forkedCourse, forkedAssignmentIDs, callback){
+			for (var i = 0; i < forkedAssignmentIDs.length; i++){
+				forkedCourse.addAssignment({ _id: forkedAssignmentIDs[i] });
+			}
+
+			forkedCourse.save(function(err){
+				return callback(err);
+			})
+		}
+	], function(err){
+		if (err){ return helper.sendError(res, 400, err) };
+
 		return helper.sendSuccess(res);
-	});
+	})
 }

@@ -8,6 +8,7 @@ var testTeacher = require('./submissionTests').testTeacher,
     async = require('async');
 
 var mongoose = require('mongoose'),
+	Assignment = mongoose.model('Assignment'),
 	Course = mongoose.model('Course'),
 	Submission = mongoose.model('Submission');
 
@@ -139,7 +140,43 @@ describe('teacher tools', function(){
 			.send(forkInfo)
 			.end(function(err, res){
 				expect(res.status).to.equal(200);
-				done()
+
+				//make sure the assignments are properly forked
+				async.parallel({
+					assignment: function(callback){
+						Assignment.findOne({ courseCode: 'MikeCS' }).lean().exec(function(err, assignment){
+							return callback(err, assignment);
+						})
+					},
+					forkedAssignment: function(callback){
+						Assignment.findOne({ courseCode: 'MikeCSFork'}).lean().exec(function(err, assignment){
+							return callback(err, assignment);
+						})
+					}
+				}, function(err, results){
+					expect(err).to.equal(null)
+
+					const assignment = results.assignment;
+					const forkedAssignment = results.forkedAssignment;
+
+					//make sure all the questions and exercises are in the same order
+					for (var i = 0; i < assignment.contentOrder.length; i++){
+						expect(assignment.contentOrder[i]).to.equal(forkedAssignment.contentOrder[i])
+					}
+
+					function testArrayEquality(firstArray, secondArray){
+						for (var i = 0; i < firstArray.length; i++){
+							for (prop in firstArray[i]){
+								expect(firstArray[i][prop]).to.deep.equal(secondArray[i][prop]);
+							}
+						}
+					}
+
+					testArrayEquality(assignment.questions, forkedAssignment.questions)
+					testArrayEquality(assignment.exercises, forkedAssignment.exercises)
+
+					done()
+				})
 			});
 		})
 	});

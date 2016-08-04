@@ -53,7 +53,7 @@ assignmentSchema.statics = {
 		Assignment.get(assignmentID, {}, function(err, assignment){
 			var cloneOfAssignment = JSON.parse(JSON.stringify(assignment));
 
-			cloneOfAssignment._id = undefined;
+			cloneOfAssignment._id = mongoose.Types.ObjectId();
 			cloneOfAssignment.courseID = courseID;
 			cloneOfAssignment.courseCode = courseCode;
 			cloneOfAssignment.dueDate = undefined;
@@ -61,9 +61,9 @@ assignmentSchema.statics = {
 			cloneOfAssignment.classSubmissions = [];
 			cloneOfAssignment.bIsOpen = false;
 
-			cloneOfAssignment = Assignment.hydrate(cloneOfAssignment);
+			var finishedClone = new Assignment(cloneOfAssignment);
 
-			cloneOfAssignment.save(function(err, clone){
+			finishedClone.save(function(err, clone){
 				return callback(err, clone);
 			})
 		})

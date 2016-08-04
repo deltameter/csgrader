@@ -338,16 +338,11 @@ describe('Submission', function(){
 		it ('should display correct points earned for each individual content', function(done){
 			Assignment.findOne({ _id: assignment._id}, { questions: 1 }, function(err, fullAssignment){
 				Submission.findOne({ _id: submission._id }, function(err, sub){
-					function findIndexOfQuestions(questionID){
-						return fullAssignment.questions.findIndex(function(question){
-							return questionID.toString() === question._id.toString();
-						})
-					}
-					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[0])]).to.equal(5);
-					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[1])]).to.equal(5);
-					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[2])]).to.equal(0); //tried too many times locked out
-					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[3])]).to.equal(5);
-					expect(sub.questionPoints[findIndexOfQuestions(questionIDs[4])]).to.equal(0); //frq that's to be graded
+					expect(sub.questionPoints[0]).to.equal(5);
+					expect(sub.questionPoints[1]).to.equal(5);
+					expect(sub.questionPoints[2]).to.equal(0); //tried too many times locked out
+					expect(sub.questionPoints[3]).to.equal(5);
+					expect(sub.questionPoints[4]).to.equal(0); //frq that's to be graded
 					expect(sub.exercisePoints[0]).to.equal(10);
 					done();
 				});

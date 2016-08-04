@@ -4,7 +4,6 @@ var mongoose = require('mongoose'),
 	validator = require('validator'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
 	languageHelper = require(__base + 'routes/libraries/languages'),
-	Assignment = mongoose.model('Assignment'),
 	async = require('async'),
 	Schema = mongoose.Schema;
 
@@ -54,8 +53,6 @@ courseSchema.statics = {
 	create: function(teacher, courseInfo, callback){
 		var Course = this;
 
-		console.log(courseInfo)
-		console.log(typeof courseInfo.defaultLanguage)
 		if (teacher.courses.length >= Course.properties.maxClassrooms + 30){
 			return callback(new DescError('You already have the maximum amount of courses allowed.'), 400);
 		}
@@ -173,23 +170,10 @@ courseSchema.statics = {
 			courseInfo.defaultLanguage = courseToFork.defaultLanguage;
 
 			Course.create(teacher, courseInfo, function(err, forkedCourse){
-				function assignmentCloner(assignmentID){
-					return function(callback){
-						Assignment.clone(assignmentID, forkedCourse._id, forkedCourse.courseCode, function(err, assignment){
-							callback(err, assignment);
-						})
-					}
-				}
-
-				var assignmentCloners = [];
-
-				courseToFork.assignments.forEach(function(assignmentID){
-					assignmentCloners.push(assignmentCloner(assignmentID));
-				})
-
-				async.parallel(assignmentCloners, function(err, results){
-					return callback(err, forkedCourse);
-				})
+				return callback(err, {
+					forkedCourse: forkedCourse,
+					assignmentIDs: courseToFork.assignments
+				});
 			})
 		})
 	}

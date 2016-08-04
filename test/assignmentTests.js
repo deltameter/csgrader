@@ -83,7 +83,7 @@ describe('Assignment', function(){
 		});
 
 		it('should create four other questions', function(done){
-			async.parallel([
+			async.series([
 				function(callback){
 					testTeacher
 					.post('/api/course/MikeCS/assignment/' + assignment._id + '/question/create')
