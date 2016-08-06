@@ -5,6 +5,7 @@ var app = require('./testPrep').app,
     supertest = require('supertest'),
     async = require('async'),
     testTeacher = supertest.agent(app),
+    secondTeacher = supertest.agent(app),
     testStudent = supertest.agent(app);
 
 describe('User', function(){
@@ -161,8 +162,49 @@ describe('User', function(){
 			});
 		});
 	})
+
+	describe('misc', function(){
+		it('should create another teacher', function(done){
+			var secondTeacherInfo = {
+				firstName: 'Jane',
+				lastName: 'Doe',
+				institution: 'Jane Doe High School',
+				password: 'password1', 
+				retypePassword: 'password1',
+				email: 'janedoe@gmail.com',
+				role: 'teacher'
+			};
+			
+			secondTeacher
+			.post('/api/user/join')
+			.send(secondTeacherInfo)
+			.expect(200)
+			.end(function(err, res){
+				if (err) throw err;
+				const secondActivationCode = res.body.activationCode;
+				
+
+				secondTeacher
+				.post('/auth/local')
+				.send({ email: 'janedoe@gmail.com', password: 'password1' })
+				.expect(200)
+				.end(function(err, res) {
+					if (err) throw err;
+
+					secondTeacher
+					.put('/api/user/emailActivation')
+					.send({ activationCode: secondActivationCode })
+					.expect(200)
+					.end(function(err, res){
+						done()
+					});	
+				});
+			});
+		})
+	})
 });
 
 //Ensure tests run in order we want
 module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;
+module.exports.secondTeacher = secondTeacher;

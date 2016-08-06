@@ -200,3 +200,60 @@ module.exports.fork = function(req, res){
 		return helper.sendSuccess(res);
 	})
 }
+
+module.exports.generateTeacherInviteCode = function(req, res){
+	req.checkBody('password', 'Please include your password').notEmpty();
+
+	var validationErrors = req.validationErrors();
+	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+
+	req.user.checkPassword(req.body.password, function(err, bIsCorrect){
+		if (err || !bIsCorrect){ return helper.sendError(res, 400, new DescError('That password is incorrect', 400)) }
+
+		Course.get(req.params.courseCode, { teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+			if (err){ return helper.sendError(res, 400, err) }
+
+			course.randomizeTeacherInviteCode();
+
+			course.save(function(err){
+				if (err){ return helper.sendError(res, 400, err) }
+				return helper.sendSuccess(res, { inviteCode: course.teacherInviteCode});
+			})
+		})	
+	})
+}
+
+module.exports.addTeacher = function(req, res){
+	Course.get(req.params.courseCode, { teachers: 1, teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+		if (err){ return helper.sendError(res, 400) };
+
+		if (req.user.courses.indexOf(course._id) !== -1){
+			return helper.sendError(res, 400, new DescError('You\'re already part of this course!', 400))
+		}
+
+		if (typeof course.teacherInviteCode === 'undefined' || req.params.inviteCode !== course.teacherInviteCode){
+			return helper.sendError(res, 400, new DescError('Incorrect invite code.', 400))
+		}
+
+		//if it's older than a day, it has expired
+		if (course.teacherInviteGenerateDate < Date.now() - (1000 * 60 * 60 * 24)){
+			course.teacherInviteCode = undefined;
+			course.save();
+			return helper.sendError(res, 400, new DescError('That invite has expired.', 400));
+		}
+
+		req.user.addCourse(course._id);
+
+		req.user.save(function(err){
+			if (err){ return helper.sendError(res, 400, err) }
+
+			course.addTeacher(req.user);
+
+			course.save(function(err, course){
+				if (err){ return helper.sendError(res, 400, err) }
+
+				return helper.sendSuccess(res)
+			})
+		})
+	})
+}

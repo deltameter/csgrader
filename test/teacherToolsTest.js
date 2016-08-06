@@ -1,4 +1,5 @@
 var testTeacher = require('./submissionTests').testTeacher,
+	secondTeacher = require('./userTests').secondTeacher,
 	testStudent = require('./submissionTests').testStudent,
 	exerciseIDs = require('./submissionTests').exerciseIDs,
 	questionIDs = require('./submissionTests').questionIDs,
@@ -180,4 +181,42 @@ describe('teacher tools', function(){
 			});
 		})
 	});
-})
+
+	describe('course collaboration', function(){
+		var inviteCode = '';
+
+		it('should generate an invite key for teachers', function(done){
+			testTeacher
+			.post('/api/course/MikeCS/invite')
+			.send({ password: 'password1' })
+			.end(function(err, res){
+				expect(res.status).to.equal(200)
+				expect(res.body.inviteCode.length).to.equal(8)
+				inviteCode = res.body.inviteCode;
+				done()
+			})
+		})
+
+		it('shouldnt allow a student to use the teacher invite key', function(done){
+			testStudent
+			.put('/api/course/MikeCS/invite/' + inviteCode)
+			.end(function(err, res){
+				expect(res.status).to.equal(401);
+				done()
+			})
+		})
+
+		it('it should allow another teacher to use the invite code', function(done){
+			secondTeacher
+			.put('/api/course/MikeCS/invite/' + inviteCode)
+			.end(function(err, res){
+				expect(res.status).to.equal(200);
+
+				Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
+					expect(course.teachers.length).to.equal(2);
+					done()
+				})
+			})
+		})
+	})
+});

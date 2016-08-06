@@ -1,1 +1,2 @@
-config/env/
+app/env
+node_modules/bcrypt

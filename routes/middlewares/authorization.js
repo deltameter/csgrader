@@ -9,26 +9,26 @@ module.exports.requiresLogin = function(req, res, next){
 		return next();
 	}
 
-	return helper.sendError(res, 401, new DescError('Please log in.', 400));
+	return helper.sendError(res, 401, new DescError('Please log in.', 401));
 }
 
 module.exports.requiresStudent = function(req, res, next){
 	if (req.user.role === 'student') return next();
 
-	return helper.sendError(res, 401, new DescError('You must be a student to access this.', 400));
+	return helper.sendError(res, 401, new DescError('You must be a student to access this.', 401));
 }
 
 module.exports.requiresTeacher = function(req, res, next){
 	if (req.user.role === 'teacher') return next();
 
-	return helper.sendError(res, 401, new DescError('You must be a teacher to access this.', 400));
+	return helper.sendError(res, 401, new DescError('You must be a teacher to access this.', 401));
 }
 
 module.exports.requiresEnrollment = function(req, res, next){
 	if (typeof req.session.authorizedCourses === 'undefined' || 
 		req.session.authorizedCourses.indexOf(req.params.courseCode) === -1){
 
-		Course.findOne({courseCode: req.params.courseCode}, { _id: 1 }, function(err, course){
+		Course.findOne({courseCode: req.params.courseCode}, { _id: 1 }).lean().exec(function(err, course){
 			if (err){
 				return helper.sendError(res, 500, new DescError(
 					'An error occured while you were trying to access the database. Please try again.', 400));
@@ -59,7 +59,7 @@ module.exports.requiresCourseOwnership = function(req, res, next){
 	if (typeof req.session.ownedCourses === 'undefined' || 
 		req.session.ownedCourses.indexOf(req.params.courseCode) === -1){
 
-		Course.findOne({ courseCode : req.params.courseCode }, { owner: 1 }, function(err, course){
+		Course.findOne({ courseCode : req.params.courseCode }, { owner: 1 }).lean().exec(function(err, course){
 			if (err){
 				return helper.sendError(res, 500, new DescError(
 					'An error occured while you were trying to access the database. Please try again.', 400));
@@ -91,7 +91,7 @@ module.exports.requiresAssignment = function(req, res, next){
 	if (typeof req.session.authorizedAssignments === 'undefined' || 
 		req.session.authorizedAssignments.indexOf(req.params.assignmentID) === -1){
 
-		Assignment.findOne({ _id : req.params.assignmentID }, { courseID: 1, bIsOpen: 1}, function(err, assignment){
+		Assignment.findOne({ _id : req.params.assignmentID }, { courseID: 1, bIsOpen: 1 }, function(err, assignment){
 			if (err){
 				return helper.sendError(res, 500, new DescError(
 					'An error occured while you were trying to access the database. Please try again.', 400));

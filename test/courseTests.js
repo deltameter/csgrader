@@ -139,7 +139,6 @@ describe('Course', function(){
 				.delete('/api/course/MikeCS/classroom/' + classCode)
 				.send({ password: 'password1' })
 				.end(function(err, res){
-					console.log(res.body)
 					if (err) throw err;
 					expect(res.status).to.equal(200);
 					done();

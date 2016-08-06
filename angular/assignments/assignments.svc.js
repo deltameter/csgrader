@@ -165,11 +165,11 @@
 			var totalPoints = 0;
 
 			assignment.exercises.forEach(function(exercise){
-				totalPoints += exercise.pointsWorth;
+				totalPoints += parseInt(exercise.pointsWorth);
 			})
 
 			assignment.questions.forEach(function(question){
-				totalPoints += question.pointsWorth;
+				totalPoints += parseInt(question.pointsWorth);
 			})
 
 			return totalPoints;

@@ -5,12 +5,13 @@ var mongoose = require('mongoose'),
 	DescError = require(__base + 'routes/libraries/errors').DescError,
 	languageHelper = require(__base + 'routes/libraries/languages'),
 	async = require('async'),
+	crypto = require('crypto'),
 	Schema = mongoose.Schema;
 
 var courseSchema = new Schema({
 	//Absolute owner of course. Holds Imperium. 
-	bIsOpen: { type: Boolean, default: false },
 	owner: { type: Schema.Types.ObjectId, ref: 'User' },
+	bIsOpen: { type: Boolean, default: false },
 	name: { type: String, required: true },
 
 	courseCode: { type: String, required: true, index: true, unique: true },
@@ -30,7 +31,19 @@ var courseSchema = new Schema({
 			pointsWorth: { type: Number, required: true},
 			dueDate: { type: Date, required: true }
 		}
-	]
+	],
+
+	teachers: [
+		{
+			userID: { type: Schema.Types.ObjectId, required: true },
+			name: { type: String, required: true },
+			email: { type: String, required: true },
+			institution: { type: String, required: true }
+		}
+	],
+
+	teacherInviteCode: String,
+	teacherInviteGenerateDate: Date
 });
 
 courseSchema.path('name').validate(function(name){
@@ -78,12 +91,15 @@ courseSchema.statics = {
 			name: courseInfo.name,
 			courseCode: courseInfo.courseCode.replace(/\s/g, ''),
 			password: courseInfo.password,
-			defaultLanguage: defaultLanguage
+			defaultLanguage: defaultLanguage,
 		});
 
 		newCourse.save(function(err, course){
 			if (err) return callback(err, null);
 
+			course.addTeacher(teacher);
+			course.save();
+			
 			return callback(null, course);
 		});
 	},
@@ -289,7 +305,26 @@ courseSchema.methods = {
 
 	randomizeCourseCode: function(){
 		var course = this;
-		course.courseCode = course._id + require('crypto').randomBytes(2).toString('hex');
+		course.courseCode = course._id + crypto.randomBytes(2).toString('hex');
+	},
+
+	randomizeTeacherInviteCode: function(){
+		var course = this;
+		course.teacherInviteCode = crypto.randomBytes(4).toString('hex');
+		course.teacherInviteGenerateDate = Date.now();
+	},
+
+	addTeacher: function(teacher){
+		var course = this;
+
+		var newTeacherInfo = {
+			userID: teacher._id,
+			name: teacher.firstName + ' ' + teacher.lastName,
+			email: teacher.email,
+			institution: teacher.institution
+		}
+
+		course.teachers.push(newTeacherInfo);
 	}
 }
 

@@ -28,6 +28,28 @@
 			);
 		};
 
+		function forkCourse(forkedCourse){
+			return $http.post('/api/course/fork', forkedCourse).then(
+				function Success(res){
+					return res.data;
+				},
+				function Failure(res){
+					return res.data;
+				}
+			)
+		}
+
+		function joinCourse(joinInfo){
+			return $http.put('/api/course/' + joinInfo.courseCode + '/invite/' + joinInfo.inviteCode).then(
+				function Success(res){
+					return res.data;
+				},
+				function Failure(res){
+					return res.data;
+				}
+			)
+		}
+
 		function deleteCourse(courseCode, password){
 			var requestInfo = { 
 				url: '/api/course/' + courseCode, 

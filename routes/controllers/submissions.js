@@ -29,7 +29,7 @@ module.exports.submitQuestionAnswer = function(req, res){
 
 				questionIndex = assignment.getContentIndex('question', questionID);
 
-				if (questionIndex === -1){
+				if (questionIndex === -1 || assignment.isLocked()){
 					return callback(new DescError('You cannot submit anymore.', 404));
 				}
 
@@ -95,7 +95,7 @@ module.exports.submitExerciseAnswer = function(req, res){
 
 				exerciseIndex = assignment.getContentIndex('exercise', exerciseID);
 				
-				if (exerciseIndex === -1){
+				if (exerciseIndex === -1 || assignment.isLocked()){
 					return callback(new DescError('That exercise does not exist', 404));
 				}
 

@@ -57,7 +57,11 @@ module.exports = function(app){
 	app.get('/api/course/:courseCode', auth.requiresLogin, auth.requiresEnrollment, courses.getCourse);
 
 	app.delete('/api/course/:courseCode', teacherOwnerAuth, courses.delete);
+
+	app.post('/api/course/:courseCode/invite', teacherOwnerAuth, courses.generateTeacherInviteCode);
 	
+	app.put('/api/course/:courseCode/invite/:inviteCode', teacherAuth, courses.addTeacher);
+
 	//******************************
 	//***** CLASSROOM ROUTES *******
 	//******************************
