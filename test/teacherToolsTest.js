@@ -187,8 +187,7 @@ describe('teacher tools', function(){
 
 		it('should generate an invite key for teachers', function(done){
 			testTeacher
-			.post('/api/course/MikeCS/invite')
-			.send({ password: 'password1' })
+			.put('/api/course/MikeCS/invite')
 			.end(function(err, res){
 				expect(res.status).to.equal(200)
 				expect(res.body.inviteCode.length).to.equal(8)
@@ -218,5 +217,19 @@ describe('teacher tools', function(){
 				})
 			})
 		})
+
+		it('it shouldnt allow a user to join the same course twice', function(done){
+			secondTeacher
+			.put('/api/course/MikeCS/invite/' + inviteCode)
+			.end(function(err, res){
+				expect(res.status).to.equal(400);
+
+				Course.findOne({ courseCode: 'MikeCS' }, function(err, course){
+					expect(course.teachers.length).to.equal(2);
+					done()
+				})
+			})
+		})
+
 	})
 });

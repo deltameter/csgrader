@@ -2,15 +2,38 @@
 	'use strict';
 	
 	angular.module('courses').factory('CourseFactory', function ($http) {
+		var courseCode = '';
+
 		return {
+			setParams: setParams,
 			getCourse: getCourse,
 			getCourses: getCourses,
 			createCourse: createCourse,
-			deleteCourse: deleteCourse
+			deleteCourse: deleteCourse,
+			forkCourse: forkCourse,
+			joinCourse: joinCourse,
+			generateInviteCode: generateInviteCode
 		}
 
-		function getCourse(courseCode){
-			return $http.get('/api/course/' + courseCode);
+		function setParams(setCourseCode){
+			courseCode = setCourseCode;
+		}
+
+		function getCourse(){
+			return $http.get('/api/course/' + courseCode).then(
+				function Success(res){
+					var course = res.data;
+
+					if (typeof course.teacherInviteGenerateDate !== 'undefined'){
+						//check if it's older than 1 day
+						if (Date.now() - (1000 * 60 * 60 * 24) > course.teacherInviteGenerateDate){
+							course.teacherInviteCode = 'invite expired'
+						}
+					}
+
+					return course;
+				}
+			);
 		}
 
 		function getCourses(){
@@ -50,7 +73,7 @@
 			)
 		}
 
-		function deleteCourse(courseCode, password){
+		function deleteCourse(password){
 			var requestInfo = { 
 				url: '/api/course/' + courseCode, 
 				method: 'DELETE', 
@@ -66,6 +89,10 @@
 					return res.data;
 				}
 			);
+		}
+
+		function generateInviteCode(){
+			return $http.put('/api/course/' + courseCode + '/invite');
 		}
 	});
 })();

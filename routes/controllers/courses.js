@@ -10,7 +10,13 @@ var mongoose = require('mongoose'),
 	DescError = require(__base + 'routes/libraries/errors').DescError;
 
 module.exports.getCourse = function(req, res){
-	const projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1 };
+	var projection;
+	
+	if (req.user.role === 'teacher'){
+		projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1, teacherInviteCode: 1, teacherInviteGenerateDate: 1 };
+	}else{
+		projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1 };
+	}
 
 	Course.getWithOpenAssignments(req.params.courseCode, projection, function(err, course){
 		if (err) return helper.sendError(res, 500, err);
@@ -191,6 +197,12 @@ module.exports.fork = function(req, res){
 			}
 
 			forkedCourse.save(function(err){
+				return callback(err, forkedCourse);
+			})
+		},
+		function(forkedCourse, callback){
+			req.user.addCourse(forkedCourse._id);
+			req.user.save(function(err){
 				return callback(err);
 			})
 		}
@@ -202,25 +214,16 @@ module.exports.fork = function(req, res){
 }
 
 module.exports.generateTeacherInviteCode = function(req, res){
-	req.checkBody('password', 'Please include your password').notEmpty();
+	Course.get(req.params.courseCode, { teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+		if (err){ return helper.sendError(res, 400, err) }
 
-	var validationErrors = req.validationErrors();
-	if (validationErrors){ return helper.sendError(res, 400, validationErrors); }
+		course.randomizeTeacherInviteCode();
 
-	req.user.checkPassword(req.body.password, function(err, bIsCorrect){
-		if (err || !bIsCorrect){ return helper.sendError(res, 400, new DescError('That password is incorrect', 400)) }
-
-		Course.get(req.params.courseCode, { teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) }
-
-			course.randomizeTeacherInviteCode();
-
-			course.save(function(err){
-				if (err){ return helper.sendError(res, 400, err) }
-				return helper.sendSuccess(res, { inviteCode: course.teacherInviteCode});
-			})
-		})	
-	})
+			return helper.sendSuccess(res, { inviteCode: course.teacherInviteCode });
+		})
+	})	
 }
 
 module.exports.addTeacher = function(req, res){

@@ -58,7 +58,7 @@ module.exports = function(app){
 
 	app.delete('/api/course/:courseCode', teacherOwnerAuth, courses.delete);
 
-	app.post('/api/course/:courseCode/invite', teacherOwnerAuth, courses.generateTeacherInviteCode);
+	app.put('/api/course/:courseCode/invite', teacherOwnerAuth, courses.generateTeacherInviteCode);
 	
 	app.put('/api/course/:courseCode/invite/:inviteCode', teacherAuth, courses.addTeacher);
 

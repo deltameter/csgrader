@@ -32,6 +32,16 @@ blockquote.readable{
 	background-color: #fafafa;
 }
 
+.nav-tabs.centered > li, .nav-pills > li {
+    float:none;
+    display:inline-block;
+}
+
+.nav-tabs.centered {
+    text-align:center;
+}
+
+
 /* Spacing */
 
 .spacer{

@@ -39,7 +39,16 @@
 			</div>
 		</div>
 
-		<div class="row small-spacer" ng-if="courseCtrl.course.owner._id === courseCtrl.user._id">
+		<div class="row small-spacer" ng-if="::courseCtrl.course.owner._id == courseCtrl.user._id">
+			<div class="col-md-2 col-md-offset-4 col-xs-6 col-xs-offset-1">
+				<input type="text" class="form-control" ng-model="courseCtrl.course.teacherInviteCode" readonly>
+			</div>
+			<div class="col-md-2 col-xs-3">
+				<button class="btn btn-block btn-success" ng-click="courseCtrl.generateInviteCode()">Generate</button>
+			</div>
+		</div>
+
+		<div class="row small-spacer" ng-if="::courseCtrl.course.owner._id == courseCtrl.user._id">
 			<div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
 				<button class="btn btn-block btn-danger" ng-click="courseCtrl.showDeleteCourseModal()">Delete Course</button>
 			</div>
