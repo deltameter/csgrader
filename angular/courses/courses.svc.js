@@ -24,10 +24,10 @@
 				function Success(res){
 					var course = res.data;
 
-					if (typeof course.teacherInviteGenerateDate !== 'undefined'){
+					if (typeof course.inviteGenerateDate !== 'undefined'){
 						//check if it's older than 1 day
-						if (Date.now() - (1000 * 60 * 60 * 24) > course.teacherInviteGenerateDate){
-							course.teacherInviteCode = 'invite expired'
+						if (Date.now() - (1000 * 60 * 60 * 24) > course.inviteGenerateDate){
+							course.inviteCode = 'invite expired'
 						}
 					}
 

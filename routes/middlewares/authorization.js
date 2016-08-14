@@ -9,7 +9,7 @@ module.exports.requiresLogin = function(req, res, next){
 		return next();
 	}
 
-	return helper.sendError(res, 401, new DescError('Please log in.', 401));
+	return helper.sendError(res, 401, new DescError('Please log in or activate your account.', 401));
 }
 
 module.exports.requiresStudent = function(req, res, next){
@@ -22,6 +22,12 @@ module.exports.requiresTeacher = function(req, res, next){
 	if (req.user.role === 'teacher') return next();
 
 	return helper.sendError(res, 401, new DescError('You must be a teacher to access this.', 401));
+}
+
+module.exports.requiresTeacherOrAide = function(req, res, next){
+	if (req.user.role === 'teacher' || req.user.role === 'aide') return next();
+
+	return helper.sendError(res, 401, new DescError('You must be a teacher or an aide to access this.', 401));
 }
 
 module.exports.requiresEnrollment = function(req, res, next){

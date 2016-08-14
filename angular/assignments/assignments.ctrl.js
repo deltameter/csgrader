@@ -2,11 +2,12 @@
 	'use strict';
 	
 	function choosePanelClass(classes, role, bIsFinished, bIsCorrect, bIsAttempted){
-		if (bIsFinished && role === 'teacher'){
+		//grader is a role assigned in getPanelClass if it's in submission mode
+		if (bIsFinished && (role === 'teacher' || role === 'aide')){
 			return classes.success;
-		}else if (bIsCorrect && role === 'student'){
+		}else if (bIsCorrect && (role === 'student' || role === 'grader')){
 			return classes.success;
-		}else if (bIsAttempted && role === 'student'){
+		}else if (bIsAttempted && (role === 'student' || role === 'grader')){
 			return classes.warning;
 		}else{
 			return classes.normal;
@@ -330,12 +331,17 @@
 	.controller('QuestionController', function($state, $scope, $stateParams, $timeout, $element, UserInfo, QuestionFactory){
 		var vm = this;
 
-		vm.state = $state;
+		vm.location = $state.current.name === 'root.submission' ? 'submission' : 'assignment';
+
 		vm.courseCode = $stateParams.courseCode;
 		vm.assignmentID = $stateParams.assignmentID;
 
 		//get the question contents from the parent scope
 		vm.question = $scope.$parent.content;
+
+		if (vm.location === 'submission' && vm.question.questionType === 'frq'){
+			vm.bIsGraded = vm.question.pointsEarned > 0;
+		}
 
 		const panelClasses = {
 			panel: {
@@ -347,14 +353,29 @@
 				success: 'btn-default',
 				warning: 'btn-default',
 				normal: 'btn-info'
+			},
+			grader: {
+				success: 'white',
+				warning: 'white',
+				normal: 'black'
 			}
 		}
 
 		this.getPanelClass = function(type){
-			const bIsCorrect = vm.question.bIsCorrect || (vm.question.questionType === 'frq' && vm.question.tries > 0)
+			const role = vm.location === 'submission' ? 'grader' : UserInfo.getUser().role;
+
+			//correct if:
+			//1. it's actually correct
+			//2. if the user is a student and they have tried it so we show them green bar
+			//3. if the user is a grader and they have graded it so we show them a green bar
+			const bIsCorrect = vm.question.bIsCorrect 
+				|| (role === 'student' && vm.question.questionType === 'frq' && vm.question.tries > 0)
+				|| (role === 'grader' && vm.question.questionType === 'frq' && vm.bIsGraded)
 			
-			return choosePanelClass(panelClasses[type], UserInfo.getUser().role, 
-				vm.question.bIsFinished, bIsCorrect, vm.question.tries > 0);
+			const bIsAttempted = role === 'student' ? vm.question.tries > 0 : vm.question.tries === 0;
+
+			return choosePanelClass(panelClasses[type], role , 
+				vm.question.bIsFinished, bIsCorrect, bIsAttempted);
 		}
 
 		this.submitQuestion = function(){
@@ -546,9 +567,9 @@
 	.controller('ExerciseController', function($state, $scope, $controller, $timeout, UserInfo, $element, ExerciseFactory){
 		var vm = this;
 
-		vm.state = $state;
-		
 		angular.extend(vm, $controller('ExerciseBaseController', {$scope: $scope}));
+
+		vm.location = $state.current.name === 'root.submission' ? 'submission' : 'assignment';
 
 		if (UserInfo.getUser().role === 'teacher'){
 			vm.focusFileType = 'solutionCode';
@@ -566,11 +587,18 @@
 				success: 'btn-default',
 				warning: 'btn-default',
 				normal: 'btn-info'
+			},
+			grader: {
+				success: 'white',
+				warning: 'white',
+				normal: 'black'
 			}
 		}
 
 		this.getPanelClass = function(type){
-			return choosePanelClass(panelClasses[type], UserInfo.getUser().role, 
+			const role = vm.location === 'submission' ? 'grader' : UserInfo.getUser().role;
+
+			return choosePanelClass(panelClasses[type], role, 
 				(vm.exercise.bIsFinished && vm.exercise.bIsTested), vm.exercise.bIsCorrect, vm.exercise.tries > 0);
 		}
 

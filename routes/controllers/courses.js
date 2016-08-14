@@ -13,7 +13,7 @@ module.exports.getCourse = function(req, res){
 	var projection;
 	
 	if (req.user.role === 'teacher'){
-		projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1, teacherInviteCode: 1, teacherInviteGenerateDate: 1 };
+		projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1, inviteCode: 1, inviteGenerateDate: 1 };
 	}else{
 		projection = { owner: 1, courseCode: 1, name: 1, openAssignments: 1 };
 	}
@@ -213,35 +213,33 @@ module.exports.fork = function(req, res){
 	})
 }
 
-module.exports.generateTeacherInviteCode = function(req, res){
-	Course.get(req.params.courseCode, { teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+module.exports.generateInviteCode = function(req, res){
+	Course.get(req.params.courseCode, { inviteCode: 1, inviteGenerateDate: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400, err) }
 
 		course.randomizeTeacherInviteCode();
 
 		course.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) }
-			return helper.sendSuccess(res, { inviteCode: course.teacherInviteCode });
+			return helper.sendSuccess(res, { inviteCode: course.inviteCode });
 		})
 	})	
 }
 
-module.exports.addTeacher = function(req, res){
-	Course.get(req.params.courseCode, { teachers: 1, teacherInviteCode: 1, teacherInviteGenerateDate: 1 }, function(err, course){
+module.exports.addColleague = function(req, res){
+	Course.get(req.params.courseCode, { teachers: 1, aides: 1, inviteCode: 1, inviteGenerateDate: 1 }, function(err, course){
 		if (err){ return helper.sendError(res, 400) };
 
 		if (req.user.courses.indexOf(course._id) !== -1){
 			return helper.sendError(res, 400, new DescError('You\'re already part of this course!', 400))
 		}
 
-		if (typeof course.teacherInviteCode === 'undefined' || req.params.inviteCode !== course.teacherInviteCode){
+		if (typeof course.inviteCode === 'undefined' || req.params.inviteCode !== course.inviteCode){
 			return helper.sendError(res, 400, new DescError('Incorrect invite code.', 400))
 		}
 
 		//if it's older than a day, it has expired
-		if (course.teacherInviteGenerateDate < Date.now() - (1000 * 60 * 60 * 24)){
-			course.teacherInviteCode = undefined;
-			course.save();
+		if (course.hasInviteExpired()){
 			return helper.sendError(res, 400, new DescError('That invite has expired.', 400));
 		}
 
@@ -250,7 +248,11 @@ module.exports.addTeacher = function(req, res){
 		req.user.save(function(err){
 			if (err){ return helper.sendError(res, 400, err) }
 
-			course.addTeacher(req.user);
+			if (req.user.role === 'teacher'){
+				course.addTeacher(req.user);
+			}else if (req.user.role === 'aide'){
+				course.addAide(req.user);
+			}
 
 			course.save(function(err, course){
 				if (err){ return helper.sendError(res, 400, err) }

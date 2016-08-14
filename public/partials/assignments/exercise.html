@@ -30,7 +30,7 @@
 					<form class="form-horizontal" role="form">
 						<div class="form-group submission-points-form-group">
 							<div class="col-xs-7">
-								<input type="text" class="form-control submission-points-input" ng-model="exerciseCtrl.exercise.pointsEarned"></input>
+								<input type="text" class="form-control submission-points-input" ng-class="exerciseCtrl.getPanelClass('grader')" ng-model="exerciseCtrl.exercise.pointsEarned"></input>
 							</div>
 							<p class="information">/ {{ exerciseCtrl.exercise.pointsWorth }}</p>
 						</div>

@@ -68,6 +68,7 @@ exerciseSchema.statics = {
 			title: title,
 			language: language.definition
 		});
+
 		return newExercise;
 	}
 }
@@ -176,20 +177,11 @@ exerciseSchema.methods = {
 			var passedTests = compilationInfo.passedTests.trim().split(' ');
 			var fullTests = passedTests.concat(compilationInfo.failedTests.trim().split(' '));
 
-			//since the compiler returns filenames without extensions, we need to strip extensions to compare
-			var testsWithDescriptions = exercise.tests.map(function(test){
-				return {
-					name: test.name.split('.')[0],
-					pointsWorth: test.pointsWorth,
-					description: test.description
-				}
-			})
-
 			var testResults = [];
 			var pointsEarned = 0;
 
 			for (var i = 0; i < fullTests.length; i++){
-				var test = testsWithDescriptions.find(function(test){
+				var test = exercise.tests.find(function(test){
 					return test.name === fullTests[i];
 				})
 

@@ -171,8 +171,17 @@ img.scale-to-fit{
 	margin-bottom: 8px;
 }
 
-.submission .submission-points-input{
+
+.submission .submission-points-input.white{
 	color: #ffffff;
+	width: 30px;
+	height: 25px;
+	margin-top: 0px;
+	float: right;
+}
+
+.submission .submission-points-input.black{
+	color: #212121;
 	width: 30px;
 	height: 25px;
 	margin-top: 0px;

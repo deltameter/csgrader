@@ -30,7 +30,7 @@
 					<form class="form-horizontal" role="form">
 						<div class="form-group submission-points-form-group">
 							<div class="col-xs-7">
-								<input type="text" class="form-control submission-points-input" ng-model="questionCtrl.question.pointsEarned"></input>
+								<input type="text" class="form-control submission-points-input" ng-class="questionCtrl.getPanelClass('grader')" ng-model="questionCtrl.question.pointsEarned"></input>
 							</div>
 							<p class="information">/ {{ questionCtrl.question.pointsWorth }}</p>
 						</div>
@@ -38,7 +38,7 @@
 				</div>
 
 				<div class="col-xs-1">
-					<button class="btn btn-sm" ng-class="questionCtrl.getPanelClass('button')" ng-click="submissionCtrl.gradeContent('question', questionCtrl.question.questionIndex, questionCtrl.question.pointsEarned)">Grade</button>
+					<button class="btn btn-sm" ng-class="questionCtrl.getPanelClass('button')" ng-click="submissionCtrl.gradeContent('question', questionCtrl.question.questionIndex, questionCtrl.question.pointsEarned); questionCtrl.bIsGraded = true">Grade</button>
 				</div>
 			</div>
 

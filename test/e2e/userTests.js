@@ -6,6 +6,7 @@ var app = require('./testPrep').app,
     async = require('async'),
     testTeacher = supertest.agent(app),
     secondTeacher = supertest.agent(app),
+    teachingAssistant = supertest.agent(app),
     testStudent = supertest.agent(app);
 
 describe('User', function(){
@@ -163,7 +164,7 @@ describe('User', function(){
 		});
 	})
 
-	describe('misc', function(){
+	describe('other roles', function(){
 		it('should create another teacher', function(done){
 			var secondTeacherInfo = {
 				firstName: 'Jane',
@@ -201,10 +202,48 @@ describe('User', function(){
 				});
 			});
 		})
+
+		it('should create a teaching assistant', function(done){
+			var TAInfo = {
+				firstName: 'Teaching',
+				lastName: 'Assistant',
+				institution: 'John Doe High School',
+				password: 'password1', 
+				retypePassword: 'password1',
+				email: 'teachingassistant@gmail.com',
+				role: 'aide'
+			};
+			
+			teachingAssistant
+			.post('/api/user/join')
+			.send(TAInfo)
+			.expect(200)
+			.end(function(err, res){
+				if (err) throw err;
+				const TACode = res.body.activationCode;
+				
+				teachingAssistant
+				.post('/auth/local')
+				.send({ email: 'teachingassistant@gmail.com', password: 'password1' })
+				.expect(200)
+				.end(function(err, res) {
+					if (err) throw err;
+
+					teachingAssistant
+					.put('/api/user/emailActivation')
+					.send({ activationCode: TACode })
+					.expect(200)
+					.end(function(err, res){
+						done()
+					});	
+				});
+			});
+		})
 	})
 });
 
 //Ensure tests run in order we want
 module.exports.testTeacher = testTeacher;
 module.exports.testStudent = testStudent;
+module.exports.teachingAssistant = teachingAssistant;
 module.exports.secondTeacher = secondTeacher;

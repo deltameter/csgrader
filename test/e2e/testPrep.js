@@ -6,13 +6,12 @@ process.env.NODE_ENV = 'test';
 
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
-	app = require('../server').app,
+	app = require('../../server').app,
 	async = require('async'),
 	supertest = require('supertest');
 
-
 before(function(done){
-	mongoose.createConnection(require(__dirname + '/../app/config').mongoURL, function(err){
+	mongoose.createConnection(require(__dirname + '/../../app/config').mongoURL, function(err){
 		if (err) throw err;
 		mongoose.connection.db.dropDatabase(function(err){
 			if (err) throw err;

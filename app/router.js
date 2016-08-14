@@ -16,10 +16,12 @@ var auth = require(__base + 'routes/middlewares/authorization');
 
 const studentAuth = [auth.requiresLogin, auth.requiresStudent],
 	teacherAuth = [auth.requiresLogin, auth.requiresTeacher],
+	graderAuth = [auth.requiresLogin, auth.requiresTeacherOrAide],
 	studentCourseAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment],
 	teacherCourseAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment],
 	teacherOwnerAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, auth.requiresCourseOwnership],
 	studentAssignmentAuth = [auth.requiresLogin, auth.requiresStudent, auth.requiresEnrollment, auth.requiresAssignment],
+	graderAssignmentAuth =  [auth.requiresLogin, auth.requiresTeacherOrAide, auth.requiresEnrollment, auth.requiresAssignment],
 	teacherAssignmentAuth = [auth.requiresLogin, auth.requiresTeacher, auth.requiresEnrollment, auth.requiresAssignment];
 	
 
@@ -58,9 +60,9 @@ module.exports = function(app){
 
 	app.delete('/api/course/:courseCode', teacherOwnerAuth, courses.delete);
 
-	app.put('/api/course/:courseCode/invite', teacherOwnerAuth, courses.generateTeacherInviteCode);
+	app.put('/api/course/:courseCode/invite', teacherOwnerAuth, courses.generateInviteCode);
 	
-	app.put('/api/course/:courseCode/invite/:inviteCode', teacherAuth, courses.addTeacher);
+	app.put('/api/course/:courseCode/invite/:inviteCode', graderAuth, courses.addColleague);
 
 	//******************************
 	//***** CLASSROOM ROUTES *******
@@ -107,17 +109,17 @@ module.exports = function(app){
 	//******************************
 	//***** SUBMISSION ROUTES ******
 	//******************************
-	app.get(assignmentRoute + '/submission', teacherAssignmentAuth, assignments.getSubmissions);
+	app.get(assignmentRoute + '/submission', graderAssignmentAuth, assignments.getSubmissions);
 
-	app.get(assignmentRoute + '/submission/classroom/:classCode', teacherAssignmentAuth, assignments.getSubmissionList);
+	app.get(assignmentRoute + '/submission/classroom/:classCode', graderAssignmentAuth, assignments.getSubmissionList);
 
 	app.get(assignmentRoute + '/submission/classroom/:classCode/export', teacherAssignmentAuth, classrooms.exportGrades);
 
-	app.get(assignmentRoute + '/submission/:submissionID', teacherAssignmentAuth, assignments.getAssignmentToGrade);
+	app.get(assignmentRoute + '/submission/:submissionID', graderAssignmentAuth, assignments.getAssignmentToGrade);
 
-	app.put(assignmentRoute + '/submission/:submissionID/comment', teacherAssignmentAuth, submissions.saveComment);
+	app.put(assignmentRoute + '/submission/:submissionID/comment', graderAssignmentAuth, submissions.saveComment);
 
-	app.put(assignmentRoute + '/submission/:submissionID/grade', teacherAssignmentAuth, submissions.gradeContent);
+	app.put(assignmentRoute + '/submission/:submissionID/grade', graderAssignmentAuth, submissions.gradeContent);
 
 	app.put(assignmentRoute + '/question/submit', studentAssignmentAuth, submissions.submitQuestionAnswer);
 

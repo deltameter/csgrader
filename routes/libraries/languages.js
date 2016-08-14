@@ -6,6 +6,13 @@ var languages = [
         	language: 'Java',
         	fileExt: '.java'
         }
+    },
+    {
+        definition: {
+            langID: 1,
+            language: 'Python2.7',
+            fileExt: '.py'
+        }
     }
 ]
 

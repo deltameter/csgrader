@@ -12,7 +12,7 @@ module.exports.getAssignment = function(req, res){
 	Assignment.get(req.params.assignmentID, {}, function(err, assignment){
 		if (err){ return helper.sendError(res, 400, err); }
 
-		if (req.user.role === 'teacher'){
+		if (req.user.role === 'teacher' || req.user.role === 'aide'){
 			return helper.sendSuccess(res, { assignment: assignment });
 		}
 		

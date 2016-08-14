@@ -33,6 +33,14 @@ var courseSchema = new Schema({
 		}
 	],
 
+	aides: [
+		{
+			userID: { type: Schema.Types.ObjectId, required: true },
+			name: { type: String, required: true },
+			email: { type: String, required: true }
+		}
+	],
+
 	teachers: [
 		{
 			userID: { type: Schema.Types.ObjectId, required: true },
@@ -42,8 +50,8 @@ var courseSchema = new Schema({
 		}
 	],
 
-	teacherInviteCode: String,
-	teacherInviteGenerateDate: Date
+	inviteCode: String,
+	inviteGenerateDate: Date
 });
 
 courseSchema.path('name').validate(function(name){
@@ -310,8 +318,19 @@ courseSchema.methods = {
 
 	randomizeTeacherInviteCode: function(){
 		var course = this;
-		course.teacherInviteCode = crypto.randomBytes(4).toString('hex');
-		course.teacherInviteGenerateDate = Date.now();
+		course.inviteCode = crypto.randomBytes(4).toString('hex');
+		course.inviteGenerateDate = Date.now();
+	},
+
+	hasInviteExpired: function(){
+		var course = this;
+
+		if (course.inviteGenerateDate < Date.now() - (1000 * 60 * 60 * 24)){
+			course.inviteCode = undefined;
+			return true;
+		}
+
+		return false;
 	},
 
 	addTeacher: function(teacher){
@@ -325,6 +344,18 @@ courseSchema.methods = {
 		}
 
 		course.teachers.push(newTeacherInfo);
+	},
+
+	addAide: function(aide){
+		var course = this;
+
+		var newAideInfo = {
+			userID: aide._id,
+			name: aide.firstName + ' ' + aide.lastName,
+			email: aide.email
+		}
+
+		course.aides.push(newAideInfo)
 	}
 }
 
