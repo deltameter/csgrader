@@ -53,9 +53,48 @@ describe('Compilation', function(){
 		})
 	})
 
-	it('should create and interpret a python exercise', function(done){
+	it('should create and interpret a python2 exercise', function(done){
 		this.timeout(5000);
-		var exercise = Exercise.create(languageHelper.findByLangName('python2.7'), 'My Exercise');
+		var exercise = Exercise.create(languageHelper.findByLangName('python2'), 'My Exercise');
+
+		var edit = {
+			title: 'Dank Exercise',
+			triesAllowed: 'unlimited',
+			context: 'Create a class called Kang that prints out with a public void speak that returns "WE WUZ KANGZ"',
+			code: [
+				{ 
+					name: 'Kang.java',
+					code: 'public class Kang { }'
+				}
+			],
+			tests: [
+				{
+					name: 'HelloTest.py',
+					pointsWorth: 5,
+					description: 'HelloWorld.speak() returns correct value',
+					code: 'import unittest\nimport HelloWorld\nclass HelloTest(unittest.TestCase):\n  def test(self):\n    self.assertEqual(\'Hello World!\', HelloWorld.speak())\nif __name__ == "__main__":\n  unittest.main()'
+				},
+			]
+		}
+
+		exercise.edit(edit);
+
+		const code = [
+			{ 
+				name: 'HelloWorld.py',
+				code: 'def speak():\n  return "Hello World!"'
+			}
+		]
+
+		exercise.runTests(code, function(err, results){
+			expect(results.bIsCorrect).to.equal(true);
+			done()
+		})
+	})
+
+	it('should create and interpret a python3 exercise', function(done){
+		this.timeout(5000);
+		var exercise = Exercise.create(languageHelper.findByLangName('python3'), 'My Exercise');
 
 		var edit = {
 			title: 'Dank Exercise',

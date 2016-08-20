@@ -154,6 +154,13 @@ module.exports = function(app){
 	//******************************
 	
 	if (config.env !== 'test'){
+		app.get('/', function(req, res){
+			if (req.isAuthenticated()){
+				return res.sendFile(__base + '/views/base.html');
+			}else{
+				return res.sendFile(__base + '/views/landing.html');
+			}
+		})
 		app.get('*', function(req, res){
 			return res.sendFile(__base + '/views/base.html');
 		});

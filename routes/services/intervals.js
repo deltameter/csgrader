@@ -5,6 +5,8 @@ var mongoose = require('mongoose'),
 	Course = mongoose.model('Course');
 
 const minutes = 60 * 1000;
+const hours = 60 * minutes;
+const days = 24 * hours;
 
 function closeAssignments(){
 	Assignment.find({ dueDate: { $lt: Date.now() }, bIsOpen: true }, { courseID: 1 }, function(err, assignments){
@@ -22,5 +24,18 @@ function closeAssignments(){
 	})
 }
 
+function deleteUsers(){
+	User.remove({ bHasActivatedAccount: false, createDate: { $lt: Date.now() - 7 * days }}, function(err, raw){
+		console.log('----------- deleteUsers interval ----------');
+		console.log('err: ' + err);
+		console.log('raw:')
+		console.log(raw.result)
+		console.log('-------------------------------------------');
+	})
+}
+
 closeAssignments();
 setInterval(closeAssignments, 5 * minutes);
+
+deleteUsers()
+setInterval(deleteUsers, 12 * hours);

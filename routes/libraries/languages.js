@@ -10,7 +10,14 @@ var languages = [
     {
         definition: {
             langID: 1,
-            language: 'Python2.7',
+            language: 'Python2',
+            fileExt: '.py'
+        }
+    },
+    {
+        definition: {
+            langID: 1,
+            language: 'Python3',
             fileExt: '.py'
         }
     }

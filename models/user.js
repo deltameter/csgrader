@@ -14,6 +14,7 @@ const roles = 'student teacher aide'.split(' ');
 
 var userSchema = new Schema({
 	//Meta info
+	createDate: { type: Date, default: Date.now() },
 	role: { type: String, enum: roles },
 	bHasActivatedAccount: { type: Boolean, default: false },
 	emailAccessCode: String,

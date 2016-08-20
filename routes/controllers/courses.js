@@ -95,12 +95,26 @@ module.exports.delete = function(req, res){
 	req.user.checkPassword(req.body.password, function(err, bIsPassword){
 		if (!bIsPassword){ return helper.sendError(res, 400, new DescError('Invalid password', 400)); }
 
-		Course.get(req.params.courseCode, { _id: 1 } , function(err, course){
-			req.user.removeCourse(course._id);
-
+		Course.get(req.params.courseCode, { _id: 1, teachers: 1, aides: 1, classrooms: 1 } , function(err, course){
 			//we don't want to actually delete the course
 			//just randomize it's coursecode to simulate it's deletion
 			course.randomizeCourseCode();
+
+			//remove course from people
+			function remover(user){
+				User.getByID(user.userID, function(callback, userModel){
+					userModel.removeCourse(course._id);
+					userModel.save()
+				})
+			}
+
+			course.teachers.map(remover);
+			course.aides.map(remover);
+
+			var studentArrays = course.classrooms.map(function(classroom){ return classroom.students });
+
+			//this flattens the students apparently
+			[].concat.apply([], studentArrays).map(remover);
 
 			course.save(function(err){
 				if (err) { return helper.sendError(res, 400, err) };
